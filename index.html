@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Tracker v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F0E8;
+      --card-bg: #FFFFFF;
+      --primary: #8B4513;
+      --secondary: #D4A574;
+      --text: #2C2416;
+      --success: #4A7C59;
+      --warning: #C9A227;
+      --danger: #A63D40;
+      --shadow: 0 2px 8px rgba(44, 36, 22, 0.1);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    header h1 svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    header p {
+      color: var(--secondary);
+      font-size: 1rem;
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--secondary);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .tab:hover:not(.active) {
+      background: rgba(139, 69, 19, 0.08);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .form-toggle svg {
+      transition: transform 0.3s;
+    }
+
+    .form-toggle.open svg {
+      transform: rotate(180deg);
+    }
+
+    .add-form {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .add-form.open {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #E5DED3;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--secondary);
+    }
+
+    .days-info {
+      font-size: 0.9rem;
+      color: var(--secondary);
+      margin-top: 6px;
+    }
+
+    .speed-options {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .speed-options.hidden {
+      display: none;
+    }
+
+    .speed-options label {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px;
+      border: 2px solid #E5DED3;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .speed-options input {
+      display: none;
+    }
+
+    .speed-options label:has(input:checked) {
+      border-color: var(--primary);
+      background: rgba(139, 69, 19, 0.1);
+    }
+
+    .speed-options label:hover {
+      border-color: var(--secondary);
+    }
+
+    .type-toggle {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .type-toggle label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      background: #6D360F;
+      transform: translateY(-1px);
+    }
+
+    .book-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .book-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .book-card.overdue {
+      border-left: 4px solid var(--danger);
+    }
+
+    .book-card.completed {
+      border-left: 4px solid var(--success);
+      opacity: 0.8;
+    }
+
+    .book-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      gap: 8px;
+    }
+
+    .book-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .book-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .btn-delete {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .btn-delete:hover {
+      color: var(--danger);
+      background: rgba(166, 61, 64, 0.1);
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #E5DED3;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    .book-card.completed .progress-fill {
+      background: var(--success);
+    }
+
+    .book-card.overdue .progress-fill {
+      background: var(--danger);
+    }
+
+    .schedule-info {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 12px;
+      background: rgba(139, 69, 19, 0.08);
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .schedule-info.muted {
+      background: rgba(212, 165, 116, 0.15);
+      color: var(--secondary);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--secondary);
+    }
+
+    .stats-row .pace {
+      color: var(--secondary);
+    }
+
+    .stats-row .pace strong {
+      color: var(--text);
+    }
+
+    .spread-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .spread-control .btn-adjust {
+      background: none;
+      border: 1px solid #E5DED3;
+      border-radius: 3px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      transition: all 0.15s;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .spread-control .btn-adjust:hover {
+      background: rgba(139, 69, 19, 0.1);
+      border-color: var(--primary);
+    }
+
+    .spread-control .btn-adjust:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .spread-control .btn-adjust:disabled:hover {
+      background: none;
+      border-color: #E5DED3;
+    }
+
+    .spread-control .spread-label {
+      font-size: 0.78rem;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .progress-input {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .progress-input input {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid #E5DED3;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: inherit;
+    }
+
+    .progress-input input:focus {
+      outline: none;
+      border-color: var(--secondary);
+    }
+
+    .btn-update {
+      background: var(--success);
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-update:hover {
+      background: #3D6649;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--secondary);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+
+    .completed-section {
+      margin-top: 32px;
+    }
+
+    .completed-section h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--success);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Calendar styles */
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .calendar-nav button {
+      background: var(--card-bg);
+      border: 2px solid #E5DED3;
+      border-radius: var(--radius);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .calendar-nav button:hover {
+      border-color: var(--primary);
+      background: rgba(139, 69, 19, 0.05);
+    }
+
+    .calendar-nav h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      min-width: 180px;
+      text-align: center;
+    }
+
+    .calendar-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--card-bg);
+      border-radius: 6px;
+      padding: 3px;
+      box-shadow: var(--shadow);
+    }
+
+    .calendar-toggle button {
+      padding: 8px 16px;
+      border: none;
+      background: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--secondary);
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .calendar-toggle button.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .calendar-grid {
+      display: grid;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .calendar-grid.monthly,
+    .calendar-grid.biweekly {
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    .calendar-day-header {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--secondary);
+      padding: 8px 4px;
+    }
+
+    .calendar-day {
+      background: var(--card-bg);
+      border-radius: 6px;
+      padding: 8px;
+      min-height: 80px;
+      min-width: 0;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .calendar-day:hover {
+      border-color: var(--secondary);
+    }
+
+    .calendar-day.today {
+      border-color: var(--primary);
+      background: rgba(139, 69, 19, 0.05);
+    }
+
+    .calendar-day.overloaded {
+      border-color: var(--danger);
+      background: rgba(166, 61, 64, 0.08);
+    }
+
+    .calendar-day .day-number {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .calendar-day .book-count {
+      font-size: 0.75rem;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+
+    .calendar-day .book-title-trunc {
+      font-size: 0.7rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 2px;
+    }
+
+    .calendar-day .book-title-trunc:last-child {
+      margin-bottom: 0;
+    }
+
+    .due-indicator {
+      font-size: 0.6rem;
+      color: var(--danger);
+      font-weight: 600;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .time-label {
+      font-size: 0.65rem;
+      color: var(--secondary);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    .calendar-day.overloaded .time-label {
+      color: var(--danger);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(44, 36, 22, 0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 32px rgba(44, 36, 22, 0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--secondary);
+      padding: 4px;
+    }
+
+    .modal-close:hover {
+      color: var(--danger);
+    }
+
+    .modal-book-item {
+      padding: 16px;
+      border: 2px solid #E5DED3;
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+    }
+
+    .modal-book-item h4 {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 8px;
+    }
+
+    .modal-book-item .target {
+      font-size: 0.9rem;
+      color: var(--secondary);
+      margin-bottom: 12px;
+    }
+
+    .modal-book-item .done-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .modal-book-item .done-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--success);
+    }
+
+    .modal-book-item .partial-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-book-item .partial-row label {
+      font-size: 0.85rem;
+      color: var(--secondary);
+    }
+
+    .modal-book-item .partial-row input {
+      width: 80px;
+      padding: 8px;
+      border: 2px solid #E5DED3;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .modal-book-item .partial-row input:focus {
+      outline: none;
+      border-color: var(--secondary);
+    }
+
+    .btn-save-modal {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+      margin-top: 16px;
+    }
+
+    .loading-overlay {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: var(--secondary);
+      font-size: 1.1rem;
+    }
+
+    .loading-overlay.active {
+      display: flex;
+    }
+
+    .skeleton-loader {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .skeleton-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .skeleton-line {
+      height: 14px;
+      background: linear-gradient(90deg, #E5DED3 25%, #EDE8DF 50%, #E5DED3 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      margin-bottom: 10px;
+    }
+
+    .skeleton-line.w60 { width: 60%; }
+    .skeleton-line.w70 { width: 70%; }
+    .skeleton-line.w80 { width: 80%; }
+    .skeleton-line.w40 { width: 40%; }
+    .skeleton-line.w50 { width: 50%; }
+
+    .skeleton-bar {
+      height: 6px;
+      background: linear-gradient(90deg, #E5DED3 25%, #EDE8DF 50%, #E5DED3 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 3px;
+      margin-bottom: 10px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-loader.hidden {
+      display: none;
+    }
+
+    .loading-overlay .spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #E5DED3;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 12px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .setup-banner {
+      background: rgba(139, 69, 19, 0.08);
+      border: 2px dashed var(--secondary);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .setup-banner h3 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .setup-banner p {
+      color: var(--secondary);
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .setup-banner code {
+      background: var(--card-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .setup-banner a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .sync-status {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--card-bg);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sync-status .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .sync-status .dot.local {
+      background: var(--warning);
+    }
+
+    .sync-status .dot.cloud {
+      background: var(--success);
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      .book-list {
+        grid-template-columns: 1fr;
+      }
+
+      .skeleton-loader {
+        grid-template-columns: 1fr;
+      }
+
+      .speed-options {
+        flex-direction: column;
+      }
+
+      .calendar-day {
+        min-height: 60px;
+        padding: 4px;
+      }
+
+      .calendar-day .book-title-trunc {
+        font-size: 0.6rem;
+      }
+
+      .calendar-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        Book Tracker
+      </h1>
+      <p>Track your reading journey</p>
+    </header>
+
+    <div class="setup-banner" id="setupBanner" style="display: none;">
+      <h3>Connect to Google Sheets</h3>
+      <p>Your data is saved locally for now. To sync across devices, set up cloud sync:</p>
+      <p>1. Open <a href="https://script.new" target="_blank">script.new</a> (creates a new Google Apps Script)</p>
+      <p>2. Paste the contents of <code>apps-script.js</code></p>
+      <p>3. Click <strong>Deploy → New deployment → Web app</strong></p>
+      <p>4. Set "Who has access" to <strong>Anyone</strong></p>
+      <p>5. Copy the web app URL and paste it into <code>index.html</code> where it says <code>YOUR_APPS_SCRIPT_URL_HERE</code></p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('books')">Books</button>
+      <button class="tab" onclick="switchTab('calendar')">Calendar</button>
+    </div>
+
+    <div id="booksTab" class="tab-content active">
+      <div class="form-toggle" onclick="toggleForm()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+        <span>Add a new book</span>
+      </div>
+
+      <form class="add-form" id="addForm" onsubmit="addBook(event)">
+        <div class="form-group">
+          <label for="title">Book Title</label>
+          <input type="text" id="title" required placeholder="Enter book title">
+        </div>
+
+        <div class="form-group">
+          <label>Count Type</label>
+          <div class="type-toggle">
+            <label>
+              <input type="radio" name="type" value="pages" checked onchange="updateTypeFields()">
+              <span>Pages</span>
+            </label>
+            <label>
+              <input type="radio" name="type" value="chapters" onchange="updateTypeFields()">
+              <span>Chapters</span>
+            </label>
+            <label>
+              <input type="radio" name="type" value="hours" onchange="updateTypeFields()">
+              <span>Hours</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" id="pagesGroup">
+          <label for="total">Total Pages</label>
+          <input type="number" id="total" required min="1" placeholder="Total pages" onchange="updateDaysInfo()">
+        </div>
+
+        <div class="form-group" id="chaptersGroup" style="display: none;">
+          <input type="number" id="totalChapters" min="1" placeholder="Total chapters" onchange="updateDaysInfo()">
+          <div class="days-info" style="margin-top: 6px;">Total pages (for time estimate)</div>
+          <input type="number" id="totalPagesForChapters" min="1" placeholder="Total pages in book" onchange="updateDaysInfo()">
+        </div>
+
+        <div class="form-group" id="hoursGroup" style="display: none;">
+          <label for="totalHours">Total Hours</label>
+          <input type="number" id="totalHours" min="0.25" step="0.25" placeholder="Total listening hours" onchange="updateDaysInfo()">
+          <div class="speed-options" id="listeningSpeedOptions" style="margin-top: 8px;">
+            <label>
+              <input type="radio" name="listeningSpeed" value="1">
+              <span>1x</span>
+            </label>
+            <label>
+              <input type="radio" name="listeningSpeed" value="1.25">
+              <span>1.25x</span>
+            </label>
+            <label>
+              <input type="radio" name="listeningSpeed" value="1.5" checked>
+              <span>1.5x</span>
+            </label>
+            <label>
+              <input type="radio" name="listeningSpeed" value="2">
+              <span>2x</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="dueDate">Due Date</label>
+          <input type="date" id="dueDate" required onchange="updateDaysInfo()">
+          <div class="days-info" id="daysInfo"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Book</button>
+      </form>
+
+      <div class="skeleton-loader" id="skeletonLoader">
+        <div class="skeleton-card"><div class="skeleton-line w60"></div><div class="skeleton-bar"></div><div class="skeleton-line w80"></div><div class="skeleton-line w40"></div></div>
+        <div class="skeleton-card"><div class="skeleton-line w70"></div><div class="skeleton-bar"></div><div class="skeleton-line w60"></div><div class="skeleton-line w50"></div></div>
+      </div>
+
+      <div class="book-list" id="bookList"></div>
+
+      <div class="completed-section" id="completedSection" style="display: none;">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Completed Books
+        </h2>
+        <div class="book-list" id="completedList"></div>
+      </div>
+    </div>
+
+    <div id="calendarTab" class="tab-content">
+      <div class="calendar-header">
+        <div class="calendar-nav">
+          <button onclick="navigateCalendar(-1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <h2 id="calendarTitle"></h2>
+          <button onclick="navigateCalendar(1)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="calendar-toggle">
+          <button class="active" onclick="setCalendarView('monthly')">Month</button>
+          <button onclick="setCalendarView('biweekly')">2 Weeks</button>
+        </div>
+      </div>
+      <div class="calendar-grid monthly" id="calendarGrid"></div>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <span>Loading your books...</span>
+  </div>
+
+  <div class="sync-status" id="syncStatus" style="display: none;">
+    <span class="dot local"></span>
+    <span id="syncText">Local only</span>
+  </div>
+
+  <div class="modal-overlay" id="dayModal" onclick="closeModal(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalTitle"></h3>
+        <button class="modal-close" onclick="closeDayModal()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div id="modalContent"></div>
+      <button class="btn btn-save-modal" onclick="saveDayProgress()">Save Progress</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxzLBiIkPKzfgS-jdehlo_GTtw4Prz646-rpcDQS6s06iD4jXbXNzwvzhJpAU7rtMlnXQ/exec';
+
+    let books = [];
+    let dailyLog = {};
+    let isLoading = true;
+    let calendarDate = new Date();
+    let calendarView = 'monthly';
+    let currentModalDate = null;
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      if (tab === 'books') {
+        document.querySelector('.tab:first-child').classList.add('active');
+        document.getElementById('booksTab').classList.add('active');
+      } else {
+        document.querySelector('.tab:last-child').classList.add('active');
+        document.getElementById('calendarTab').classList.add('active');
+        renderCalendar();
+      }
+    }
+
+    function toggleForm() {
+      const form = document.getElementById('addForm');
+      const toggle = document.querySelector('.form-toggle');
+      form.classList.toggle('open');
+      toggle.classList.toggle('open');
+    }
+
+    async function saveToCloud() {
+      if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) return;
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'saveBooks', books })
+        });
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'saveDailyLog', log: dailyLog })
+        });
+        updateSyncStatus('cloud');
+      } catch (e) {
+        console.error('Cloud save failed:', e);
+        updateSyncStatus('error');
+      }
+    }
+
+    async function saveBooks() {
+      await saveToCloud();
+    }
+
+    async function saveDailyLog() {
+      await saveToCloud();
+    }
+
+    function updateSyncStatus(type) {
+      const syncEl = document.getElementById('syncStatus');
+      const syncTextEl = document.getElementById('syncText');
+      const syncDot = syncEl.querySelector('.dot');
+      if (type === 'cloud') {
+        syncTextEl.textContent = 'Synced';
+        syncDot.className = 'dot cloud';
+      } else if (type === 'error') {
+        syncTextEl.textContent = 'Sync failed';
+        syncDot.className = 'dot local';
+      } else {
+        syncTextEl.textContent = 'No cloud';
+        syncDot.className = 'dot local';
+      }
+    }
+
+    async function loadData() {
+      const loadingEl = document.getElementById('loadingOverlay');
+      const skeletonEl = document.getElementById('skeletonLoader');
+      const bannerEl = document.getElementById('setupBanner');
+      const syncEl = document.getElementById('syncStatus');
+      const syncTextEl = document.getElementById('syncText');
+      const syncDot = syncEl.querySelector('.dot');
+
+      if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
+        syncTextEl.textContent = 'No cloud';
+        syncDot.className = 'dot local';
+        bannerEl.style.display = 'block';
+        loadingEl.style.display = 'none';
+        if (skeletonEl) skeletonEl.classList.add('hidden');
+        syncEl.style.display = 'flex';
+        renderBooks();
+        return;
+      }
+
+      bannerEl.style.display = 'none';
+
+      try {
+        const res = await fetch(API_URL + '?action=getBooks');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        books = data.books || [];
+        dailyLog = data.dailyLog || {};
+
+        // Normalize book data (Google Sheets stores everything as strings)
+        books = books.map(b => ({
+          ...b,
+          completed: Number(b.completed) || 0,
+          total: Number(b.total) || 1,
+          totalPages: b.totalPages ? Number(b.totalPages) : null,
+          targetDays: b.targetDays ? Number(b.targetDays) : null,
+          type: b.type || 'pages',
+          listeningSpeed: Number(b.listeningSpeed) || 1
+        }));
+
+        console.log('Cloud data:', books.map(b => ({ title: b.title, completed: b.completed, total: b.total, active: b.completed < b.total })));
+
+        // If cloud is empty but localStorage has books, push them up
+        if (books.length === 0) {
+          const localBooks = JSON.parse(localStorage.getItem('books')) || [];
+          const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
+          if (localBooks.length > 0) {
+            books = localBooks;
+            dailyLog = localLog;
+            await fetch(API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'saveBooks', books })
+            });
+            await fetch(API_URL, {
+              method: 'POST',
+              body: JSON.stringify({ action: 'saveDailyLog', log: dailyLog })
+            });
+          }
+        }
+
+        syncTextEl.textContent = 'Synced';
+        syncDot.className = 'dot cloud';
+        console.log('Loaded from cloud:', books.length, 'books', books.map(b => b.title));
+      } catch (e) {
+        console.error('Failed to load from cloud:', e);
+        // Fallback to localStorage if cloud fails
+        books = JSON.parse(localStorage.getItem('books')) || [];
+        dailyLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
+        syncTextEl.textContent = 'Sync failed';
+        syncDot.className = 'dot local';
+      }
+
+      isLoading = false;
+      loadingEl.style.display = 'none';
+      if (skeletonEl) skeletonEl.classList.add('hidden');
+      syncEl.style.display = 'flex';
+
+      console.log('About to call renderBooks. books.length =', books.length);
+      console.log('Books:', JSON.stringify(books.map(b => ({ title: b.title, completed: b.completed, total: b.total }))));
+
+      renderBooks();
+    }
+
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function dateStr(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getDaysUntilDue(dueDate) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(dueDate);
+      due.setHours(0, 0, 0, 0);
+      return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+    }
+
+    function getTypeLabel() {
+      return document.querySelector('input[name="type"]:checked').value;
+    }
+
+    function updateTypeFields() {
+      const type = getTypeLabel();
+      document.getElementById('pagesGroup').style.display = type === 'pages' ? 'block' : 'none';
+      document.getElementById('chaptersGroup').style.display = type === 'chapters' ? 'block' : 'none';
+      document.getElementById('hoursGroup').style.display = type === 'hours' ? 'block' : 'none';
+      updateDaysInfo();
+    }
+
+    function formatCount(value, type) {
+      if (type === 'hours') {
+        const rounded = Math.ceil(value * 4) / 4;
+        const h = Math.floor(rounded);
+        const m = Math.round((rounded - h) * 60);
+        if (h === 0) return `${m}m`;
+        if (m === 0) return `${h}h`;
+        return `${h}h ${m}m`;
+      }
+      return `${Math.ceil(value)} ${type}`;
+    }
+
+    function getReadingMinutes(book) {
+      if (book.type === 'hours') {
+        return (book.total / (book.listeningSpeed || 1)) * 60;
+      }
+      if (book.type === 'chapters' && book.totalPages) {
+        const pagesPerChapter = book.totalPages / book.total;
+        return book.total * pagesPerChapter * 1.25;
+      }
+      return book.total * 1.25;
+    }
+
+    function updateDaysInfo() {
+      const dueDate = document.getElementById('dueDate').value;
+      const daysInfo = document.getElementById('daysInfo');
+      const type = getTypeLabel();
+
+      if (!dueDate) {
+        daysInfo.textContent = '';
+        return;
+      }
+
+      const days = getDaysUntilDue(dueDate);
+      let totalMinutes = 0;
+
+      if (type === 'hours') {
+        const hours = parseFloat(document.getElementById('totalHours').value) || 0;
+        const listeningSpeed = parseFloat(document.querySelector('input[name="listeningSpeed"]:checked').value) || 1.5;
+        totalMinutes = (hours / listeningSpeed) * 60;
+      } else if (type === 'chapters') {
+        const chapters = parseFloat(document.getElementById('totalChapters').value) || 0;
+        const totalPages = parseFloat(document.getElementById('totalPagesForChapters').value) || 0;
+        if (chapters > 0 && totalPages > 0) {
+          totalMinutes = chapters * (totalPages / chapters) * 1.25;
+        }
+      } else {
+        const pages = parseFloat(document.getElementById('total').value) || 0;
+        totalMinutes = pages * 1.25;
+      }
+
+      const totalHours = (totalMinutes / 60).toFixed(1);
+
+      if (days < 0) {
+        daysInfo.textContent = 'Due date is in the past!';
+        daysInfo.style.color = 'var(--danger)';
+      } else if (days === 0) {
+        daysInfo.textContent = 'Due today!';
+        daysInfo.style.color = 'var(--warning)';
+      } else {
+        const dailyMinutes = totalMinutes / days;
+        const dailyHours = (dailyMinutes / 60).toFixed(1);
+        daysInfo.textContent = `${days} days · ${totalHours}h total · ~${dailyHours}h/day`;
+        daysInfo.style.color = 'var(--secondary)';
+      }
+    }
+
+    function addBook(e) {
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const type = getTypeLabel();
+      const dueDate = document.getElementById('dueDate').value;
+      const daysUntilDue = getDaysUntilDue(dueDate);
+
+      let total = 0, listeningSpeed = 1, totalPages = 0;
+
+      if (type === 'hours') {
+        total = parseFloat(document.getElementById('totalHours').value) || 0;
+        listeningSpeed = parseFloat(document.querySelector('input[name="listeningSpeed"]:checked').value) || 1.5;
+      } else if (type === 'chapters') {
+        total = parseFloat(document.getElementById('totalChapters').value) || 0;
+        totalPages = parseFloat(document.getElementById('totalPagesForChapters').value) || 0;
+      } else {
+        total = parseFloat(document.getElementById('total').value) || 0;
+      }
+
+      const book = {
+        id: generateId(),
+        title,
+        type,
+        total,
+        totalPages: totalPages || null,
+        dueDate,
+        listeningSpeed,
+        completed: 0,
+        createdAt: new Date().toISOString()
+      };
+
+      books.push(book);
+      saveBooks();
+      generateSchedule();
+      renderBooks();
+
+      document.getElementById('title').value = '';
+      document.getElementById('total').value = '';
+      document.getElementById('totalChapters').value = '';
+      document.getElementById('totalPagesForChapters').value = '';
+      document.getElementById('totalHours').value = '';
+      document.getElementById('dueDate').value = '';
+      document.getElementById('daysInfo').textContent = '';
+      document.querySelector('input[name="type"][value="pages"]').checked = true;
+      updateTypeFields();
+      document.querySelector('.form-toggle').click();
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('[onclick*="toggleDueDate"]') && !e.target.closest('[id^="dueDateEdit-"]')) {
+        document.querySelectorAll('[id^="dueDateEdit-"]').forEach(d => d.style.display = 'none');
+      }
+    });
+
+    function toggleDueDate(id) {
+      const input = document.getElementById(`dueDateEdit-${id}`);
+      const wasVisible = input.style.display !== 'none';
+      document.querySelectorAll('[id^="dueDateEdit-"]').forEach(d => d.style.display = 'none');
+      if (!wasVisible) input.style.display = 'block';
+    }
+
+    function updateDueDate(id, newDate) {
+      const book = books.find(b => b.id === id);
+      if (book && newDate) {
+        book.dueDate = newDate;
+        saveBooks();
+        generateSchedule();
+        renderBooks();
+      }
+    }
+
+    function deleteBook(id) {
+      if (confirm('Remove this book from your list?')) {
+        books = books.filter(b => b.id !== id);
+        Object.keys(dailyLog).forEach(key => {
+          if (key.startsWith(id + '-')) {
+            delete dailyLog[key];
+          }
+        });
+        saveBooks();
+        saveDailyLog();
+        generateSchedule();
+        renderBooks();
+      }
+    }
+
+    function adjustReadingDays(id, delta) {
+      const book = books.find(b => b.id === id);
+      if (!book || book.completed >= book.total) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const due = new Date(book.dueDate);
+      const maxDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24)) + 1;
+      const effectiveMax = book.type === 'chapters'
+        ? Math.min(maxDays, book.total - book.completed)
+        : maxDays;
+      const current = book.targetDays || effectiveMax;
+      const newDays = Math.max(1, Math.min(effectiveMax, current + delta));
+      book.targetDays = (newDays === effectiveMax) ? null : newDays;
+
+      saveBooks();
+      generateSchedule();
+      renderBooks();
+    }
+
+    function updateProgress(id) {
+      const input = document.getElementById(`progress-${id}`);
+      const completed = parseFloat(input.value) || 0;
+      const book = books.find(b => b.id === id);
+      if (book) {
+        book.completed = Math.min(completed, book.total);
+        saveBooks();
+        generateSchedule();
+        renderBooks();
+      }
+    }
+
+    function editTotal(id) {
+      const book = books.find(b => b.id === id);
+      if (!book) return;
+      const type = book.type || 'pages';
+      const label = type === 'hours' ? 'total hours' : `total ${type}`;
+      const current = book.total;
+      const newVal = prompt(`Edit ${label} for "${book.title}" (currently ${current}):`, current);
+      if (newVal !== null && !isNaN(newVal) && parseFloat(newVal) > 0) {
+        book.total = parseFloat(newVal);
+        if (book.completed > book.total) book.completed = book.total;
+        if (type === 'chapters') {
+          const tpVal = prompt(`Edit total pages in book (for time estimate, currently ${book.totalPages || '?'}):`, book.totalPages || '');
+          if (tpVal !== null && !isNaN(tpVal) && parseFloat(tpVal) > 0) {
+            book.totalPages = parseFloat(tpVal);
+          }
+        }
+        saveBooks();
+        generateSchedule();
+        renderBooks();
+      }
+    }
+
+    function generateSchedule() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const TARGET_MINUTES_PER_DAY = 60;
+      const RED_MINUTES_PER_DAY = 120;
+      const MAX_BOOKS_PER_DAY = 3;
+      const MINUTES_PER_PAGE = 1.25;
+
+      const activeBooks = books
+        .filter(b => b.completed < b.total)
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+      const schedule = {};
+      const dayMinutes = {};
+      const dayBookCount = {};
+
+      function getDayMinutes(key) { return dayMinutes[key] || 0; }
+      function getDayBookCount(key) { return dayBookCount[key] || 0; }
+
+      function getRemainingPages(book) {
+        return book.total - book.completed;
+      }
+
+      function pagesToMinutes(pages, book) {
+        if (book.type === 'hours') {
+          return (pages / (book.listeningSpeed || 1)) * 60;
+        }
+        if (book.type === 'chapters' && book.totalPages) {
+          const pagesPerChapter = book.totalPages / book.total;
+          return pages * pagesPerChapter * MINUTES_PER_PAGE;
+        }
+        return pages * MINUTES_PER_PAGE;
+      }
+
+      activeBooks.forEach(book => {
+        const due = new Date(book.dueDate);
+        due.setHours(0, 0, 0, 0);
+
+        const remainingPages = getRemainingPages(book);
+        if (remainingPages <= 0) return;
+
+        const daysUntilDue = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+        const maxDays = daysUntilDue + 1;
+        const targetDays = book.targetDays || maxDays;
+
+        // For chapter books, cap spread to 1 chapter per day
+        const effectiveTarget = book.type === 'chapters'
+          ? Math.min(targetDays, remainingPages)
+          : targetDays;
+
+        // Collect all available (non-full) days with their load
+        const candidateDays = [];
+        for (let i = 0; i < maxDays; i++) {
+          const d = new Date(today);
+          d.setDate(d.getDate() + i);
+          const key = dateStr(d);
+          if (getDayBookCount(key) < MAX_BOOKS_PER_DAY) {
+            candidateDays.push({ key, minutes: getDayMinutes(key) });
+          }
+        }
+
+        // Sort by load (fewest minutes first) and pick up to targetDays
+        candidateDays.sort((a, b) => a.minutes - b.minutes);
+        const selectedDays = candidateDays.slice(0, effectiveTarget).map(c => c.key);
+        selectedDays.sort();
+
+        if (selectedDays.length === 0) {
+          console.warn(`${book.title}: No available days`);
+          return;
+        }
+
+        const pagesPerDay = remainingPages / selectedDays.length;
+
+        let pagesRemaining = remainingPages;
+        for (let i = 0; i < selectedDays.length; i++) {
+          const key = selectedDays[i];
+          const isLast = i === selectedDays.length - 1;
+          const pagesForDay = isLast ? pagesRemaining : pagesPerDay;
+          const minutesForDay = pagesToMinutes(pagesForDay, book);
+
+          if (!schedule[key]) schedule[key] = [];
+          schedule[key].push({ bookId: book.id, title: book.title, pages: pagesForDay, minutes: minutesForDay, dueDate: book.dueDate, type: book.type });
+          dayMinutes[key] = (dayMinutes[key] || 0) + minutesForDay;
+          dayBookCount[key] = (dayBookCount[key] || 0) + 1;
+          pagesRemaining -= pagesForDay;
+        }
+        if (pagesRemaining > 0.01) console.warn(`${book.title}: ${pagesRemaining} ${book.type} overflow`);
+      });
+
+      return schedule;
+    }
+
+    function renderBooks() {
+      try {
+        const list = document.getElementById('bookList');
+        const completedList = document.getElementById('completedList');
+        const completedSection = document.getElementById('completedSection');
+
+        const active = books.filter(b => b.completed < b.total);
+        const completed = books.filter(b => b.completed >= b.total);
+
+        console.log('renderBooks: total=', books.length, 'active=', active.length, 'completed=', completed.length);
+        if (completed.length > 0) console.log('Completed books:', completed.map(b => b.title));
+
+        active.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+        completed.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+
+        if (active.length === 0 && completed.length === 0) {
+          list.innerHTML = `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              <h3>No books yet</h3>
+              <p>Click "Add a new book" to start tracking your reading!</p>
+            </div>
+          `;
+          completedSection.style.display = 'none';
+          return;
+        }
+
+        const schedule = generateSchedule();
+        console.log('Schedule generated, rendering', active.length, 'active books');
+
+        list.innerHTML = active.map(book => {
+          try { return renderCard(book, false, schedule); }
+          catch(e) { console.error('renderCard error for', book.title, e); return ''; }
+        }).join('');
+        completedSection.style.display = completed.length > 0 ? 'block' : 'none';
+        completedList.innerHTML = completed.map(book => renderCard(book, true, schedule)).join('');
+      } catch (e) {
+        console.error('renderBooks error:', e);
+      }
+    }
+
+    function renderCard(book, isCompleted = false, schedule = {}) {
+      const daysRemaining = getDaysUntilDue(book.dueDate);
+      const progress = Math.round((book.completed / book.total) * 100);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      let statusClass = '';
+      let statusText = '';
+      let valueClass = '';
+
+      if (isCompleted) {
+        statusClass = 'completed';
+        statusText = 'Completed!';
+        valueClass = 'success';
+      } else if (daysRemaining < 0) {
+        statusClass = 'overdue';
+        statusText = `${Math.abs(daysRemaining)} days overdue`;
+        valueClass = 'danger';
+      } else if (daysRemaining === 0) {
+        statusText = 'Due today!';
+        valueClass = 'warning';
+      } else if (daysRemaining <= 2) {
+        statusText = `${daysRemaining} days left`;
+        valueClass = 'warning';
+      } else {
+        statusText = `${daysRemaining} days left`;
+      }
+
+      const type = book.type || 'pages';
+      const isHours = type === 'hours';
+      const listeningSpeed = book.listeningSpeed || 1;
+      const remaining = book.total - book.completed;
+
+      let scheduleBadge = '';
+      let canCondense = true;
+      let canSpread = true;
+      let bookDates = [];
+
+      if (!isCompleted) {
+        const todayKey = dateStr(today);
+        const scheduledToday = schedule[todayKey] && schedule[todayKey].some(s => s.bookId === book.id);
+
+        const allDates = Object.keys(schedule).sort();
+        bookDates = allDates.filter(d => schedule[d] && schedule[d].some(s => s.bookId === book.id));
+
+        if (bookDates.length > 0) {
+          const todayEntry = schedule[todayKey]?.find(s => s.bookId === book.id);
+
+          if (scheduledToday && todayEntry) {
+            const todayHours = todayEntry.minutes >= 60
+              ? `${Math.floor(todayEntry.minutes / 60)}h ${Math.round(todayEntry.minutes % 60)}m`
+              : `${Math.round(todayEntry.minutes)}m`;
+            scheduleBadge = `<div class="schedule-info">${formatCount(todayEntry.pages, type)} today (~${todayHours})</div>`;
+          } else {
+            const totalMinutes = bookDates.reduce((sum, d) => {
+              const entry = schedule[d]?.find(s => s.bookId === book.id);
+              return sum + (entry ? entry.minutes : 0);
+            }, 0);
+            const perDay = remaining / bookDates.length;
+            const totalHours = totalMinutes >= 60
+              ? `${Math.floor(totalMinutes / 60)}h ${Math.round(totalMinutes % 60)}m`
+              : `${Math.round(totalMinutes)}m`;
+            scheduleBadge = `<div class="schedule-info muted">~${formatCount(perDay, type)}/day · ${totalHours} total</div>`;
+          }
+        }
+
+        const daysUntilDue = Math.ceil((new Date(book.dueDate) - today) / (1000 * 60 * 60 * 24));
+        const maxDays = daysUntilDue + 1;
+        const effectiveMax = book.type === 'chapters'
+          ? Math.min(maxDays, book.total - book.completed)
+          : maxDays;
+        const currentTarget = book.targetDays || effectiveMax;
+        canCondense = currentTarget > 1;
+        canSpread = currentTarget < effectiveMax;
+      }
+
+      const titleHtml = !isCompleted
+        ? `<div class="book-title-row"><div class="book-title">${book.title}</div></div>`
+        : `<div class="book-title">${book.title}</div>`;
+
+      const progressStep = isHours ? '0.25' : '1';
+      const progressPlaceholder = isHours ? 'e.g., 1.5' : `e.g., ${type === 'pages' ? '50' : '3'}`;
+      const progressLabel = isHours ? 'hours' : type;
+      const inputValue = book.completed > 0 ? book.completed : '';
+
+      const dueColor = isCompleted ? 'var(--success)' : valueClass === 'danger' ? 'var(--danger)' : valueClass === 'warning' ? 'var(--warning)' : 'var(--secondary)';
+
+      return `
+        <div class="book-card ${statusClass}">
+          <div class="book-header">
+            ${titleHtml}
+            <button class="btn-delete" onclick="deleteBook('${book.id}')" title="Remove book">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+
+          ${scheduleBadge}
+
+          ${!isCompleted ? `
+          <div class="stats-row" style="position: relative;">
+            <span class="pace" style="cursor: pointer;" onclick="editTotal('${book.id}')" title="Click to edit total"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)} · <strong style="color: ${dueColor}; cursor: pointer;" onclick="toggleDueDate('${book.id}')" title="Click to change due date">${statusText}</strong></span>
+            <span class="spread-control">
+              <button class="btn-adjust" ${!canCondense ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', -1)" title="Condense to fewer days">−</button>
+              <span class="spread-label">${bookDates.length || '--'}d</span>
+              <button class="btn-adjust" ${!canSpread ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', 1)" title="Spread over more days">+</button>
+            </span>
+          </div>
+          <input type="date" id="dueDateEdit-${book.id}" style="display: none; position: absolute; bottom: 100%; right: 14px; z-index: 10; padding: 6px; border: 2px solid var(--secondary); border-radius: 6px; font-size: 0.85rem; font-family: inherit; background: var(--card-bg); box-shadow: 0 4px 12px rgba(44,36,22,0.15);" value="${book.dueDate}" onchange="updateDueDate('${book.id}', this.value)">
+          ` : `
+          <div class="stats-row">
+            <span class="pace"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)} · Completed!</span>
+          </div>
+          `}
+
+          ${!isCompleted ? `
+            <div class="progress-input" style="margin-top: 10px;">
+              <input type="number" id="progress-${book.id}" placeholder="${progressPlaceholder}" min="0" max="${book.total}" step="${progressStep}" value="${inputValue}">
+              <span style="font-size: 0.85rem; color: var(--secondary); min-width: ${isHours ? '40px' : '55px'};">${progressLabel}</span>
+              <button class="btn-update" onclick="updateProgress('${book.id}')">Update</button>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const title = document.getElementById('calendarTitle');
+      const schedule = generateSchedule();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      let html = dayNames.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+      if (calendarView === 'monthly') {
+        const year = calendarDate.getFullYear();
+        const month = calendarDate.getMonth();
+        title.textContent = calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startDay = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+
+        for (let i = startDay - 1; i >= 0; i--) {
+          const day = prevMonthLastDay - i;
+          const d = new Date(year, month - 1, day);
+          html += renderCalendarDay(d, schedule, today, true, books);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+          const d = new Date(year, month, day);
+          html += renderCalendarDay(d, schedule, today, false, books);
+        }
+
+        const totalCells = startDay + daysInMonth;
+        const remaining = (7 - (totalCells % 7)) % 7;
+        for (let i = 1; i <= remaining; i++) {
+          const d = new Date(year, month + 1, i);
+          html += renderCalendarDay(d, schedule, today, true, books);
+        }
+      } else {
+        const start = new Date(calendarDate);
+        start.setDate(start.getDate() - start.getDay());
+        title.textContent = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(start.getTime() + 13 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+        for (let i = 0; i < 14; i++) {
+          const d = new Date(start);
+          d.setDate(d.getDate() + i);
+          html += renderCalendarDay(d, schedule, today, false, books);
+        }
+      }
+
+      grid.innerHTML = html;
+    }
+
+    function renderCalendarDay(date, schedule, today, isOtherMonth, allBooks) {
+      const key = dateStr(date);
+      const isToday = date.getTime() === today.getTime();
+      const dayBooks = schedule[key] || [];
+      const dueBooks = allBooks.filter(b => b.dueDate === key && b.completed < b.total);
+
+      const totalMinutes = dayBooks.reduce((sum, b) => sum + (b.minutes || 0), 0);
+      const isOverloaded = totalMinutes > 120;
+
+      let classes = 'calendar-day';
+      if (isToday) classes += ' today';
+      if (isOtherMonth) classes += ' other-month';
+      if (isOverloaded) classes += ' overloaded';
+
+      let booksHtml = '';
+      if (dayBooks.length > 0) {
+        booksHtml = `<div class="book-count">${dayBooks.length} book${dayBooks.length > 1 ? 's' : ''}</div>`;
+        dayBooks.slice(0, 3).forEach(b => {
+          booksHtml += `<div class="book-title-trunc" title="${b.title}">${b.title}</div>`;
+        });
+        if (dayBooks.length > 3) {
+          booksHtml += `<div class="book-title-trunc">+${dayBooks.length - 3} more</div>`;
+        }
+      }
+
+      let dueHtml = '';
+      if (dueBooks.length > 0) {
+        dueHtml = `<div class="due-indicator">📌 ${dueBooks.map(b => b.title).join(', ')}</div>`;
+      }
+
+      const timeLabel = totalMinutes > 0
+        ? (totalMinutes >= 60
+          ? `~${Math.floor(totalMinutes / 60)}h ${Math.round(totalMinutes % 60)}m`
+          : `~${Math.round(totalMinutes)}m`)
+        : '';
+
+      return `
+        <div class="${classes}" onclick="openDayModal('${key}')">
+          <div class="day-number">${date.getDate()}</div>
+          <div class="time-label">${timeLabel}</div>
+          ${dueHtml}
+          ${booksHtml}
+        </div>
+      `;
+    }
+
+    function navigateCalendar(direction) {
+      if (calendarView === 'monthly') {
+        calendarDate.setMonth(calendarDate.getMonth() + direction);
+      } else {
+        calendarDate.setDate(calendarDate.getDate() + direction * 14);
+      }
+      renderCalendar();
+    }
+
+    function setCalendarView(view) {
+      calendarView = view;
+      document.querySelectorAll('.calendar-toggle button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const grid = document.getElementById('calendarGrid');
+      grid.className = `calendar-grid ${view}`;
+
+      renderCalendar();
+    }
+
+    function openDayModal(dateKey) {
+      currentModalDate = dateKey;
+      const schedule = generateSchedule();
+      const dayBooks = schedule[dateKey] || [];
+
+      const date = new Date(dateKey + 'T00:00:00');
+      document.getElementById('modalTitle').textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      if (dayBooks.length === 0) {
+        document.getElementById('modalContent').innerHTML = '<p style="color: var(--secondary); text-align: center;">No books scheduled for this day.</p>';
+      } else {
+        let html = '';
+        dayBooks.forEach(item => {
+          const logKey = `${item.bookId}-${dateKey}`;
+          const log = dailyLog[logKey] || { done: false, actualRead: 0 };
+          const book = books.find(b => b.id === item.bookId);
+          const type = item.type || 'pages';
+          const isHours = type === 'hours';
+          const listeningSpeed = book ? (book.listeningSpeed || 1) : 1;
+          const rawRemaining = book ? book.total - book.completed : 0;
+
+          html += `
+            <div class="modal-book-item">
+              <h4>${item.title}</h4>
+              <div class="target">Target: ${formatCount(item.pages, type)}${isHours ? ` (${listeningSpeed}x)` : ''}</div>
+              <div class="done-row">
+                <input type="checkbox" id="done-${item.bookId}" ${log.done ? 'checked' : ''} onchange="toggleDone('${item.bookId}')">
+                <label for="done-${item.bookId}">Mark done today</label>
+              </div>
+              <div class="partial-row">
+                <label>Actually ${isHours ? 'listened' : 'read'}:</label>
+                <input type="number" id="actual-${item.bookId}" value="${log.actualRead}" min="0" max="${rawRemaining}" step="${isHours ? '0.25' : '1'}" placeholder="0">
+                <span>${type}</span>
+              </div>
+            </div>
+          `;
+        });
+        document.getElementById('modalContent').innerHTML = html;
+      }
+
+      document.getElementById('dayModal').classList.add('open');
+    }
+
+    function toggleDone(bookId) {
+      const checkbox = document.getElementById(`done-${bookId}`);
+      const actualInput = document.getElementById(`actual-${bookId}`);
+      if (checkbox.checked && parseFloat(actualInput.value) === 0) {
+        const book = books.find(b => b.id === bookId);
+        if (book) {
+          const type = book.type || 'pages';
+          const isHours = type === 'hours';
+          const remaining = book.total - book.completed;
+          const daysLeft = Math.max(1, getDaysUntilDue(book.dueDate));
+          const target = remaining / daysLeft;
+          actualInput.value = isHours ? (Math.ceil(target * 4) / 4).toFixed(2) : Math.ceil(target);
+        }
+      }
+    }
+
+    function closeDayModal() {
+      document.getElementById('dayModal').classList.remove('open');
+      currentModalDate = null;
+    }
+
+    function closeModal(e) {
+      if (e.target === document.getElementById('dayModal')) {
+        closeDayModal();
+      }
+    }
+
+    function saveDayProgress() {
+      if (!currentModalDate) return;
+
+      const schedule = generateSchedule();
+      const dayBooks = schedule[currentModalDate] || [];
+
+      dayBooks.forEach(item => {
+        const logKey = `${item.bookId}-${currentModalDate}`;
+        const checkbox = document.getElementById(`done-${item.bookId}`);
+        const actualInput = document.getElementById(`actual-${item.bookId}`);
+
+        if (checkbox && actualInput) {
+          const actualRead = parseFloat(actualInput.value) || 0;
+          dailyLog[logKey] = {
+            done: checkbox.checked,
+            actualRead
+          };
+
+          if (actualRead > 0) {
+            const book = books.find(b => b.id === item.bookId);
+            if (book) {
+              book.completed = Math.min(book.completed + actualRead, book.total);
+            }
+          }
+        }
+      });
+
+      saveBooks();
+      saveDailyLog();
+      renderBooks();
+      renderCalendar();
+      closeDayModal();
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

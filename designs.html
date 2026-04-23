@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Card Design Iterations</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F0E8;
+      --card-bg: #FFFFFF;
+      --primary: #8B4513;
+      --secondary: #D4A574;
+      --text: #2C2416;
+      --success: #4A7C59;
+      --warning: #C9A227;
+      --danger: #A63D40;
+      --shadow: 0 2px 8px rgba(44, 36, 22, 0.1);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 32px 16px;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--secondary);
+      margin-bottom: 32px;
+    }
+
+    .section {
+      max-width: 400px;
+      margin: 0 auto 48px;
+    }
+
+    .section-label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--secondary);
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 0.9rem;
+      color: var(--secondary);
+      margin-bottom: 16px;
+      line-height: 1.4;
+    }
+
+    /* ========== DESIGN 1: MINIMAL ========== */
+    .card-minimal {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-minimal .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .card-minimal .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .card-minimal .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+      transition: color 0.2s;
+    }
+
+    .card-minimal .delete-btn:hover { color: var(--danger); }
+
+    .card-minimal .progress-bar {
+      height: 4px;
+      background: #E5DED3;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .card-minimal .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .card-minimal .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--secondary);
+    }
+
+    .card-minimal .meta-row .today {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* ========== DESIGN 2: COMPACT STATS ========== */
+    .card-compact {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-compact .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .card-compact .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .card-compact .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+    }
+
+    .card-compact .delete-btn:hover { color: var(--danger); }
+
+    .card-compact .progress-bar {
+      height: 4px;
+      background: #E5DED3;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .card-compact .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .card-compact .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      font-size: 0.78rem;
+    }
+
+    .card-compact .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card-compact .info-label {
+      color: var(--secondary);
+      font-size: 0.7rem;
+    }
+
+    .card-compact .info-value {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card-compact .info-value.today {
+      color: var(--primary);
+    }
+
+    /* ========== DESIGN 3: INLINE ========== */
+    .card-inline {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-inline .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-inline .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .card-inline .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+    }
+
+    .card-inline .delete-btn:hover { color: var(--danger); }
+
+    .card-inline .progress-bar {
+      height: 3px;
+      background: #E5DED3;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .card-inline .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .card-inline .bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .card-inline .left-info {
+      color: var(--secondary);
+    }
+
+    .card-inline .left-info strong {
+      color: var(--primary);
+    }
+
+    .card-inline .right-info {
+      display: flex;
+      gap: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .card-inline .right-info span {
+      white-space: nowrap;
+    }
+
+    .card-inline .right-info .due-warn { color: var(--warning); }
+    .card-inline .right-info .due-danger { color: var(--danger); }
+
+    /* ========== DESIGN 4: VISUAL HIERARCHY ========== */
+    .card-visual {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-visual .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .card-visual .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+
+    .card-visual .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+    }
+
+    .card-visual .delete-btn:hover { color: var(--danger); }
+
+    .card-visual .progress-bar {
+      height: 6px;
+      background: #E5DED3;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .card-visual .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 3px;
+    }
+
+    .card-visual .today-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: rgba(139, 69, 19, 0.08);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+
+    .card-visual .today-badge.empty {
+      background: none;
+      color: var(--secondary);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    .card-visual .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--secondary);
+    }
+
+    .card-visual .stats-row .pace {
+      color: var(--secondary);
+    }
+
+    .card-visual .stats-row .pace strong {
+      color: var(--text);
+    }
+
+    .card-visual .spread-control {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-visual .spread-control .btn-adjust {
+      background: none;
+      border: 1px solid #E5DED3;
+      border-radius: 3px;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+      transition: all 0.15s;
+      font-family: inherit;
+      padding: 0;
+    }
+
+    .card-visual .spread-control .btn-adjust:hover {
+      background: rgba(139, 69, 19, 0.1);
+      border-color: var(--primary);
+    }
+
+    .card-visual .spread-control .btn-adjust:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .card-visual .spread-control .btn-adjust:disabled:hover {
+      background: none;
+      border-color: #E5DED3;
+    }
+
+    .card-visual .spread-control .spread-label {
+      font-size: 0.78rem;
+      min-width: 50px;
+      text-align: center;
+    }
+
+    .card-visual .today-badge.muted {
+      background: rgba(212, 165, 116, 0.15);
+      color: var(--secondary);
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* ========== DESIGN 5: FOCUSED (today-first) ========== */
+    .card-focused {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+      border-left: 3px solid var(--primary);
+    }
+
+    .card-focused.overdue { border-left-color: var(--danger); }
+
+    .card-focused .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .card-focused .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .card-focused .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+    }
+
+    .card-focused .delete-btn:hover { color: var(--danger); }
+
+    .card-focused .today-amount {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 2px;
+    }
+
+    .card-focused .today-label {
+      font-size: 0.8rem;
+      color: var(--secondary);
+      margin-bottom: 10px;
+    }
+
+    .card-focused .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-focused .progress-bar {
+      flex: 1;
+      height: 4px;
+      background: #E5DED3;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .card-focused .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .card-focused .progress-text {
+      font-size: 0.75rem;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    /* ========== DESIGN 6: ULTRA MINIMAL ========== */
+    .card-ultra {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .card-ultra .title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-ultra .title {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .card-ultra .delete-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      padding: 2px;
+    }
+
+    .card-ultra .delete-btn:hover { color: var(--danger); }
+
+    .card-ultra .progress-bar {
+      height: 3px;
+      background: #E5DED3;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .card-ultra .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+    }
+
+    .card-ultra .single-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--secondary);
+    }
+
+    .card-ultra .single-line strong {
+      color: var(--text);
+    }
+
+    .card-ultra .single-line .due {
+      font-weight: 500;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Book Card Design Iterations</h1>
+  <p class="subtitle">Click through the options below to see different layouts</p>
+
+  <!-- DESIGN 1: Minimal -->
+  <div class="section">
+    <div class="section-label">Design 1 — Minimal</div>
+    <div class="section-desc">Clean layout. Title + progress bar + one metadata row. Today's reading is emphasized; otherwise shows span.</div>
+    <div class="card-minimal">
+      <div class="title-row">
+        <div class="title">Scythe</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 15%"></div></div>
+      <div class="meta-row">
+        <span class="today">~5 chapters today (~1h 12m)</span>
+        <span>60 / 416 chapters</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 2: Compact Stats -->
+  <div class="section">
+    <div class="section-label">Design 2 — Compact Stats</div>
+    <div class="section-desc">2×2 grid of info below progress bar. Progress, due date, today's reading, total time.</div>
+    <div class="card-compact">
+      <div class="title-row">
+        <div class="title">We Are Each Other's Liberation</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Today</span>
+          <span class="info-value today">1 chapter (~23m)</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Progress</span>
+          <span class="info-value">2 / 5 chapters</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Due</span>
+          <span class="info-value">14 days left</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Spread</span>
+          <span class="info-value">5d · ~1h 56m total</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 3: Inline -->
+  <div class="section">
+    <div class="section-label">Design 3 — Inline</div>
+    <div class="section-desc">Everything in two rows. Bottom row: today's reading left, progress + due right.</div>
+    <div class="card-inline">
+      <div class="top-row">
+        <div class="title">Death's End</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+      <div class="bottom-row">
+        <div class="left-info"><strong>~25 pages</strong> today (~31m)</div>
+        <div class="right-info">
+          <span>0 / 600</span>
+          <span class="due-warn">13 days left</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 4: Visual Hierarchy -->
+  <div class="section">
+    <div class="section-label">Design 4 — Visual Hierarchy</div>
+    <div class="section-desc">Today's reading as a badge. Below: progress, days left, and spread controls (+/−). Clean hierarchy, everything visible at a glance.</div>
+    <div class="card-visual">
+      <div class="title-row">
+        <div class="title">Animal Farm</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 5%"></div></div>
+      <div class="today-badge">~5 chapters today (~1h 12m)</div>
+      <div class="stats-row">
+        <span class="pace"><strong>60</strong> / 416 chapters · <strong>8 days</strong> left</span>
+        <span class="spread-control">
+          <button class="btn-adjust">−</button>
+          <span class="spread-label">8d</span>
+          <button class="btn-adjust">+</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 4: Visual Hierarchy (not scheduled today) -->
+  <div class="section">
+    <div class="section-label">Design 4 — Not Scheduled Today</div>
+    <div class="section-desc">Same layout but book isn't scheduled for today — shows when it starts instead.</div>
+    <div class="card-visual">
+      <div class="title-row">
+        <div class="title">We Are Each Other's Liberation</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 40%"></div></div>
+      <div class="today-badge muted">Starts May 15 · 1 chapter/day (~23m)</div>
+      <div class="stats-row">
+        <span class="pace"><strong>2</strong> / 5 chapters · <strong>14 days</strong> left</span>
+        <span class="spread-control">
+          <button class="btn-adjust" disabled>−</button>
+          <span class="spread-label">5d</span>
+          <button class="btn-adjust" disabled>+</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 5: Focused (today-first) -->
+  <div class="section">
+    <div class="section-label">Design 5 — Focused (Today-First)</div>
+    <div class="section-desc">Today's reading is the hero — big and bold. Progress bar at bottom with compact stats. Left border changes color when overdue.</div>
+    <div class="card-focused">
+      <div class="top-row">
+        <div class="title">Canticle for Leibowitz</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="today-amount">~8 pages</div>
+      <div class="today-label">today · ~10 minutes</div>
+      <div class="progress-row">
+        <div class="progress-bar"><div class="progress-fill" style="width: 30%"></div></div>
+        <span class="progress-text">24 / 80 pages · 20 days left</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DESIGN 6: Ultra Minimal -->
+  <div class="section">
+    <div class="section-label">Design 6 — Ultra Minimal</div>
+    <div class="section-desc">Bare essentials. Title, progress bar, one line with today's reading and due date. Maximum cards visible at once.</div>
+    <div class="card-ultra">
+      <div class="title-row">
+        <div class="title">Remarkably Bright Creatures</div>
+        <button class="delete-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: 60%"></div></div>
+      <div class="single-line">
+        <span><strong>~10 pages</strong> today</span>
+        <span class="due">28 days left</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
