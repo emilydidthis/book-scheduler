@@ -894,6 +894,237 @@
       background: var(--success);
     }
 
+    .gantt-container {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .gantt-labels {
+      width: 160px;
+      min-width: 160px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 5;
+      background: var(--card-bg);
+    }
+
+    .gantt-labels::after {
+      content: '';
+      position: absolute;
+      right: -12px;
+      top: 64px;
+      bottom: 0;
+      width: 12px;
+      background: linear-gradient(to right, rgba(44, 36, 22, 0.06), transparent);
+      pointer-events: none;
+    }
+
+    .gantt-scroll {
+      flex: 1;
+      min-width: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .gantt-chart {
+      position: relative;
+    }
+
+    .gantt-month-label {
+      position: absolute;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--primary);
+      padding: 0 4px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .gantt-day-header {
+      position: absolute;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--secondary);
+      font-weight: 500;
+      overflow: hidden;
+    }
+
+    .gantt-day-header.today {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .gantt-day-header.week-alt {
+      background: rgba(139, 69, 19, 0.055);
+    }
+
+    .gantt-day-bg {
+      position: absolute;
+    }
+
+    .gantt-day-bg.alt {
+      background: rgba(139, 69, 19, 0.055);
+    }
+
+    .gantt-grid-line {
+      position: absolute;
+      width: 1px;
+      background: rgba(229, 222, 211, 0.5);
+    }
+
+    .gantt-day-cell.today-col {
+      position: absolute;
+      background: rgba(139, 69, 19, 0.1);
+    }
+
+    .gantt-book-label {
+      width: 160px;
+      min-width: 160px;
+      font-family: 'Playfair Display', serif;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 0 10px 0 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gantt-row-line {
+      position: absolute;
+      height: 1px;
+      background: rgba(229, 222, 211, 0.4);
+    }
+
+    .gantt-bar {
+      position: absolute;
+      height: 28px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+    }
+
+    .gantt-bar.overdue {
+      background: var(--danger);
+      opacity: 0.75;
+    }
+
+    .gantt-bar.on-track {
+      background: var(--success);
+      opacity: 0.65;
+    }
+
+    .gantt-bar .bar-label {
+      font-size: 0.78rem;
+      color: white;
+      font-weight: 600;
+      white-space: nowrap;
+      padding: 0 4px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .gantt-today-line {
+      position: absolute;
+      width: 2px;
+      background: var(--primary);
+      z-index: 10;
+    }
+
+    .gantt-empty {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--secondary);
+    }
+
+    .gantt-empty h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    .gantt-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 0 4px;
+    }
+
+    .gantt-today-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .gantt-today-btn:hover {
+      background: #6D360F;
+    }
+
+    .gantt-today-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .gantt-slider-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--secondary);
+    }
+
+    .gantt-slider-label {
+      font-weight: 500;
+    }
+
+    .gantt-slider-value {
+      min-width: 50px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 4px;
+      border-radius: 2px;
+      background: #E5DED3;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+      border: none;
+    }
+
     @media (max-width: 600px) {
       header h1 {
         font-size: 1.8rem;
@@ -951,11 +1182,12 @@
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('books')">Books</button>
+      <button class="tab" onclick="switchTab('books')">Books</button>
       <button class="tab" onclick="switchTab('calendar')">Calendar</button>
+      <button class="tab active" onclick="switchTab('gantt')">Gantt</button>
     </div>
 
-    <div id="booksTab" class="tab-content active">
+    <div id="booksTab" class="tab-content">
       <div class="form-toggle" onclick="toggleForm()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 12 15 18 9"/>
@@ -1070,6 +1302,26 @@
       </div>
       <div class="calendar-grid monthly" id="calendarGrid"></div>
     </div>
+
+    <div id="ganttTab" class="tab-content active">
+      <div class="gantt-controls">
+        <button class="gantt-today-btn" onclick="scrollGanttToToday()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Today
+        </button>
+        <div class="gantt-slider-group">
+          <span class="gantt-slider-label">Show</span>
+          <input type="range" id="ganttZoomSlider" min="7" max="90" value="10" step="1">
+          <span class="gantt-slider-value" id="ganttZoomValue">10 days</span>
+        </div>
+      </div>
+      <div class="gantt-container" id="ganttContainer"></div>
+    </div>
   </div>
 
   <div class="loading-overlay" id="loadingOverlay">
@@ -1106,18 +1358,23 @@
     let isLoading = true;
     let calendarDate = new Date();
     let calendarView = 'monthly';
+    let ganttDaySpan = 10;
     let currentModalDate = null;
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       if (tab === 'books') {
-        document.querySelector('.tab:first-child').classList.add('active');
+        document.querySelector('.tab:nth-child(1)').classList.add('active');
         document.getElementById('booksTab').classList.add('active');
-      } else {
-        document.querySelector('.tab:last-child').classList.add('active');
+      } else if (tab === 'calendar') {
+        document.querySelector('.tab:nth-child(2)').classList.add('active');
         document.getElementById('calendarTab').classList.add('active');
         renderCalendar();
+      } else if (tab === 'gantt') {
+        document.querySelector('.tab:nth-child(3)').classList.add('active');
+        document.getElementById('ganttTab').classList.add('active');
+        renderGantt();
       }
     }
 
@@ -1147,11 +1404,13 @@
     }
 
     async function saveBooks() {
-      await saveToCloud();
+      localStorage.setItem('books', JSON.stringify(books));
+      saveToCloud();
     }
 
     async function saveDailyLog() {
-      await saveToCloud();
+      localStorage.setItem('dailyLog', JSON.stringify(dailyLog));
+      saveToCloud();
     }
 
     function updateSyncStatus(type) {
@@ -1178,28 +1437,58 @@
       const syncTextEl = document.getElementById('syncText');
       const syncDot = syncEl.querySelector('.dot');
 
-      if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
-        syncTextEl.textContent = 'No cloud';
-        syncDot.className = 'dot local';
-        bannerEl.style.display = 'block';
+      // Step 1: Load from localStorage immediately (instant)
+      const localBooks = JSON.parse(localStorage.getItem('books')) || [];
+      const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
+
+      if (localBooks.length > 0) {
+        books = localBooks.map(b => ({
+          ...b,
+          completed: Number(b.completed) || 0,
+          total: Number(b.total) || 1,
+          totalPages: b.totalPages ? Number(b.totalPages) : null,
+          targetDays: b.targetDays ? Number(b.targetDays) : null,
+          type: b.type || 'pages',
+          listeningSpeed: Number(b.listeningSpeed) || 1
+        }));
+        dailyLog = localLog;
+        isLoading = false;
         loadingEl.style.display = 'none';
         if (skeletonEl) skeletonEl.classList.add('hidden');
         syncEl.style.display = 'flex';
+        syncTextEl.textContent = 'Local';
+        syncDot.className = 'dot local';
+        bannerEl.style.display = 'none';
         renderBooks();
+        renderGantt();
+      }
+
+      if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
+        syncTextEl.textContent = 'No cloud';
+        syncDot.className = 'dot local';
+        if (localBooks.length === 0) {
+          bannerEl.style.display = 'block';
+          loadingEl.style.display = 'none';
+          if (skeletonEl) skeletonEl.classList.add('hidden');
+          syncEl.style.display = 'flex';
+          renderBooks();
+          renderGantt();
+        }
         return;
       }
 
       bannerEl.style.display = 'none';
 
+      // Step 2: Fetch from cloud in background
       try {
         const res = await fetch(API_URL + '?action=getBooks');
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
-        books = data.books || [];
-        dailyLog = data.dailyLog || {};
+        const cloudBooks = data.books || [];
+        const cloudLog = data.dailyLog || {};
 
-        // Normalize book data (Google Sheets stores everything as strings)
-        books = books.map(b => ({
+        // Normalize
+        const normalized = cloudBooks.map(b => ({
           ...b,
           completed: Number(b.completed) || 0,
           total: Number(b.total) || 1,
@@ -1209,35 +1498,43 @@
           listeningSpeed: Number(b.listeningSpeed) || 1
         }));
 
-        console.log('Cloud data:', books.map(b => ({ title: b.title, completed: b.completed, total: b.total, active: b.completed < b.total })));
-
-        // If cloud is empty but localStorage has books, push them up
-        if (books.length === 0) {
-          const localBooks = JSON.parse(localStorage.getItem('books')) || [];
-          const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
-          if (localBooks.length > 0) {
-            books = localBooks;
-            dailyLog = localLog;
-            await fetch(API_URL, {
-              method: 'POST',
-              body: JSON.stringify({ action: 'saveBooks', books })
-            });
-            await fetch(API_URL, {
-              method: 'POST',
-              body: JSON.stringify({ action: 'saveDailyLog', log: dailyLog })
-            });
-          }
+        // If cloud has data, use it and update localStorage
+        if (normalized.length > 0) {
+          books = normalized;
+          dailyLog = cloudLog;
+          localStorage.setItem('books', JSON.stringify(books));
+          localStorage.setItem('dailyLog', JSON.stringify(dailyLog));
+          syncTextEl.textContent = 'Synced';
+          syncDot.className = 'dot cloud';
+          renderBooks();
+          renderGantt();
+        } else if (localBooks.length > 0) {
+          // Cloud empty but localStorage has data — push to cloud
+          await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveBooks', books: localBooks })
+          });
+          await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'saveDailyLog', log: localLog })
+          });
+          syncTextEl.textContent = 'Synced';
+          syncDot.className = 'dot cloud';
+          renderBooks();
+          renderGantt();
         }
-
-        syncTextEl.textContent = 'Synced';
-        syncDot.className = 'dot cloud';
-        console.log('Loaded from cloud:', books.length, 'books', books.map(b => b.title));
       } catch (e) {
-        console.error('Failed to load from cloud:', e);
-        // Fallback to localStorage if cloud fails
-        books = JSON.parse(localStorage.getItem('books')) || [];
-        dailyLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
-        syncTextEl.textContent = 'Sync failed';
+        console.error('Cloud sync failed:', e);
+        if (localBooks.length === 0) {
+          books = [];
+          dailyLog = {};
+        }
+        // Already showing local data, just update status
+        if (localBooks.length > 0) {
+          syncTextEl.textContent = 'Local (sync failed)';
+        } else {
+          syncTextEl.textContent = 'Sync failed';
+        }
         syncDot.className = 'dot local';
       }
 
@@ -1245,11 +1542,8 @@
       loadingEl.style.display = 'none';
       if (skeletonEl) skeletonEl.classList.add('hidden');
       syncEl.style.display = 'flex';
-
-      console.log('About to call renderBooks. books.length =', books.length);
-      console.log('Books:', JSON.stringify(books.map(b => ({ title: b.title, completed: b.completed, total: b.total }))));
-
       renderBooks();
+      requestAnimationFrame(() => renderGantt());
     }
 
     function generateId() {
@@ -1385,6 +1679,7 @@
       saveBooks();
       generateSchedule();
       renderBooks();
+      renderGantt();
 
       document.getElementById('title').value = '';
       document.getElementById('total').value = '';
@@ -1418,42 +1713,8 @@
         saveBooks();
         generateSchedule();
         renderBooks();
+        renderGantt();
       }
-    }
-
-    function deleteBook(id) {
-      if (confirm('Remove this book from your list?')) {
-        books = books.filter(b => b.id !== id);
-        Object.keys(dailyLog).forEach(key => {
-          if (key.startsWith(id + '-')) {
-            delete dailyLog[key];
-          }
-        });
-        saveBooks();
-        saveDailyLog();
-        generateSchedule();
-        renderBooks();
-      }
-    }
-
-    function adjustReadingDays(id, delta) {
-      const book = books.find(b => b.id === id);
-      if (!book || book.completed >= book.total) return;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const due = new Date(book.dueDate);
-      const maxDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24)) + 1;
-      const effectiveMax = book.type === 'chapters'
-        ? Math.min(maxDays, book.total - book.completed)
-        : maxDays;
-      const current = book.targetDays || effectiveMax;
-      const newDays = Math.max(1, Math.min(effectiveMax, current + delta));
-      book.targetDays = (newDays === effectiveMax) ? null : newDays;
-
-      saveBooks();
-      generateSchedule();
-      renderBooks();
     }
 
     function updateProgress(id) {
@@ -1465,6 +1726,7 @@
         saveBooks();
         generateSchedule();
         renderBooks();
+        renderGantt();
       }
     }
 
@@ -1487,6 +1749,7 @@
         saveBooks();
         generateSchedule();
         renderBooks();
+        renderGantt();
       }
     }
 
@@ -1758,6 +2021,242 @@
       `;
     }
 
+    function renderGantt() {
+      const container = document.getElementById('ganttContainer');
+      const schedule = generateSchedule();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const activeBooks = books
+        .filter(b => b.completed < b.total)
+        .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+      if (activeBooks.length === 0) {
+        container.innerHTML = `
+          <div class="gantt-empty">
+            <h3>No books scheduled</h3>
+            <p>Add a book to see the Gantt chart.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Book scheduled ranges
+      const bookRanges = {};
+      activeBooks.forEach(book => {
+        const bookDates = Object.keys(schedule)
+          .filter(d => schedule[d] && schedule[d].some(s => s.bookId === book.id))
+          .sort();
+        if (bookDates.length > 0) {
+          bookRanges[book.id] = {
+            start: new Date(bookDates[0] + 'T00:00:00'),
+            end: new Date(bookDates[bookDates.length - 1] + 'T00:00:00')
+          };
+        } else {
+          bookRanges[book.id] = { start: new Date(today), end: new Date(book.dueDate) };
+        }
+      });
+
+      // Date range: 10 days before today to last due date
+      // But also ensure we show each book's first scheduled day
+      let startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - 10);
+      let endDate = new Date(today);
+      activeBooks.forEach(book => {
+        const range = bookRanges[book.id];
+        if (range.start < startDate) startDate = new Date(range.start);
+        if (range.end > endDate) endDate = new Date(range.end);
+      });
+
+      // Calculate max days in slider and update it
+      const maxDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+      const slider = document.getElementById('ganttZoomSlider');
+      if (slider) {
+        slider.max = maxDays;
+        if (ganttDaySpan > maxDays) {
+          ganttDaySpan = maxDays;
+          slider.value = maxDays;
+          document.getElementById('ganttZoomValue').textContent = `${maxDays} days`;
+        }
+      }
+
+      // Day list
+      const days = [];
+      let d = new Date(startDate);
+      while (d <= endDate) {
+        days.push(new Date(d));
+        d.setDate(d.getDate() + 1);
+      }
+
+      const totalDays = days.length;
+      const labelW = 160;
+      const visibleWidth = (container.clientWidth || 800) - labelW - 32;
+      const dayW = Math.floor(visibleWidth / ganttDaySpan);
+      const timelineW = totalDays * dayW;
+
+      const MONTH_H = 32;
+      const DAY_H = 32;
+      const ROW_H = 42;
+      const headerH = MONTH_H + DAY_H;
+      const chartH = headerH + activeBooks.length * ROW_H;
+
+      // Month groups
+      const monthGroups = [];
+      let curMonth = -1, mStart = 0;
+      days.forEach((day, i) => {
+        if (day.getMonth() !== curMonth) {
+          if (curMonth !== -1) monthGroups[monthGroups.length - 1].count = i - mStart;
+          monthGroups.push({ name: day.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), start: i, count: 1 });
+          curMonth = day.getMonth();
+          mStart = i;
+        }
+      });
+      if (monthGroups.length) monthGroups[monthGroups.length - 1].count = totalDays - mStart;
+
+      // Today index
+      const todayIdx = days.findIndex(day => day.getTime() === today.getTime());
+
+      // Sunday alignment for week shading
+      const firstSunday = new Date(startDate);
+      firstSunday.setDate(firstSunday.getDate() - firstSunday.getDay());
+
+      // Build timeline HTML
+      let timelineHtml = `<div class="gantt-chart" style="width:${timelineW}px;height:${chartH}px;">`;
+
+      // Day backgrounds (headerH to bottom)
+      days.forEach((day, i) => {
+        const weekNum = Math.floor((day - firstSunday) / (7 * 86400000));
+        if (weekNum % 2 === 1) {
+          timelineHtml += `<div class="gantt-day-bg alt" style="left:${i * dayW}px;top:${headerH}px;width:${dayW}px;height:${chartH - headerH}px;"></div>`;
+        }
+      });
+
+      // Day header alternating backgrounds
+      days.forEach((day, i) => {
+        const weekNum = Math.floor((day - firstSunday) / (7 * 86400000));
+        if (weekNum % 2 === 1) {
+          timelineHtml += `<div class="gantt-day-bg alt" style="left:${i * dayW}px;top:${MONTH_H}px;width:${dayW}px;height:${DAY_H}px;"></div>`;
+        }
+      });
+
+      // Today column highlight
+      if (todayIdx >= 0) {
+        timelineHtml += `<div class="gantt-day-cell today-col" style="left:${todayIdx * dayW}px;top:${headerH}px;width:${dayW}px;height:${chartH - headerH}px;"></div>`;
+      }
+
+      // Vertical grid lines (MONTH_H to chartH)
+      for (let i = 0; i <= totalDays; i++) {
+        timelineHtml += `<div class="gantt-grid-line" style="left:${i * dayW}px;top:${MONTH_H}px;height:${chartH - MONTH_H}px;"></div>`;
+      }
+
+      // Month row background (opaque)
+      timelineHtml += `<div style="position:absolute;left:0;top:0;width:${timelineW}px;height:${MONTH_H}px;background:var(--card-bg);z-index:1;"></div>`;
+
+      // Month labels
+      const currentMonthIdx = days.findIndex(d => d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear());
+      const currentMonthGroup = monthGroups.findIndex(m => m.start <= currentMonthIdx && m.start + m.count > currentMonthIdx);
+      const labelWidthEstimate = 80;
+
+      monthGroups.forEach((m, mi) => {
+        const left = m.start * dayW;
+        const w = m.count * dayW;
+        const isCurrentMonth = mi === currentMonthGroup;
+        const daysAfterTodayInMonth = (m.start + m.count) - todayIdx;
+        const spaceAfterToday = daysAfterTodayInMonth * dayW;
+
+        if (isCurrentMonth) {
+          if (spaceAfterToday >= labelWidthEstimate) {
+            // Label to the RIGHT of today bar
+            timelineHtml += `<div class="gantt-month-label" style="left:${todayIdx * dayW}px;top:0;width:${w - todayIdx * dayW}px;height:${MONTH_H}px;line-height:${MONTH_H}px;z-index:2;padding-left:8px;overflow:visible;">${m.name}</div>`;
+          } else {
+            // Not enough space — label to the LEFT of today bar
+            const labelLeft = left + w - labelWidthEstimate;
+            timelineHtml += `<div class="gantt-month-label" style="left:${Math.max(0, labelLeft)}px;top:0;width:${labelWidthEstimate}px;height:${MONTH_H}px;line-height:${MONTH_H}px;z-index:2;text-align:right;padding-right:8px;overflow:visible;">${m.name}</div>`;
+          }
+        } else {
+          // Other months: center-aligned
+          timelineHtml += `<div class="gantt-month-label" style="left:${left}px;top:0;width:${w}px;height:${MONTH_H}px;line-height:${MONTH_H}px;z-index:2;text-align:center;">${m.name}</div>`;
+        }
+      });
+
+      // Day headers
+      days.forEach((day, i) => {
+        const isToday = i === todayIdx;
+        const weekNum = Math.floor((day - firstSunday) / (7 * 86400000));
+        let cls = 'gantt-day-header';
+        if (isToday) cls += ' today';
+        if (weekNum % 2 === 1) cls += ' week-alt';
+        timelineHtml += `<div class="${cls}" style="left:${i * dayW}px;top:${MONTH_H}px;width:${dayW}px;height:${DAY_H}px;line-height:${DAY_H}px;z-index:1;">${day.getDate()}</div>`;
+      });
+
+      // Horizontal line below day header (separating dates from first book)
+      timelineHtml += `<div class="gantt-row-line" style="left:0;top:${headerH}px;width:${timelineW}px;"></div>`;
+
+      // Book rows with lines at the BOTTOM of each row
+      activeBooks.forEach((book, idx) => {
+        const rowTop = headerH + idx * ROW_H;
+        const isLast = idx === activeBooks.length - 1;
+
+        // Bar
+        const range = bookRanges[book.id];
+        const sIdx = Math.round((range.start - startDate) / (1000 * 60 * 60 * 24));
+        const eIdx = Math.round((range.end - startDate) / (1000 * 60 * 60 * 24));
+        const span = eIdx - sIdx + 1;
+        const barLeft = sIdx * dayW;
+        const barW = span * dayW;
+        const isOverdue = range.end < today;
+        const barClass = isOverdue ? 'gantt-bar overdue' : 'gantt-bar on-track';
+        timelineHtml += `<div class="${barClass}" style="left:${barLeft}px;top:${rowTop + 7}px;width:${barW}px;"><span class="bar-label">${span}d</span></div>`;
+
+        // Row line at bottom (skip last book)
+        if (!isLast) {
+          timelineHtml += `<div class="gantt-row-line" style="left:0;top:${rowTop + ROW_H}px;width:${timelineW}px;"></div>`;
+        }
+      });
+
+      // Today vertical line
+      if (todayIdx >= 0) {
+        timelineHtml += `<div class="gantt-today-line" style="left:${todayIdx * dayW}px;top:0;height:${chartH}px;"></div>`;
+      }
+
+      timelineHtml += `</div>`;
+
+      // Build labels HTML (uses same .gantt-row-line elements at exact same Y positions as timeline)
+      let labelsHtml = `<div class="gantt-labels" style="position:relative;height:${chartH}px;">`;
+
+      // Month row
+      labelsHtml += `<div style="height:${MONTH_H}px;background:var(--card-bg);"></div>`;
+
+      // Day row
+      labelsHtml += `<div style="height:${DAY_H}px;background:var(--card-bg);"></div>`;
+
+      // Book labels (no borders)
+      activeBooks.forEach((book, idx) => {
+        labelsHtml += `<div class="gantt-book-label" style="height:${ROW_H}px;line-height:${ROW_H}px;" title="${book.title}">${book.title}</div>`;
+      });
+
+      // Row lines (same exact Y positions as timeline)
+      labelsHtml += `<div class="gantt-row-line" style="top:${headerH}px;width:160px;"></div>`;
+      activeBooks.forEach((book, idx) => {
+        if (idx === activeBooks.length - 1) return; // skip last book
+        const rowTop = headerH + (idx + 1) * ROW_H;
+        labelsHtml += `<div class="gantt-row-line" style="top:${rowTop}px;width:160px;"></div>`;
+      });
+
+      labelsHtml += `</div>`;
+
+      // Combined
+      container.innerHTML = `${labelsHtml}<div class="gantt-scroll" id="ganttScroll">${timelineHtml}</div>`;
+
+      // Scroll so today bar has one day width of left margin
+      requestAnimationFrame(() => {
+        const scrollEl = document.getElementById('ganttScroll');
+        if (scrollEl && todayIdx >= 0) {
+          scrollEl.scrollLeft = Math.max(0, (todayIdx - 1) * dayW);
+        }
+      });
+    }
+
     function renderCalendar() {
       const grid = document.getElementById('calendarGrid');
       const title = document.getElementById('calendarTitle');
@@ -1979,11 +2478,34 @@
       saveBooks();
       saveDailyLog();
       renderBooks();
+      renderGantt();
       renderCalendar();
       closeDayModal();
     }
 
     loadData();
+
+    // Gantt zoom slider
+    const ganttSlider = document.getElementById('ganttZoomSlider');
+    const ganttValueLabel = document.getElementById('ganttZoomValue');
+
+    // Initialize label
+    ganttValueLabel.textContent = `${ganttDaySpan} day${ganttDaySpan !== 1 ? 's' : ''}`;
+
+    ganttSlider.addEventListener('input', () => {
+      ganttDaySpan = parseInt(ganttSlider.value);
+      ganttValueLabel.textContent = `${ganttDaySpan} day${ganttDaySpan !== 1 ? 's' : ''}`;
+      renderGantt();
+    });
+
+    function scrollGanttToToday() {
+      const scrollEl = document.getElementById('ganttScroll');
+      if (scrollEl && scrollEl.querySelector('.gantt-today-line')) {
+        const todayLine = scrollEl.querySelector('.gantt-today-line');
+        const left = parseFloat(todayLine.style.left);
+        scrollEl.scrollLeft = left - 12;
+      }
+    }
   </script>
 </body>
 </html>
