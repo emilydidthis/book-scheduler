@@ -2600,28 +2600,7 @@
           return b;
         });
 
-        const todayKey = dateStr(new Date());
-        const deathsEndId = 'moab95q3klryl443b9';
-        const canticleId = 'moabcp6qlbsbzeeq9lf';
-
-        Object.keys(localTasks).forEach(key => {
-          const t = localTasks[key];
-
-          // Remove all past non-done Death's End tasks
-          if (t.bookId === deathsEndId && t.date < todayKey && (t.status === 'missed' || t.status === 'pending')) {
-            console.log(`[Data fix] Removing ${t.status} Death's End task for ${t.date}`);
-            delete localTasks[key];
-          }
-
-          // Remove ALL Canticle tasks for today
-          if (t.bookId === canticleId && t.date === todayKey) {
-            console.log(`[Data fix] Clearing Canticle task for ${todayKey} (${t.status}, actual=${t.actual})`);
-            delete localTasks[key];
-          }
-        });
-
         localStorage.setItem('books', JSON.stringify(localBooks));
-        localStorage.setItem('tasks', JSON.stringify(localTasks));
         localStorage.setItem('dataFixed_v2026_04_29_v2', '1');
         console.log('[Data fix] Applied and marked complete');
       }
@@ -2798,6 +2777,22 @@
       if (!resetDate && !hasTaskHistory) {
         resetAllTasksFrom('2026-04-23');
       } else {
+        // Clean up past non-done tasks that are no longer relevant
+        const todayKey = dateStr(new Date());
+        Object.keys(tasks).forEach(key => {
+          const t = tasks[key];
+          if (t.date >= todayKey) return; // only past tasks
+          if (t.status === 'done') return; // keep completed history
+
+          const book = books.find(b => b.id === t.bookId);
+          if (!book) { delete tasks[key]; return; } // orphaned task
+
+          // If book.completed >= what this task required, delete the past non-done task
+          if (book.completed >= t.target) {
+            delete tasks[key];
+          }
+        });
+
         // Existing data present: only regenerate future pending tasks
         cleanupOverdueTasks();
         regenerateAllBooksTasks();
