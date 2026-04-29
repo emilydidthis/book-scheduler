@@ -1090,22 +1090,22 @@
       background: repeating-linear-gradient(
         -45deg,
         transparent,
-        transparent 4px,
-        var(--secondary) 4px,
+        transparent 3px,
+        var(--secondary) 3px,
         var(--secondary) 5px
       );
-      opacity: 0.08;
+      opacity: 0.3;
     }
 
     .gantt-bar-track.overdue {
       background: repeating-linear-gradient(
         -45deg,
         transparent,
-        transparent 4px,
-        var(--danger) 4px,
+        transparent 3px,
+        var(--danger) 3px,
         var(--danger) 5px
       );
-      opacity: 0.1;
+      opacity: 0.35;
     }
 
     .gantt-bar .bar-label {
@@ -4266,7 +4266,7 @@
             });
             // Label on track
             const label = `${readingDays}d${overdueLabel}`;
-            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:${isOverdue ? 'var(--danger)' : 'var(--secondary)'};font-weight:600;white-space:nowrap;">${label}</span>`;
+            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${label}</span>`;
           }
         } else if (segs.doneSegments.length === 0) {
           // No tasks at all — show placeholder track from today to due date
@@ -4277,7 +4277,7 @@
             const barLeft = sIdx * dayW;
             const barW = span * dayW;
             timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${pendingBarTop}px;width:${barW}px;"></div>`;
-            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:var(--secondary);font-weight:600;white-space:nowrap;">${span}d</span>`;
+            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${span}d</span>`;
           }
         }
 
