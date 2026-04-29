@@ -2600,7 +2600,18 @@
           return b;
         });
 
+        // Fix Animal Farm's yesterday task actual (was 4, should be 43)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = dateStr(yesterday);
+        const afYesterdayKey = 'mo9elskst8z6a9p1dc-' + yesterdayStr;
+        if (localTasks[afYesterdayKey]) {
+          localTasks[afYesterdayKey].actual = 43;
+          console.log(`[Data fix] Animal Farm task for ${yesterdayStr}: actual 4 → 43`);
+        }
+
         localStorage.setItem('books', JSON.stringify(localBooks));
+        localStorage.setItem('tasks', JSON.stringify(localTasks));
         localStorage.setItem('dataFixed_v2026_04_29_v2', '1');
         console.log('[Data fix] Applied and marked complete');
       }
@@ -2782,6 +2793,16 @@
         Object.keys(tasks).forEach(key => {
           const t = tasks[key];
           if (t.date < todayKey && t.status === 'pending') {
+            delete tasks[key];
+          }
+        });
+
+        // Clear Canticle's phantom today task (if marked done but shouldn't be)
+        const canticleId = 'moabcp6qlbsbzeeq9lf';
+        Object.keys(tasks).forEach(key => {
+          const t = tasks[key];
+          if (t.bookId === canticleId && t.date === todayKey && t.status === 'done' && t.actual > 0) {
+            console.log(`[Data fix] Clearing phantom Canticle task for ${todayKey}`);
             delete tasks[key];
           }
         });
