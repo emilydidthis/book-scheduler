@@ -2750,10 +2750,13 @@
     function runTaskRegeneration() {
       // One-time reset: regenerate all tasks from April 23
       const resetDate = localStorage.getItem('tasksResetFrom');
-      if (!resetDate) {
+      // Check if cloud already has task history (works across domains)
+      const hasTaskHistory = Object.keys(tasks).some(k => tasks[k].status === 'done' || tasks[k].status === 'missed');
+
+      if (!resetDate && !hasTaskHistory) {
         resetAllTasksFrom('2026-04-23');
       } else {
-        // Regenerate all future pending tasks from current progress
+        // Existing data present: only regenerate future pending tasks
         cleanupOverdueTasks();
         regenerateAllBooksTasks();
       }
