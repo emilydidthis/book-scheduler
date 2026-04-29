@@ -589,7 +589,40 @@
 
     .calendar-day.today {
       border-color: var(--primary);
-      background: rgba(139, 69, 19, 0.05);
+      border-width: 3px;
+      background: rgba(139, 69, 19, 0.15);
+      box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
+    }
+
+    .calendar-day .day-number {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .calendar-day.today .day-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+    }
+
+    .calendar-day .today-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: white;
+      background: var(--primary);
+      border-radius: 4px;
+      padding: 1px 6px;
+      display: inline-block;
+      margin-bottom: 3px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .calendar-day.overloaded {
@@ -597,10 +630,9 @@
       background: rgba(166, 61, 64, 0.08);
     }
 
-    .calendar-day .day-number {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
+    .calendar-day.overdue-day {
+      border-color: rgba(166, 61, 64, 0.5);
+      background: rgba(166, 61, 64, 0.05);
     }
 
     .calendar-day .book-count {
@@ -751,6 +783,30 @@
     .modal-book-item .partial-row input:focus {
       outline: none;
       border-color: var(--secondary);
+    }
+
+    .modal-book-item.task-done {
+      opacity: 0.5;
+    }
+
+    .modal-book-item.task-done h4 {
+      text-decoration: line-through;
+    }
+
+    .modal-book-item.task-missed {
+      opacity: 0.4;
+    }
+
+    .modal-book-item.modal-editing {
+      border-left: 3px solid var(--primary);
+      padding-left: 12px;
+    }
+
+    .modal-book-item.modal-editing h4 {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     .btn-save-modal {
@@ -1002,10 +1058,16 @@
 
     .gantt-bar {
       position: absolute;
-      height: 28px;
+      height: 14px;
       border-radius: 3px;
       display: flex;
       align-items: center;
+      transition: opacity 0.15s;
+    }
+
+    .gantt-bar.done {
+      background: var(--success);
+      opacity: 0.85;
     }
 
     .gantt-bar.overdue {
@@ -1014,12 +1076,40 @@
     }
 
     .gantt-bar.on-track {
-      background: var(--success);
+      background: var(--secondary);
       opacity: 0.65;
     }
 
+    .gantt-bar-track {
+      position: absolute;
+      height: 14px;
+      border-radius: 3px;
+    }
+
+    .gantt-bar-track.on-track {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        var(--secondary) 4px,
+        var(--secondary) 5px
+      );
+      opacity: 0.2;
+    }
+
+    .gantt-bar-track.overdue {
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 4px,
+        var(--danger) 4px,
+        var(--danger) 5px
+      );
+      opacity: 0.25;
+    }
+
     .gantt-bar .bar-label {
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       color: white;
       font-weight: 600;
       white-space: nowrap;
@@ -1125,6 +1215,203 @@
       border: none;
     }
 
+    .today-tasks {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .today-tasks-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .today-tasks-header:hover {
+      background: rgba(139, 69, 19, 0.04);
+    }
+
+    .today-tasks-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .today-tasks-count {
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .today-tasks-chevron {
+      transition: transform 0.2s;
+      color: var(--secondary);
+    }
+
+    .today-tasks-chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .today-tasks-list {
+      display: none;
+      padding: 0 16px 12px;
+    }
+
+    .today-tasks-list.open {
+      display: block;
+    }
+
+    .today-task {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(229, 222, 211, 0.3);
+    }
+
+    .today-task:last-child {
+      border-bottom: none;
+    }
+
+    .today-task input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .today-task-book {
+      flex: 1;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+
+    .today-task-target {
+      font-size: 0.82rem;
+      color: var(--secondary);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .today-task-overdue {
+      font-size: 0.72rem;
+      color: #C0392B;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .today-task-date-label {
+      font-size: 0.72rem;
+      color: #C0392B;
+      font-weight: 600;
+      min-width: 45px;
+      flex-shrink: 0;
+    }
+
+    .today-task-overdue-item {
+      background: rgba(166, 61, 64, 0.04);
+      border-left: 3px solid rgba(166, 61, 64, 0.4);
+      padding: 10px 10px 10px 14px;
+      margin: 0 -10px -1px;
+    }
+
+    .today-task-overdue-item .today-task-book {
+      font-size: 0.85rem;
+    }
+
+    .today-task-miss-btn,
+    .today-task-edit-btn {
+      background: none;
+      border: none;
+      color: var(--secondary);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .today-task-miss-btn:hover {
+      color: #C0392B;
+      background: rgba(192, 57, 43, 0.1);
+    }
+
+    .today-task-btns {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .today-task-edit-btn:hover {
+      color: var(--primary);
+      background: rgba(139, 69, 19, 0.1);
+    }
+
+    .today-task-save-btn,
+    .today-task-cancel-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .today-task-save-btn svg,
+    .today-task-cancel-btn svg,
+    .today-task-miss-btn svg,
+    .today-task-edit-btn svg {
+      display: block;
+    }
+
+    .today-task-save-btn {
+      color: #27AE60;
+    }
+
+    .today-task-save-btn:hover {
+      background: rgba(39, 174, 96, 0.1);
+    }
+
+    .today-task-cancel-btn {
+      color: var(--secondary);
+    }
+
+    .today-task-cancel-btn:hover {
+      background: rgba(139, 69, 19, 0.1);
+    }
+
+    .today-task.done .today-task-book {
+      text-decoration: line-through;
+      opacity: 0.5;
+    }
+
+    .today-task.missed {
+      opacity: 0.5;
+    }
+
+    .today-task.missed .today-task-book {
+      text-decoration: line-through;
+    }
+
     @media (max-width: 600px) {
       header h1 {
         font-size: 1.8rem;
@@ -1156,7 +1443,679 @@
         gap: 12px;
       }
     }
+
+    /* Phase 3: Today Tab */
+    .today-header {
+      margin-bottom: 16px;
+    }
+
+    .today-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .today-summary {
+      font-size: 0.85rem;
+      color: var(--secondary);
+    }
+
+    .today-summary strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .today-tasks-section {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .today-section-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding: 12px 16px;
+      margin: 0;
+    }
+
+    .today-section-title.overdue-title {
+      color: #C0392B;
+    }
+
+    .today-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+
+    .today-section-header:hover {
+      background: rgba(139, 69, 19, 0.04);
+    }
+
+    .today-chevron {
+      transition: transform 0.2s;
+      color: var(--secondary);
+    }
+
+    .today-chevron.open {
+      transform: rotate(180deg);
+    }
+
+    .today-done-list {
+      display: none;
+      padding: 0 16px 12px;
+    }
+
+    .today-done-list.open {
+      display: block;
+    }
+
+    /* Inline task completion editing */
+    .task-inline-input {
+      width: 55px;
+      padding: 2px 4px;
+      border: 1px solid var(--secondary);
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-family: inherit;
+      background: white;
+      text-align: center;
+    }
+
+    .task-inline-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
+    }
+
+    .task-confirm-btn {
+      padding: 2px 8px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .task-confirm-btn:hover {
+      background: #704010;
+    }
+
+    .task-delta-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .task-delta-badge.above {
+      color: var(--success);
+      background: rgba(74, 124, 89, 0.1);
+    }
+
+    .task-delta-badge.below {
+      color: var(--danger);
+      background: rgba(166, 61, 64, 0.1);
+    }
+
+    .task-delta-badge.exact {
+      color: var(--success);
+      background: rgba(74, 124, 89, 0.05);
+    }
+
+    .task-done-label {
+      color: var(--success);
+      font-weight: 600;
+      font-size: 0.82rem;
+    }
+
+    /* Phase 4: History Tab */
+    .history-filters {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .history-filters select {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--secondary);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background: var(--card-bg);
+      color: var(--text);
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .history-date-group {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .history-date-header {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--primary);
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(229, 222, 211, 0.3);
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(229, 222, 211, 0.15);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .history-item:last-child {
+      border-bottom: none;
+    }
+
+    .history-item:hover {
+      background: rgba(139, 69, 19, 0.04);
+    }
+
+    .history-status-icon {
+      font-size: 0.85rem;
+      font-weight: 700;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .history-status-icon.done { color: var(--success); }
+    .history-status-icon.missed { color: var(--danger); }
+    .history-status-icon.partial { color: var(--warning); }
+
+    .history-book-title {
+      flex: 1;
+      font-size: 0.88rem;
+    }
+
+    .history-amount {
+      font-size: 0.82rem;
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+
+    .history-empty {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--secondary);
+    }
+
+    .history-item.editing {
+      background: rgba(139, 69, 19, 0.06);
+      border-left: 3px solid var(--primary);
+      padding: 10px 13px;
+    }
+
+    .history-item.editing .history-book-title {
+      font-weight: 600;
+    }
+
+    /* Phase 5: Book Card Indicators */
+    .task-indicators {
+      display: flex;
+      gap: 3px;
+      margin-top: 8px;
+      padding: 4px 0;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .task-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      position: relative;
+      cursor: default;
+      transition: transform 0.15s;
+    }
+
+    .task-dot.done { background: var(--success); }
+    .task-dot.missed { background: var(--danger); }
+    .task-dot.overdue { background: var(--danger); }
+    .task-dot.on-track {
+      background: transparent;
+      border: 1.5px solid var(--secondary);
+    }
+    .task-dot.today {
+      box-shadow: 0 0 0 2px var(--primary);
+      transform: scale(1.3);
+    }
+
+    .task-dot .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--text);
+      color: var(--bg);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .task-dot:hover .tooltip { display: block; }
+
+    .task-dot.today:hover .tooltip {
+      bottom: 18px;
+    }
+
+    .task-indicator-divider {
+      width: 1px;
+      height: 12px;
+      background: rgba(212, 165, 116, 0.3);
+      margin: 0 2px;
+    }
+
+    /* Desktop Grid Layout */
+    .desktop-layout {
+      display: none;
+    }
+
+    /* Desktop Grid Layout */
+    @media (min-width: 900px) {
+      .desktop-layout {
+        display: grid;
+        grid-template-columns: 250px 1fr;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .mobile-layout {
+        display: none;
+      }
+
+      .container {
+        display: none;
+      }
+
+      /* Sidebar */
+      .desktop-sidebar {
+        grid-column: 1;
+        background: var(--card-bg);
+        border-right: 1px solid rgba(229, 222, 211, 0.5);
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .sidebar-tabs {
+        display: flex;
+        border-bottom: 1px solid rgba(229, 222, 211, 0.5);
+        flex-shrink: 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: var(--card-bg);
+      }
+
+      .sidebar-tab-btn {
+        flex: 1;
+        padding: 12px 8px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-size: 0.82rem;
+        font-family: inherit;
+        font-weight: 500;
+        color: var(--secondary);
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .sidebar-tab-btn:hover {
+        background: rgba(139, 69, 19, 0.04);
+      }
+
+      .sidebar-tab-btn.active {
+        color: var(--primary);
+        border-bottom-color: var(--primary);
+      }
+
+      .sidebar-panel {
+        display: none;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+        padding: 12px;
+        pointer-events: none;
+      }
+
+      .sidebar-panel.active {
+        display: block;
+        pointer-events: auto;
+      }
+
+      /* Sidebar: Books panel */
+      /* Sidebar book cards (same template as mobile, compact) */
+      #sidebarBookList .book-card {
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        border-radius: var(--radius);
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+      }
+
+      #sidebarBookList .book-card .book-title {
+        font-size: 0.85rem;
+      }
+
+      #sidebarBookList .book-card .btn-delete svg {
+        width: 14px;
+        height: 14px;
+      }
+
+      #sidebarBookList .book-card .progress-bar {
+        height: 5px;
+        margin-bottom: 6px;
+      }
+
+      #sidebarBookList .book-card .schedule-info {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+        margin-bottom: 6px;
+      }
+
+      #sidebarBookList .book-card .task-indicators {
+        margin-bottom: 6px;
+      }
+
+      #sidebarBookList .book-card .task-dot {
+        width: 8px;
+        height: 8px;
+      }
+
+      #sidebarBookList .book-card .stats-row {
+        font-size: 0.72rem;
+        flex-wrap: wrap;
+      }
+
+      #sidebarBookList .book-card .spread-control .btn-adjust {
+        width: 20px;
+        height: 20px;
+        font-size: 0.75rem;
+      }
+
+      #sidebarBookList .book-card .progress-input {
+        margin-top: 8px;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+
+      #sidebarBookList .book-card .progress-input input {
+        width: 60px;
+        padding: 4px 6px;
+        font-size: 0.8rem;
+      }
+
+      #sidebarBookList .book-card .progress-input .btn-update {
+        padding: 3px 6px;
+        font-size: 0.75rem;
+      }
+
+      .sidebar-add-btn {
+        display: block;
+        width: 100%;
+        padding: 8px;
+        background: var(--bg);
+        border: 1px dashed var(--secondary);
+        border-radius: var(--radius);
+        color: var(--secondary);
+        font-size: 0.82rem;
+        cursor: pointer;
+        font-family: inherit;
+        margin-bottom: 8px;
+      }
+      .sidebar-add-btn:hover {
+        background: rgba(139, 69, 19, 0.04);
+      }
+      .sidebar-add-form {
+        display: none;
+        background: var(--bg);
+        padding: 12px;
+        border-radius: var(--radius);
+        margin-bottom: 8px;
+      }
+      .sidebar-add-form input,
+      .sidebar-add-form select {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #E5DED3;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        background: var(--card-bg);
+        color: var(--text);
+        font-family: inherit;
+        margin-bottom: 8px;
+        box-sizing: border-box;
+        transition: border-color 0.15s;
+      }
+      .sidebar-add-form input:focus,
+      .sidebar-add-form select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
+      }
+      .sidebar-add-form .btn-add {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.15s;
+        margin-bottom: 0;
+      }
+      .sidebar-add-form .btn-add:hover {
+        background: #6D360F;
+      }
+
+      /* Sidebar: Today panel */
+      .desktop-task-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px;
+        background: var(--bg);
+        border-radius: 4px;
+        font-size: 0.82rem;
+        margin-bottom: 4px;
+      }
+
+      .desktop-task-item input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .desktop-task-overdue {
+        background: rgba(166, 61, 64, 0.06);
+        border-left: 2px solid rgba(166, 61, 64, 0.3);
+      }
+
+      .sidebar-section-label {
+        font-size: 0.72rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--secondary);
+        margin: 12px 0 6px;
+      }
+
+      .sidebar-section-label.overdue {
+        color: var(--danger);
+      }
+
+      /* Sidebar: History panel */
+      .sidebar-history-filters {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 8px;
+      }
+
+      .sidebar-history-filters select {
+        flex: 1;
+        padding: 4px 6px;
+        border: 1px solid var(--secondary);
+        border-radius: 4px;
+        font-size: 0.75rem;
+        background: var(--card-bg);
+        color: var(--text);
+        font-family: inherit;
+      }
+
+      .sidebar-history-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        background: var(--bg);
+        border-radius: 4px;
+        font-size: 0.78rem;
+        margin-bottom: 4px;
+      }
+
+      .history-status-icon {
+        font-size: 0.75rem;
+        font-weight: 700;
+        width: 16px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+
+      .history-status-icon.done { color: var(--success); }
+      .history-status-icon.missed { color: var(--danger); }
+      .history-status-icon.partial { color: var(--warning); }
+
+      .sidebar-history-item .history-book-title {
+        flex: 1;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .sidebar-history-item .history-amount {
+        font-size: 0.72rem;
+        color: var(--secondary);
+        white-space: nowrap;
+      }
+
+      .sidebar-history-date-group {
+        margin-bottom: 8px;
+      }
+
+      .sidebar-history-date-header {
+        font-weight: 600;
+        font-size: 0.75rem;
+        color: var(--primary);
+        padding: 4px 8px;
+        margin-bottom: 2px;
+      }
+
+      /* Main content (right side) */
+      .desktop-main-content {
+        grid-column: 2;
+        background: var(--bg);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 0;
+      }
+
+      .desktop-view-toggle {
+        display: flex;
+        gap: 8px;
+        padding: 12px 20px 0;
+        flex-shrink: 0;
+      }
+
+      .desktop-view-toggle button {
+        padding: 8px 20px;
+        border: 1px solid var(--secondary);
+        border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        background: var(--card-bg);
+        color: var(--secondary);
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .desktop-view-toggle button.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+
+      .desktop-main-content .calendar-header {
+        padding: 12px 20px 0;
+        flex-shrink: 0;
+      }
+
+      .desktop-main-content .calendar-grid {
+        display: grid;
+        padding: 0 20px 20px;
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .desktop-main-content .gantt-wrapper {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        flex: 1;
+        min-height: 0;
+        padding: 0 20px 20px;
+      }
+
+      .desktop-main-content .gantt-container {
+        flex: 1;
+        min-height: 0;
+      }
+
+      .desktop-main-content .gantt-controls {
+        flex-shrink: 0;
+        margin-bottom: 8px;
+      }
+    }
   </style>
+</head>
 </head>
 <body>
   <div class="container">
@@ -1182,12 +2141,14 @@
     </div>
 
     <div class="tabs">
-      <button class="tab" onclick="switchTab('books')">Books</button>
+      <button class="tab active" onclick="switchTab('books')">Books</button>
+      <button class="tab" onclick="switchTab('today')">Today</button>
       <button class="tab" onclick="switchTab('calendar')">Calendar</button>
-      <button class="tab active" onclick="switchTab('gantt')">Gantt</button>
+      <button class="tab" onclick="switchTab('gantt')">Gantt</button>
+      <button class="tab" onclick="switchTab('history')">History</button>
     </div>
 
-    <div id="booksTab" class="tab-content">
+    <div id="booksTab" class="tab-content active">
       <div class="form-toggle" onclick="toggleForm()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 12 15 18 9"/>
@@ -1280,6 +2241,30 @@
       </div>
     </div>
 
+    <div id="todayTab" class="tab-content">
+      <div class="today-header">
+        <h2 id="todayDate"></h2>
+        <div class="today-summary" id="todaySummary"></div>
+      </div>
+      <div class="today-tasks-section">
+        <h3 class="today-section-title" id="todayPendingTitle">Today's Tasks</h3>
+        <div id="todayPendingList" style="padding: 0 16px 12px;"></div>
+      </div>
+      <div class="today-tasks-section" id="todayOverdueSection" style="display: none;">
+        <h3 class="today-section-title overdue-title">Overdue</h3>
+        <div id="todayOverdueList" style="padding: 0 16px 12px;"></div>
+      </div>
+      <div class="today-tasks-section" id="todayDoneSection">
+        <div class="today-section-header" onclick="toggleTodayDone()">
+          <h3 class="today-section-title">Done Today</h3>
+          <svg class="today-chevron" id="todayDoneChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+        <div class="today-done-list" id="todayDoneList"></div>
+      </div>
+    </div>
+
     <div id="calendarTab" class="tab-content">
       <div class="calendar-header">
         <div class="calendar-nav">
@@ -1303,7 +2288,7 @@
       <div class="calendar-grid monthly" id="calendarGrid"></div>
     </div>
 
-    <div id="ganttTab" class="tab-content active">
+    <div id="ganttTab" class="tab-content">
       <div class="gantt-controls">
         <button class="gantt-today-btn" onclick="scrollGanttToToday()">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1321,6 +2306,129 @@
         </div>
       </div>
       <div class="gantt-container" id="ganttContainer"></div>
+    </div>
+
+    <div id="historyTab" class="tab-content">
+      <div class="history-filters">
+        <select id="historyStatusFilter" onchange="renderHistoryTab()">
+          <option value="all">All</option>
+          <option value="done">Done</option>
+          <option value="missed">Missed</option>
+          <option value="partial">Partial</option>
+        </select>
+        <select id="historyTimeFilter" onchange="renderHistoryTab()">
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+          <option value="all">All time</option>
+        </select>
+      </div>
+      <div id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- Desktop Layout -->
+  <div class="desktop-layout">
+    <!-- Left Sidebar -->
+    <div class="desktop-sidebar">
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" onclick="switchSidebarTab('books')">Books</button>
+        <button class="sidebar-tab-btn" onclick="switchSidebarTab('today')">Today</button>
+        <button class="sidebar-tab-btn" onclick="switchSidebarTab('history')">History</button>
+      </div>
+
+      <!-- Books Panel -->
+      <div class="sidebar-panel active" id="sidebarBooksPanel">
+        <button class="sidebar-add-btn" onclick="toggleSidebarAdd()">+ Add Book</button>
+        <div class="sidebar-add-form" id="sidebarAddForm">
+          <input type="text" id="sidebar-title" placeholder="Book title" required>
+          <input type="number" id="sidebar-total" placeholder="Pages / Chapters / Hours" required>
+          <div class="type-toggle" style="margin-bottom:6px;">
+            <label><input type="radio" name="sidebar-type" value="pages" checked onchange="updateSidebarType()"> Pages</label>
+            <label><input type="radio" name="sidebar-type" value="chapters" onchange="updateSidebarType()"> Chapters</label>
+            <label><input type="radio" name="sidebar-type" value="hours" onchange="updateSidebarType()"> Hours</label>
+          </div>
+          <input type="number" id="sidebar-totalPages" placeholder="Total pages">
+          <div id="sidebar-chaptersGroup" style="display:none;">
+            <input type="number" id="sidebar-chaptersTotal" placeholder="Total chapters">
+            <input type="number" id="sidebar-totalPages2" placeholder="Total pages (for time)">
+          </div>
+          <div id="sidebar-hoursGroup" style="display:none;">
+            <input type="number" id="sidebar-hours" placeholder="Total hours">
+            <select id="sidebar-speed">
+              <option value="1">1x speed</option>
+              <option value="1.25">1.25x speed</option>
+              <option value="1.5" selected>1.5x speed</option>
+              <option value="2">2x speed</option>
+            </select>
+          </div>
+          <input type="date" id="sidebar-dueDate" required>
+          <button class="btn-add" onclick="addBook(event)">Add</button>
+        </div>
+        <div id="sidebarBookList"></div>
+      </div>
+
+      <!-- Today Panel -->
+      <div class="sidebar-panel" id="sidebarTodayPanel">
+        <div id="sidebarTodayList"></div>
+      </div>
+
+      <!-- History Panel -->
+      <div class="sidebar-panel" id="sidebarHistoryPanel">
+        <div class="sidebar-history-filters">
+          <select id="sidebarHistoryStatusFilter" onchange="renderHistoryTab()">
+            <option value="all">All</option>
+            <option value="done">Done</option>
+            <option value="missed">Missed</option>
+            <option value="partial">Partial</option>
+          </select>
+          <select id="sidebarHistoryTimeFilter" onchange="renderHistoryTab()">
+            <option value="7">7d</option>
+            <option value="30">30d</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+        <div id="sidebarHistoryList"></div>
+      </div>
+    </div>
+
+    <!-- Main Content (Calendar/Gantt) -->
+    <div class="desktop-main-content">
+      <div class="desktop-view-toggle">
+        <button id="viewToggleCalendar" class="active" onclick="switchDesktopView('calendar')">Calendar</button>
+        <button id="viewToggleGantt" onclick="switchDesktopView('gantt')">Gantt</button>
+      </div>
+      <!-- Calendar -->
+      <div id="desktopCalendarArea">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <button onclick="navigateCalendar(-1); renderCalendar()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <h2 id="desktopCalendarTitle" style="font-family:'Playfair Display',serif;font-size:1.1rem;"></h2>
+            <button onclick="navigateCalendar(1); renderCalendar()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div class="calendar-toggle">
+            <button class="active" id="desktopCalMonthly" onclick="setCalendarView('monthly'); renderCalendar()">Month</button>
+            <button id="desktopCalBiweekly" onclick="setCalendarView('biweekly'); renderCalendar()">2 Weeks</button>
+          </div>
+        </div>
+        <div class="calendar-grid monthly" id="desktopCalendarGrid"></div>
+      </div>
+      <!-- Gantt -->
+      <div id="desktopGanttArea" style="display:none;">
+        <div class="gantt-wrapper">
+          <div class="gantt-controls">
+            <div class="gantt-slider-group">
+              <span class="gantt-slider-label">Show</span>
+              <input type="range" id="desktopGanttZoomSlider" min="7" max="90" value="10" step="1">
+              <span class="gantt-slider-value" id="desktopGanttZoomValue">10 days</span>
+            </div>
+          </div>
+          <div class="gantt-container" id="desktopGanttContainer"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1355,11 +2463,23 @@
 
     let books = [];
     let dailyLog = {};
+    let tasks = {};
+
+    // Desktop layout state
+    let desktopView = 'calendar';
+    let sidebarTab = 'books';
+    let editingTaskKeys = new Set();
+    let editingTaskHTML = {};
+    let desktopHistoryOpen = false;
     let isLoading = true;
     let calendarDate = new Date();
     let calendarView = 'monthly';
     let ganttDaySpan = 10;
+    let taskUndoStack = [];
+    const MAX_UNDO = 50;
     let currentModalDate = null;
+    let editingModalKey = null;
+    let editingDueDateBookId = null;
 
     function switchTab(tab) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -1367,14 +2487,22 @@
       if (tab === 'books') {
         document.querySelector('.tab:nth-child(1)').classList.add('active');
         document.getElementById('booksTab').classList.add('active');
-      } else if (tab === 'calendar') {
+      } else if (tab === 'today') {
         document.querySelector('.tab:nth-child(2)').classList.add('active');
+        document.getElementById('todayTab').classList.add('active');
+        renderTodayTab();
+      } else if (tab === 'calendar') {
+        document.querySelector('.tab:nth-child(3)').classList.add('active');
         document.getElementById('calendarTab').classList.add('active');
         renderCalendar();
       } else if (tab === 'gantt') {
-        document.querySelector('.tab:nth-child(3)').classList.add('active');
+        document.querySelector('.tab:nth-child(4)').classList.add('active');
         document.getElementById('ganttTab').classList.add('active');
         renderGantt();
+      } else if (tab === 'history') {
+        document.querySelector('.tab:nth-child(5)').classList.add('active');
+        document.getElementById('historyTab').classList.add('active');
+        renderHistoryTab();
       }
     }
 
@@ -1385,22 +2513,32 @@
       toggle.classList.toggle('open');
     }
 
+    let cloudSaveQueue = [];
+    let cloudSaving = false;
+
     async function saveToCloud() {
       if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) return;
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'saveBooks', books })
-        });
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'saveDailyLog', log: dailyLog })
-        });
-        updateSyncStatus('cloud');
-      } catch (e) {
-        console.error('Cloud save failed:', e);
-        updateSyncStatus('error');
+      cloudSaveQueue.push(Date.now());
+      if (cloudSaving) return;
+      cloudSaving = true;
+
+      while (cloudSaveQueue.length > 0) {
+        cloudSaveQueue.shift();
+        try {
+          const payload = JSON.stringify({ action: 'saveBooks', books });
+          const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: payload
+          });
+          console.log('Cloud save status:', response.status);
+          updateSyncStatus('cloud');
+        } catch (e) {
+          console.warn('Cloud save failed:', e.message);
+          updateSyncStatus('error');
+        }
       }
+      cloudSaving = false;
     }
 
     async function saveBooks() {
@@ -1410,6 +2548,11 @@
 
     async function saveDailyLog() {
       localStorage.setItem('dailyLog', JSON.stringify(dailyLog));
+      saveToCloud();
+    }
+
+    async function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
       saveToCloud();
     }
 
@@ -1440,6 +2583,7 @@
       // Step 1: Load from localStorage immediately (instant)
       const localBooks = JSON.parse(localStorage.getItem('books')) || [];
       const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
+      const localTasks = JSON.parse(localStorage.getItem('tasks')) || {};
 
       if (localBooks.length > 0) {
         books = localBooks.map(b => ({
@@ -1452,6 +2596,7 @@
           listeningSpeed: Number(b.listeningSpeed) || 1
         }));
         dailyLog = localLog;
+        tasks = localTasks;
         isLoading = false;
         loadingEl.style.display = 'none';
         if (skeletonEl) skeletonEl.classList.add('hidden');
@@ -1459,8 +2604,15 @@
         syncTextEl.textContent = 'Local';
         syncDot.className = 'dot local';
         bannerEl.style.display = 'none';
-        renderBooks();
-        renderGantt();
+        // Render sidebar sync, then force a paint before starting cloud fetch
+        try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+        // Use double rAF to guarantee paint happens before expensive operations
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+            try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+          });
+        });
       }
 
       if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
@@ -1471,21 +2623,28 @@
           loadingEl.style.display = 'none';
           if (skeletonEl) skeletonEl.classList.add('hidden');
           syncEl.style.display = 'flex';
-          renderBooks();
-          renderGantt();
+          try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+              try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+            });
+          });
         }
         return;
       }
 
       bannerEl.style.display = 'none';
 
-      // Step 2: Fetch from cloud in background
-      try {
-        const res = await fetch(API_URL + '?action=getBooks');
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        const cloudBooks = data.books || [];
-        const cloudLog = data.dailyLog || {};
+      // Step 2: Fetch from cloud in background - DON'T await, let browser paint first
+      (async () => {
+        try {
+          const res = await fetch(API_URL + '?action=getBooks');
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          const cloudBooks = data.books || [];
+          const cloudLog = data.dailyLog || {};
+          const cloudTasks = data.tasks || {};
 
         // Normalize
         const normalized = cloudBooks.map(b => ({
@@ -1498,52 +2657,106 @@
           listeningSpeed: Number(b.listeningSpeed) || 1
         }));
 
-        // If cloud has data, use it and update localStorage
+        // Merge cloud + local: local is source of truth, cloud is backup
         if (normalized.length > 0) {
-          books = normalized;
-          dailyLog = cloudLog;
+          // Build a map of cloud books by ID
+          const cloudBookMap = {};
+          normalized.forEach(b => cloudBookMap[b.id] = b);
+
+          // Start with local books as the base, merge cloud data to fill gaps
+          books = localBooks.map(localBook => {
+            const cloudBook = cloudBookMap[localBook.id];
+            if (cloudBook) {
+              // Both exist: prefer local data, use cloud only for missing fields
+              return {
+                ...cloudBook,
+                id: localBook.id,
+                title: localBook.title,
+                completed: localBook.completed,
+                total: localBook.total,
+                type: localBook.type,
+                dueDate: localBook.dueDate,
+                targetDays: localBook.targetDays,
+                totalPages: localBook.totalPages,
+                listeningSpeed: localBook.listeningSpeed,
+                createdAt: localBook.createdAt
+              };
+            }
+            // Local-only book: keep as-is
+            return localBook;
+          });
+
+          // Add any cloud-only books that aren't in local
+          Object.keys(cloudBookMap).forEach(id => {
+            if (!books.find(b => b.id === id)) {
+              books.push(cloudBookMap[id]);
+            }
+          });
+
+          // Tasks: never overwrite, only add missing
+          Object.keys(cloudTasks).forEach(key => {
+            if (!tasks[key]) {
+              tasks[key] = cloudTasks[key];
+            }
+          });
+
           localStorage.setItem('books', JSON.stringify(books));
           localStorage.setItem('dailyLog', JSON.stringify(dailyLog));
+          localStorage.setItem('tasks', JSON.stringify(tasks));
           syncTextEl.textContent = 'Synced';
           syncDot.className = 'dot cloud';
-          renderBooks();
-          renderGantt();
         } else if (localBooks.length > 0) {
-          // Cloud empty but localStorage has data — push to cloud
-          await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'saveBooks', books: localBooks })
-          });
-          await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'saveDailyLog', log: localLog })
-          });
-          syncTextEl.textContent = 'Synced';
+          // Cloud empty but local has data
+          books = localBooks;
+          dailyLog = localLog || {};
+          tasks = localTasks || {};
+          syncTextEl.textContent = 'Synced (pushing)';
           syncDot.className = 'dot cloud';
-          renderBooks();
-          renderGantt();
         }
-      } catch (e) {
-        console.error('Cloud sync failed:', e);
-        if (localBooks.length === 0) {
-          books = [];
-          dailyLog = {};
-        }
-        // Already showing local data, just update status
-        if (localBooks.length > 0) {
-          syncTextEl.textContent = 'Local (sync failed)';
-        } else {
-          syncTextEl.textContent = 'Sync failed';
-        }
-        syncDot.className = 'dot local';
-      }
 
-      isLoading = false;
-      loadingEl.style.display = 'none';
-      if (skeletonEl) skeletonEl.classList.add('hidden');
-      syncEl.style.display = 'flex';
-      renderBooks();
-      requestAnimationFrame(() => renderGantt());
+        // Always push latest local to cloud
+        setTimeout(() => saveToCloud(), 500);
+
+        try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+        requestAnimationFrame(() => {
+          try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+          try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+        });
+        scheduleDesktopRender();
+        } catch (e) {
+          console.error('Cloud sync failed:', e);
+          if (localBooks.length > 0) {
+            syncTextEl.textContent = 'Local (sync failed)';
+          } else {
+            syncTextEl.textContent = 'Sync failed';
+          }
+          syncDot.className = 'dot local';
+        }
+      })();
+
+      // Defer loading cleanup + task regeneration to next tick so browser can paint the sidebar first
+      setTimeout(() => {
+        isLoading = false;
+        loadingEl.style.display = 'none';
+        if (skeletonEl) skeletonEl.classList.add('hidden');
+        syncEl.style.display = 'flex';
+
+        // One-time reset: regenerate all tasks from April 23
+        const resetDate = localStorage.getItem('tasksResetFrom');
+        if (!resetDate) {
+          resetAllTasksFrom('2026-04-23');
+        } else {
+          // Regenerate all future pending tasks from current progress
+          cleanupOverdueTasks();
+          regenerateAllBooksTasks();
+        }
+        try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+        requestAnimationFrame(() => {
+          try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+          try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+        });
+        scheduleDesktopRender();
+      }, 0);
     }
 
     function generateId() {
@@ -1560,13 +2773,24 @@
     function getDaysUntilDue(dueDate) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const due = new Date(dueDate);
+      const due = new Date(dueDate + 'T00:00:00');
       due.setHours(0, 0, 0, 0);
       return Math.ceil((due - today) / (1000 * 60 * 60 * 24));
     }
 
     function getTypeLabel() {
       return document.querySelector('input[name="type"]:checked').value;
+    }
+
+    function bookMinutes(amount, book) {
+      if (book.type === 'hours') {
+        return (amount / (book.listeningSpeed || 1)) * 60;
+      }
+      if (book.type === 'chapters' && book.totalPages) {
+        const pagesPerChapter = book.totalPages / book.total;
+        return amount * pagesPerChapter * 1.25;
+      }
+      return amount * 1.25;
     }
 
     function updateTypeFields() {
@@ -1646,21 +2870,56 @@
 
     function addBook(e) {
       e.preventDefault();
-      const title = document.getElementById('title').value.trim();
-      const type = getTypeLabel();
-      const dueDate = document.getElementById('dueDate').value;
-      const daysUntilDue = getDaysUntilDue(dueDate);
+      // Check if sidebar form is being used
+      const sidebarForm = document.getElementById('sidebarAddForm');
+      const isSidebar = sidebarForm && sidebarForm.style.display === 'block';
 
-      let total = 0, listeningSpeed = 1, totalPages = 0;
+      let title, type, dueDate, total, listeningSpeed, totalPages;
 
-      if (type === 'hours') {
-        total = parseFloat(document.getElementById('totalHours').value) || 0;
-        listeningSpeed = parseFloat(document.querySelector('input[name="listeningSpeed"]:checked').value) || 1.5;
-      } else if (type === 'chapters') {
-        total = parseFloat(document.getElementById('totalChapters').value) || 0;
-        totalPages = parseFloat(document.getElementById('totalPagesForChapters').value) || 0;
+      if (isSidebar) {
+        title = document.getElementById('sidebar-title').value.trim();
+        type = document.querySelector('input[name="sidebar-type"]:checked').value;
+        dueDate = document.getElementById('sidebar-dueDate').value;
+        total = parseFloat(document.getElementById('sidebar-total').value) || 0;
+
+        if (type === 'hours') {
+          listeningSpeed = parseFloat(document.getElementById('sidebar-speed').value) || 1.5;
+        } else if (type === 'chapters') {
+          totalPages = parseFloat(document.getElementById('sidebar-totalPages2').value) || 0;
+        }
+
+        document.getElementById('sidebar-title').value = '';
+        document.getElementById('sidebar-total').value = '';
+        document.getElementById('sidebar-dueDate').value = '';
       } else {
-        total = parseFloat(document.getElementById('total').value) || 0;
+        title = document.getElementById('title').value.trim();
+        type = getTypeLabel();
+        dueDate = document.getElementById('dueDate').value;
+        const daysUntilDue = getDaysUntilDue(dueDate);
+
+        listeningSpeed = 1;
+        totalPages = 0;
+
+        if (type === 'hours') {
+          total = parseFloat(document.getElementById('totalHours').value) || 0;
+          listeningSpeed = parseFloat(document.querySelector('input[name="listeningSpeed"]:checked').value) || 1.5;
+        } else if (type === 'chapters') {
+          total = parseFloat(document.getElementById('totalChapters').value) || 0;
+          totalPages = parseFloat(document.getElementById('totalPagesForChapters').value) || 0;
+        } else {
+          total = parseFloat(document.getElementById('total').value) || 0;
+        }
+
+        document.getElementById('title').value = '';
+        document.getElementById('total').value = '';
+        document.getElementById('totalChapters').value = '';
+        document.getElementById('totalPagesForChapters').value = '';
+        document.getElementById('totalHours').value = '';
+        document.getElementById('dueDate').value = '';
+        document.getElementById('daysInfo').textContent = '';
+        document.querySelector('input[name="type"][value="pages"]').checked = true;
+        updateTypeFields();
+        document.querySelector('.form-toggle').click();
       }
 
       const book = {
@@ -1677,33 +2936,44 @@
 
       books.push(book);
       saveBooks();
-      generateSchedule();
+      const schedule = generateSchedule();
+      generateTasks(schedule);
+      saveTasks();
       renderBooks();
       renderGantt();
-
-      document.getElementById('title').value = '';
-      document.getElementById('total').value = '';
-      document.getElementById('totalChapters').value = '';
-      document.getElementById('totalPagesForChapters').value = '';
-      document.getElementById('totalHours').value = '';
-      document.getElementById('dueDate').value = '';
-      document.getElementById('daysInfo').textContent = '';
-      document.querySelector('input[name="type"][value="pages"]').checked = true;
-      updateTypeFields();
-      document.querySelector('.form-toggle').click();
+      scheduleDesktopRender();
     }
 
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('[onclick*="toggleDueDate"]') && !e.target.closest('[id^="dueDateEdit-"]')) {
-        document.querySelectorAll('[id^="dueDateEdit-"]').forEach(d => d.style.display = 'none');
-      }
-    });
+    function startDueDateEdit(id) {
+      editingDueDateBookId = id;
+      renderBooks();
+      // Focus the date input after render
+      setTimeout(() => {
+        const input = document.getElementById(`dueDateEdit-${id}`);
+        if (input) input.focus();
+      }, 10);
+    }
 
-    function toggleDueDate(id) {
-      const input = document.getElementById(`dueDateEdit-${id}`);
-      const wasVisible = input.style.display !== 'none';
-      document.querySelectorAll('[id^="dueDateEdit-"]').forEach(d => d.style.display = 'none');
-      if (!wasVisible) input.style.display = 'block';
+    function saveDueDate(id, newDate) {
+      editingDueDateBookId = null;
+      updateDueDate(id, newDate);
+    }
+
+    function cancelDueDateEdit() {
+      editingDueDateBookId = null;
+      renderBooks();
+    }
+
+    function recalcBookCompleted(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+      const doneTasks = Object.values(tasks).filter(t => t.bookId === bookId && t.status === 'done');
+      const total = doneTasks.reduce((sum, t) => sum + t.actual, 0);
+      book.completed = book.type === 'hours'
+        ? Math.round(total * 4) / 4
+        : book.type === 'chapters'
+          ? Math.round(total)
+          : Math.round(total * 100) / 100;
     }
 
     function updateDueDate(id, newDate) {
@@ -1711,10 +2981,34 @@
       if (book && newDate) {
         book.dueDate = newDate;
         saveBooks();
-        generateSchedule();
+        regenerateBookTasks(book.id);
         renderBooks();
         renderGantt();
+        renderCalendar();
+        renderTodayTab();
+        scheduleDesktopRender();
       }
+    }
+
+    function adjustReadingDays(bookId, delta) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const daysUntilDue = Math.ceil((new Date(book.dueDate + 'T00:00:00') - today) / (1000 * 60 * 60 * 24));
+      const maxDays = Math.max(1, daysUntilDue);
+      const effectiveMax = book.type === 'chapters' ? Math.min(maxDays, book.total - book.completed) : maxDays;
+      const currentTarget = book.targetDays || effectiveMax;
+      const newTarget = Math.max(1, Math.min(effectiveMax, currentTarget + delta));
+      if (newTarget === currentTarget) return;
+      book.targetDays = newTarget;
+      saveBooks();
+      regenerateBookTasks(bookId);
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+      scheduleDesktopRender();
     }
 
     function updateProgress(id) {
@@ -1722,12 +3016,37 @@
       const completed = parseFloat(input.value) || 0;
       const book = books.find(b => b.id === id);
       if (book) {
+        const oldCompleted = book.completed;
         book.completed = Math.min(completed, book.total);
+        const delta = book.completed - oldCompleted;
         saveBooks();
-        generateSchedule();
+
+        // Try to add delta to today's pending task for this book
+        const todayKey = dateStr(new Date());
+        const todayTaskKey = `${id}-${todayKey}`;
+        const todayTask = tasks[todayTaskKey];
+
+        if (todayTask && todayTask.status === 'pending' && delta > 0) {
+          todayTask.actual = Math.round((todayTask.actual + delta) * 100) / 100;
+          if (todayTask.actual >= todayTask.target) {
+            todayTask.status = 'done';
+            todayTask.actual = Math.min(todayTask.actual, todayTask.target + delta);
+          }
+        }
+
+        // Always regenerate future tasks to redistribute remaining pages
+        regenerateBookTasks(id);
+
         renderBooks();
         renderGantt();
+        renderCalendar();
+        renderTodayTab();
+        scheduleDesktopRender();
       }
+    }
+
+    function updateProgressSidebar(id) {
+      updateProgress(id);
     }
 
     function editTotal(id) {
@@ -1747,14 +3066,17 @@
           }
         }
         saveBooks();
-        generateSchedule();
+        const schedule = generateSchedule();
+        generateTasks(schedule);
+        saveTasks();
         renderBooks();
         renderGantt();
+        scheduleDesktopRender();
       }
     }
 
-    function generateSchedule() {
-      const today = new Date();
+    function generateSchedule(startDate) {
+      const today = startDate || new Date();
       today.setHours(0, 0, 0, 0);
 
       const TARGET_MINUTES_PER_DAY = 60;
@@ -1789,14 +3111,15 @@
       }
 
       activeBooks.forEach(book => {
-        const due = new Date(book.dueDate);
+        const due = new Date(book.dueDate + 'T00:00:00');
         due.setHours(0, 0, 0, 0);
 
         const remainingPages = getRemainingPages(book);
         if (remainingPages <= 0) return;
 
         const daysUntilDue = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
-        const maxDays = daysUntilDue + 1;
+        // Due date is deadline, not reading day. Due today = 1 day (today only).
+        const maxDays = Math.max(1, daysUntilDue);
         const targetDays = book.targetDays || maxDays;
 
         // For chapter books, cap spread to 1 chapter per day
@@ -1831,7 +3154,15 @@
         for (let i = 0; i < selectedDays.length; i++) {
           const key = selectedDays[i];
           const isLast = i === selectedDays.length - 1;
-          const pagesForDay = isLast ? pagesRemaining : pagesPerDay;
+          let pagesForDay = isLast ? pagesRemaining : pagesPerDay;
+
+          // Round chapter books to whole numbers, hours books to 2 decimals
+          if (book.type === 'chapters') {
+            pagesForDay = isLast ? pagesRemaining : Math.round(pagesPerDay);
+          } else if (book.type === 'hours') {
+            pagesForDay = Math.round(pagesForDay * 100) / 100;
+          }
+
           const minutesForDay = pagesToMinutes(pagesForDay, book);
 
           if (!schedule[key]) schedule[key] = [];
@@ -1846,21 +3177,514 @@
       return schedule;
     }
 
+    // Fill-in-gaps only: creates tasks where none exist, never overwrites existing tasks.
+    function generateTasks(schedule) {
+      Object.keys(schedule).sort().forEach(dateKey => {
+        schedule[dateKey].forEach(entry => {
+          const key = `${entry.bookId}-${dateKey}`;
+          if (tasks[key]) return;
+          tasks[key] = {
+            bookId: entry.bookId,
+            date: dateKey,
+            target: entry.pages,
+            actual: 0,
+            status: 'pending'
+          };
+        });
+      });
+    }
+
+    // Delete a specific book's FUTURE pending tasks and regenerate them.
+    // Used when spread or due date changes.
+    function regenerateBookTasks(bookId) {
+      const today = dateStr(new Date());
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (t.bookId === bookId && t.date >= today && t.status === 'pending') {
+          delete tasks[key];
+        }
+      });
+      const schedule = generateSchedule();
+      generateTasks(schedule);
+
+      // Clean up orphaned missed tasks (past dates not in new schedule)
+      const newScheduleDates = new Set();
+      Object.keys(schedule).forEach(dateKey => {
+        schedule[dateKey].forEach(entry => {
+          if (entry.bookId === bookId) newScheduleDates.add(dateKey);
+        });
+      });
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (t.bookId === bookId && t.status === 'missed' && t.date < today && !newScheduleDates.has(t.date)) {
+          delete tasks[key];
+        }
+      });
+
+      saveTasks();
+    }
+
+    // Delete ALL future pending tasks for ALL active books and regenerate.
+    // Used on page load to ensure task targets match current progress.
+    function regenerateAllBooksTasks() {
+      const today = dateStr(new Date());
+      const activeBookIds = new Set(books.filter(b => b.completed < b.total).map(b => b.id));
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (activeBookIds.has(t.bookId) && t.date >= today && t.status === 'pending') {
+          delete tasks[key];
+        }
+      });
+      const schedule = generateSchedule();
+      generateTasks(schedule);
+
+      // Clean up orphaned missed tasks (past dates not in new schedule) for all active books
+      const newScheduleDates = new Set();
+      Object.keys(schedule).forEach(dateKey => {
+        schedule[dateKey].forEach(entry => {
+          if (activeBookIds.has(entry.bookId)) newScheduleDates.add(dateKey);
+        });
+      });
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (activeBookIds.has(t.bookId) && t.status === 'missed' && t.date < today && !newScheduleDates.has(t.date)) {
+          delete tasks[key];
+        }
+      });
+
+      saveTasks();
+    }
+
+    // One-time reset: clears all tasks and regenerates from a historical start date.
+    function resetAllTasksFrom(startDateStr) {
+      tasks = {};
+      const startDate = new Date(startDateStr + 'T00:00:00');
+      const schedule = generateSchedule(startDate);
+      generateTasks(schedule);
+      cleanupOverdueTasks();
+      localStorage.setItem('tasksResetFrom', startDateStr);
+      saveTasks();
+    }
+
+    // Cleanup: mark overdue pending tasks as 'done' if book.completed already accounts for them.
+    // Preserves history — doesn't delete tasks, just marks them done.
+    // Comprehensive task sync: marks pending tasks as 'done' where book.completed
+    // already accounts for them. Walks tasks in date order, cumulative.
+    function cleanupOverdueTasks() {
+      const today = dateStr(new Date());
+      let changed = false;
+
+      // Group ONLY past-date pending tasks by bookId, sorted by date
+      const pendingByBook = {};
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (t.status === 'pending' && t.date < today) {
+          if (!pendingByBook[t.bookId]) pendingByBook[t.bookId] = [];
+          pendingByBook[t.bookId].push({ key, ...t });
+        }
+      });
+
+      Object.keys(pendingByBook).forEach(bookId => {
+        const book = books.find(b => b.id === bookId);
+        if (!book) return;
+
+        // Sum all done/missed task targets for this book
+        let completedViaTasks = 0;
+        Object.keys(tasks).forEach(key => {
+          const t = tasks[key];
+          if (t.bookId === bookId && (t.status === 'done' || t.status === 'missed')) {
+            completedViaTasks += t.actual || t.target;
+          }
+        });
+
+        // Walk pending tasks in date order, marking them done cumulatively
+        // until book.completed is fully accounted for
+        const pending = pendingByBook[bookId].sort((a, b) => a.date.localeCompare(b.date));
+        let remaining = book.completed - completedViaTasks;
+
+        if (remaining < 0.01) return; // already fully accounted for
+
+        pending.forEach(t => {
+          if (remaining >= t.target - 0.01) {
+            // Fully accounts for this task
+            if (tasks[t.key] && tasks[t.key].status === 'pending') {
+              tasks[t.key].status = 'done';
+              tasks[t.key].actual = t.target;
+              changed = true;
+            }
+            remaining -= t.target;
+          } else if (remaining > 0.01) {
+            // Partially accounts for this task
+            if (tasks[t.key] && tasks[t.key].status === 'pending') {
+              tasks[t.key].status = 'done';
+              tasks[t.key].actual = Math.round(remaining * 100) / 100;
+              changed = true;
+            }
+            remaining = 0;
+          }
+        });
+      });
+
+      if (changed) {
+        saveTasks();
+      }
+    }
+
+    function editTaskAmount(key) {
+      const task = tasks[key];
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return;
+
+      const amountEl = document.getElementById(`amount-${key}`);
+      const btnsEl = document.getElementById(`btns-${key}`);
+      if (!amountEl || !btnsEl) return;
+
+      if (book.type === 'hours') {
+        // Two inputs: hours and minutes
+        const totalHours = Math.round(task.target * 4) / 4;
+        const hours = Math.floor(totalHours);
+        const minutes = Math.round((totalHours - hours) * 60);
+
+        amountEl.outerHTML = `
+          <span class="today-task-edit-hours" style="display:flex;align-items:center;gap:2px;">
+            <input type="number" id="edit-hours-${key}" placeholder="h" min="0" value="${hours}" style="width:44px;padding:4px 4px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">
+            <span style="color:var(--secondary);font-size:0.82rem;font-weight:600;">:</span>
+            <input type="number" id="edit-minutes-${key}" placeholder="m" min="0" max="59" value="${minutes}" style="width:44px;padding:4px 4px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">
+          </span>
+        `;
+      } else {
+        // Single input for pages/chapters
+        const roundedValue = Math.round(task.target);
+        const placeholder = book.type === 'chapters' ? 'Chapters' : 'Pages';
+        amountEl.outerHTML = `<input type="number" id="edit-input-${key}" placeholder="${placeholder}" step="1" min="0" value="${roundedValue}" style="width:70px;padding:4px 8px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">`;
+      }
+
+      btnsEl.innerHTML = `
+        <button class="today-task-save-btn" onclick="saveTaskAmount('${key}')" title="Save">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="today-task-cancel-btn" onclick="renderTodayTab()" title="Cancel">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      `;
+
+      // Focus first input
+      setTimeout(() => {
+        const firstInput = document.getElementById(`edit-hours-${key}`) || document.getElementById(`edit-input-${key}`);
+        if (firstInput) {
+          firstInput.focus();
+          firstInput.select();
+          firstInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') saveTaskAmount(key);
+            if (e.key === 'Escape') renderTodayTab();
+          });
+        }
+      }, 50);
+    }
+
+    function saveTaskAmount(key) {
+      const task = tasks[key];
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return;
+
+      let amount;
+      if (book.type === 'hours') {
+        const hInput = document.getElementById(`edit-hours-${key}`);
+        const mInput = document.getElementById(`edit-minutes-${key}`);
+        if (!hInput || !mInput) return;
+        const hours = parseFloat(hInput.value) || 0;
+        const minutes = parseFloat(mInput.value) || 0;
+        amount = hours + minutes / 60;
+        if (amount <= 0) return;
+      } else {
+        const input = document.getElementById(`edit-input-${key}`);
+        if (!input) return;
+        amount = parseFloat(input.value);
+        if (isNaN(amount) || amount <= 0) return;
+      }
+
+      completeTask(key, amount);
+    }
+
+    function roundByType(value, type) {
+      if (type === 'chapters') return Math.round(value);
+      if (type === 'hours') return Math.round(value * 4) / 4;
+      return Math.round(value * 100) / 100;
+    }
+
+    // Redistributes an amount across future pending tasks for a book.
+    // Uses "remainder in last task" strategy to preserve exact totals.
+    function redistributeAmount(bookId, amount, excludeKeys) {
+      const today = dateStr(new Date());
+      const book = books.find(b => b.id === bookId);
+      if (!book) return {};
+
+      const futurePending = Object.keys(tasks)
+        .filter(k => {
+          const t = tasks[k];
+          return t.bookId === bookId && t.status === 'pending' && t.date >= today && !excludeKeys.includes(k);
+        })
+        .sort();
+
+      const prevFutureTargets = {};
+
+      if (futurePending.length > 0) {
+        const extraPerTask = amount / futurePending.length;
+        let totalAdded = 0;
+
+        futurePending.forEach((k, idx) => {
+          prevFutureTargets[k] = tasks[k].target;
+          const isLast = idx === futurePending.length - 1;
+          let newTarget;
+
+          if (isLast) {
+            // Last task absorbs remainder to preserve exact total
+            newTarget = tasks[k].target + (amount - totalAdded);
+          } else {
+            const roundedExtra = roundByType(extraPerTask, book.type);
+            newTarget = tasks[k].target + roundedExtra;
+            totalAdded += roundedExtra;
+          }
+
+          newTarget = roundByType(newTarget, book.type);
+          tasks[k].target = newTarget;
+        });
+      } else {
+        // No future tasks — create one on the due date
+        if (book.dueDate >= today) {
+          const newKey = `${bookId}-${book.dueDate}`;
+          if (!tasks[newKey]) {
+            tasks[newKey] = {
+              bookId: bookId,
+              date: book.dueDate,
+              target: roundByType(amount, book.type),
+              actual: 0,
+              status: 'pending'
+            };
+          } else {
+            tasks[newKey].target = roundByType(tasks[newKey].target + amount, book.type);
+          }
+        }
+      }
+
+      return prevFutureTargets;
+    }
+
+    // Show inline edit input when checkbox is checked
+    function showTaskEditInput(taskKey) {
+      const task = tasks[taskKey];
+      if (!task) return;
+      if (task.status === 'done' || task.status === 'missed') return;
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return;
+
+      const contentEl = document.getElementById(`content-${taskKey}`);
+      if (!contentEl) return;
+
+      const typeUnit = book.type === 'hours' ? 'h' : book.type === 'chapters' ? 'ch' : 'pg';
+      const inputStep = book.type === 'hours' ? '0.25' : '1';
+      const currentPos = book.type === 'hours' ? (Math.round(book.completed * 100) / 100) : Math.round(book.completed);
+
+      contentEl.innerHTML = `<input type="number" class="task-inline-input" data-task-key="${taskKey}" value="${currentPos}" step="${inputStep}" min="0" onkeydown="if(event.key==='Enter'){confirmTaskCompletion('${taskKey}');event.preventDefault();}">
+        <button class="task-confirm-btn" onclick="confirmTaskCompletion('${taskKey}')">✓</button>`;
+
+      // Save editing state so it survives sidebar re-render
+      preserveEditingTask(taskKey);
+
+      // Disable the checkbox so user can't uncheck while editing
+      const taskItem = contentEl.closest('.desktop-task-item') || contentEl.closest('.today-task');
+      if (taskItem) {
+        const checkbox = taskItem.querySelector('input[type="checkbox"]');
+        if (checkbox) checkbox.disabled = true;
+      }
+
+      // Auto-focus the input
+      const input = contentEl.querySelector('.task-inline-input');
+      if (input) {
+        setTimeout(() => { input.focus(); input.select(); }, 0);
+      }
+    }
+
+    // Confirm task completion: input is current position in book
+    function confirmTaskCompletion(taskKey) {
+      const task = tasks[taskKey];
+      if (!task) return;
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return;
+
+      const input = document.querySelector(`.task-inline-input[data-task-key="${taskKey}"]`);
+      const newCompleted = input ? parseFloat(input.value) : book.completed;
+
+      if (isNaN(newCompleted) || newCompleted < 0) return;
+
+      const oldCompleted = book.completed;
+      const delta = newCompleted - oldCompleted;
+
+      if (delta < 0.001) return; // No progress made
+
+      // Push to undo stack
+      taskUndoStack.push({
+        key: taskKey,
+        previousStatus: task.status,
+        previousActual: task.actual,
+        bookCompletedBefore: oldCompleted
+      });
+      if (taskUndoStack.length > MAX_UNDO) taskUndoStack.shift();
+
+      // Update book completed
+      book.completed = Math.min(newCompleted, book.total);
+      task.actual = Math.round(delta * 100) / 100;
+      task.status = 'done';
+
+      // Save
+      saveBooks();
+      saveTasks();
+
+      // Remove from editing set
+      editingTaskKeys.delete(taskKey);
+      delete editingTaskHTML[taskKey];
+
+      // Regenerate future tasks to redistribute remaining pages
+      regenerateBookTasks(task.bookId);
+
+      // Show inline result briefly, then re-render sidebar to remove completed task
+      const contentEl = document.getElementById(`content-${taskKey}`);
+      if (contentEl) {
+        const readLabel = formatCount(delta, book.type);
+        const tDelta = task.actual - task.target;
+        let deltaBadge = '';
+        if (Math.abs(tDelta) < 0.001) {
+          deltaBadge = `<span class="task-delta-badge exact">On target</span>`;
+        } else if (tDelta > 0) {
+          deltaBadge = `<span class="task-delta-badge above">+${formatCount(tDelta, book.type)} above</span>`;
+        } else {
+          deltaBadge = `<span class="task-delta-badge below">${formatCount(Math.abs(tDelta), book.type)} below</span>`;
+        }
+        contentEl.innerHTML = `<span class="task-done-label">✓ ${readLabel}</span> ${deltaBadge}`;
+      }
+
+      const btnsEl = document.getElementById(`btns-${taskKey}`);
+      if (btnsEl) btnsEl.style.display = 'none';
+
+      // Re-render sidebar after brief delay so user sees the done badge
+      setTimeout(() => {
+        scheduleDesktopRender();
+      }, 400);
+
+      // Re-render other views
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+    }
+
+    function completeTask(key, amount) {
+      const task = tasks[key];
+      if (!task) return;
+
+      if (typeof amount !== 'number') {
+        amount = task.target;
+      }
+
+      const book = books.find(b => b.id === task.bookId);
+      const bookCompletedBefore = book ? book.completed : 0;
+
+      // Push to undo stack
+      taskUndoStack.push({
+        key,
+        previousStatus: task.status,
+        previousActual: task.actual,
+        bookCompletedBefore
+      });
+      if (taskUndoStack.length > MAX_UNDO) taskUndoStack.shift();
+
+      task.status = 'done';
+      task.actual = amount;
+
+      // Update book progress
+      if (book) {
+        if (book.type === 'chapters') {
+          book.completed = Math.min(Math.round(book.completed + amount), book.total);
+        } else if (book.type === 'hours') {
+          book.completed = Math.min(Math.round((book.completed + amount) * 100) / 100, book.total);
+        } else {
+          book.completed = Math.min(Math.round(book.completed + amount), book.total);
+        }
+      }
+
+      saveBooks();
+      saveTasks();
+
+      // Regenerate future tasks to recalculate remaining schedule
+      regenerateBookTasks(task.bookId);
+
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+      scheduleDesktopRender();
+    }
+
+    function missTask(key) {
+      const task = tasks[key];
+      if (!task) return;
+
+      const prevStatus = task.status;
+      task.status = 'missed';
+
+      // Store previous future targets for undo
+      const today = dateStr(new Date());
+      const futurePendingKeys = Object.keys(tasks).filter(k => {
+        const t = tasks[k];
+        return t.bookId === task.bookId && t.date >= today && t.status === 'pending' && k !== key;
+      });
+      const prevFutureTargets = {};
+      futurePendingKeys.forEach(k => { prevFutureTargets[k] = tasks[k].target; });
+
+      // Push to undo stack
+      taskUndoStack.push({
+        missAction: true,
+        missedKey: key,
+        previousStatus: prevStatus,
+        previousTargets: prevFutureTargets,
+        newTaskCreated: false
+      });
+      if (taskUndoStack.length > MAX_UNDO) taskUndoStack.shift();
+
+      saveTasks();
+
+      // Regenerate future tasks to recalculate remaining schedule
+      regenerateBookTasks(task.bookId);
+
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+      scheduleDesktopRender();
+    }
+
     function renderBooks() {
-      try {
-        const list = document.getElementById('bookList');
-        const completedList = document.getElementById('completedList');
-        const completedSection = document.getElementById('completedSection');
+      const active = books.filter(b => b.completed < b.total);
+      const completed = books.filter(b => b.completed >= b.total);
 
-        const active = books.filter(b => b.completed < b.total);
-        const completed = books.filter(b => b.completed >= b.total);
+      active.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+      completed.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
 
-        console.log('renderBooks: total=', books.length, 'active=', active.length, 'completed=', completed.length);
-        if (completed.length > 0) console.log('Completed books:', completed.map(b => b.title));
+      const activeHtml = active.map(book => {
+        try { return renderBookCardHTML(book, false); }
+        catch(e) { console.error('renderBookCardHTML error for', book.title, e); return ''; }
+      }).join('');
 
-        active.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-        completed.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+      const completedHtml = completed.map(book => {
+        try { return renderBookCardHTML(book, true); }
+        catch(e) { return ''; }
+      }).join('');
 
+      // Write to mobile containers
+      const list = document.getElementById('bookList');
+      const completedList = document.getElementById('completedList');
+      const completedSection = document.getElementById('completedSection');
+      if (list) {
         if (active.length === 0 && completed.length === 0) {
           list.innerHTML = `
             <div class="empty-state">
@@ -1872,115 +3696,151 @@
               <p>Click "Add a new book" to start tracking your reading!</p>
             </div>
           `;
-          completedSection.style.display = 'none';
-          return;
+        } else {
+          list.innerHTML = activeHtml;
         }
-
-        const schedule = generateSchedule();
-        console.log('Schedule generated, rendering', active.length, 'active books');
-
-        list.innerHTML = active.map(book => {
-          try { return renderCard(book, false, schedule); }
-          catch(e) { console.error('renderCard error for', book.title, e); return ''; }
-        }).join('');
-        completedSection.style.display = completed.length > 0 ? 'block' : 'none';
-        completedList.innerHTML = completed.map(book => renderCard(book, true, schedule)).join('');
-      } catch (e) {
-        console.error('renderBooks error:', e);
       }
+      if (completedList) completedList.innerHTML = completedHtml;
+      if (completedSection) completedSection.style.display = completed.length > 0 ? 'block' : 'none';
+
+      // Write to desktop sidebar
+      const sidebarList = document.getElementById('sidebarBookList');
+      if (sidebarList) {
+        if (active.length === 0 && completed.length === 0) {
+          sidebarList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--secondary);font-size:0.82rem;">No books yet</div>';
+        } else {
+          // Sidebar shows active first, then completed
+          sidebarList.innerHTML = activeHtml + completedHtml;
+        }
+      }
+
+      renderTodayTab();
     }
 
-    function renderCard(book, isCompleted = false, schedule = {}) {
+    function renderBookCardHTML(book, isCompleted = false) {
       const daysRemaining = getDaysUntilDue(book.dueDate);
       const progress = Math.round((book.completed / book.total) * 100);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const todayKey = dateStr(today);
 
       let statusClass = '';
       let statusText = '';
       let valueClass = '';
 
+      const dueDateLabel = new Date(book.dueDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
       if (isCompleted) {
         statusClass = 'completed';
-        statusText = 'Completed!';
+        statusText = `Completed`;
         valueClass = 'success';
       } else if (daysRemaining < 0) {
         statusClass = 'overdue';
-        statusText = `${Math.abs(daysRemaining)} days overdue`;
+        statusText = `${Math.abs(daysRemaining)}d overdue (${dueDateLabel})`;
         valueClass = 'danger';
       } else if (daysRemaining === 0) {
-        statusText = 'Due today!';
+        statusText = `Due today (${dueDateLabel})`;
         valueClass = 'warning';
       } else if (daysRemaining <= 2) {
-        statusText = `${daysRemaining} days left`;
+        statusText = `${daysRemaining}d left (${dueDateLabel})`;
         valueClass = 'warning';
       } else {
-        statusText = `${daysRemaining} days left`;
+        statusText = `${daysRemaining}d left (${dueDateLabel})`;
       }
 
       const type = book.type || 'pages';
       const isHours = type === 'hours';
-      const listeningSpeed = book.listeningSpeed || 1;
-      const remaining = book.total - book.completed;
+      const progressStep = isHours ? '0.25' : '1';
+      const progressPlaceholder = isHours ? 'e.g., 1.5' : `e.g., ${type === 'pages' ? '50' : '3'}`;
+      const progressLabel = isHours ? 'hours' : type;
+      const inputValue = book.completed > 0 ? book.completed : '';
+      const dueColor = isCompleted ? 'var(--success)' : valueClass === 'danger' ? 'var(--danger)' : valueClass === 'warning' ? 'var(--warning)' : 'var(--secondary)';
 
       let scheduleBadge = '';
       let canCondense = true;
       let canSpread = true;
       let bookDates = [];
+      let indicators = '';
 
       if (!isCompleted) {
-        const todayKey = dateStr(today);
-        const scheduledToday = schedule[todayKey] && schedule[todayKey].some(s => s.bookId === book.id);
+        const bookTaskKeys = Object.keys(tasks).filter(k => {
+          const t = tasks[k];
+          return t.bookId === book.id && (t.status === 'pending' || t.status === 'done');
+        });
 
-        const allDates = Object.keys(schedule).sort();
-        bookDates = allDates.filter(d => schedule[d] && schedule[d].some(s => s.bookId === book.id));
+        const pendingTaskKeys = bookTaskKeys.filter(k => tasks[k].status === 'pending').sort();
+        const todayTaskKey = bookTaskKeys.find(k => tasks[k].date === todayKey && tasks[k].status === 'pending');
+        bookDates = pendingTaskKeys.map(k => tasks[k].date);
 
         if (bookDates.length > 0) {
-          const todayEntry = schedule[todayKey]?.find(s => s.bookId === book.id);
-
-          if (scheduledToday && todayEntry) {
-            const todayHours = todayEntry.minutes >= 60
-              ? `${Math.floor(todayEntry.minutes / 60)}h ${Math.round(todayEntry.minutes % 60)}m`
-              : `${Math.round(todayEntry.minutes)}m`;
-            scheduleBadge = `<div class="schedule-info">${formatCount(todayEntry.pages, type)} today (~${todayHours})</div>`;
+          const todayTask = todayTaskKey ? tasks[todayTaskKey] : null;
+          if (todayTask) {
+            const minutes = todayTask.minutes || bookMinutes(todayTask.target, book);
+            const timeStr = minutes >= 60
+              ? `${Math.floor(minutes / 60)}h ${Math.round(minutes % 60)}m`
+              : `${Math.round(minutes)}m`;
+            scheduleBadge = `<div class="schedule-info">${formatCount(todayTask.target, type)} today (~${timeStr})</div>`;
           } else {
-            const totalMinutes = bookDates.reduce((sum, d) => {
-              const entry = schedule[d]?.find(s => s.bookId === book.id);
-              return sum + (entry ? entry.minutes : 0);
+            const totalTarget = pendingTaskKeys.reduce((sum, k) => sum + tasks[k].target, 0);
+            const totalMinutes = pendingTaskKeys.reduce((sum, k) => {
+              return sum + (tasks[k].minutes || bookMinutes(tasks[k].target, book));
             }, 0);
-            const perDay = remaining / bookDates.length;
-            const totalHours = totalMinutes >= 60
+            const perDay = totalTarget / bookDates.length;
+            const timeStr = totalMinutes >= 60
               ? `${Math.floor(totalMinutes / 60)}h ${Math.round(totalMinutes % 60)}m`
               : `${Math.round(totalMinutes)}m`;
-            scheduleBadge = `<div class="schedule-info muted">~${formatCount(perDay, type)}/day · ${totalHours} total</div>`;
+            scheduleBadge = `<div class="schedule-info muted">~${formatCount(perDay, type)}/day · ${timeStr} total</div>`;
           }
         }
 
-        const daysUntilDue = Math.ceil((new Date(book.dueDate) - today) / (1000 * 60 * 60 * 24));
-        const maxDays = daysUntilDue + 1;
+        const daysUntilDue = Math.ceil((new Date(book.dueDate + 'T00:00:00') - today) / (1000 * 60 * 60 * 24));
+        const maxDays = Math.max(1, daysUntilDue);
         const effectiveMax = book.type === 'chapters'
           ? Math.min(maxDays, book.total - book.completed)
           : maxDays;
         const currentTarget = book.targetDays || effectiveMax;
         canCondense = currentTarget > 1;
         canSpread = currentTarget < effectiveMax;
+
+        // Task indicator dots (done + missed + today/future pending only)
+        const bookAllTasks = Object.keys(tasks)
+          .filter(k => {
+            const t = tasks[k];
+            if (t.bookId !== book.id) return false;
+            if (t.status !== 'pending') return true;  // done/missed always shown
+            return t.date >= todayKey;  // only pending tasks that are today or future
+          })
+          .map(k => ({ ...tasks[k], key: k }))
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        if (bookAllTasks.length > 0) {
+          indicators = '<div class="task-indicators">';
+          bookAllTasks.forEach((t, idx) => {
+            const isToday = t.date === todayKey;
+            let dotStatus;
+            if (t.status === 'done') dotStatus = 'done';
+            else if (t.status === 'missed') dotStatus = 'missed';
+            else dotStatus = 'on-track';
+            const todayClass = isToday ? ' today' : '';
+            const dateLabel = new Date(t.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const displayAmount = t.status === 'done' ? t.actual : t.target;
+            const amountLabel = formatCount(displayAmount, book.type);
+            if (idx > 0) indicators += '<span class="task-indicator-divider"></span>';
+            indicators += `<div class="task-dot ${dotStatus}${todayClass}"><span class="tooltip">${dateLabel}: ${amountLabel}</span></div>`;
+          });
+          indicators += '</div>';
+        }
       }
 
-      const titleHtml = !isCompleted
-        ? `<div class="book-title-row"><div class="book-title">${book.title}</div></div>`
-        : `<div class="book-title">${book.title}</div>`;
-
-      const progressStep = isHours ? '0.25' : '1';
-      const progressPlaceholder = isHours ? 'e.g., 1.5' : `e.g., ${type === 'pages' ? '50' : '3'}`;
-      const progressLabel = isHours ? 'hours' : type;
-      const inputValue = book.completed > 0 ? book.completed : '';
-
-      const dueColor = isCompleted ? 'var(--success)' : valueClass === 'danger' ? 'var(--danger)' : valueClass === 'warning' ? 'var(--warning)' : 'var(--secondary)';
+      const pendingDaysCount = Object.keys(tasks).filter(k => {
+        const t = tasks[k];
+        return t.bookId === book.id && t.date >= todayKey && t.status === 'pending';
+      }).length;
 
       return `
-        <div class="book-card ${statusClass}">
+        <div class="book-card ${statusClass}" data-book-id="${book.id}">
           <div class="book-header">
-            ${titleHtml}
+            <div class="book-title-row"><div class="book-title">${book.title}</div></div>
             <button class="btn-delete" onclick="deleteBook('${book.id}')" title="Remove book">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -1994,24 +3854,23 @@
 
           ${scheduleBadge}
 
-          ${!isCompleted ? `
-          <div class="stats-row" style="position: relative;">
-            <span class="pace" style="cursor: pointer;" onclick="editTotal('${book.id}')" title="Click to edit total"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)} · <strong style="color: ${dueColor}; cursor: pointer;" onclick="toggleDueDate('${book.id}')" title="Click to change due date">${statusText}</strong></span>
+          ${indicators || ''}
+
+          <div class="stats-row">
+            <span class="pace" style="cursor: pointer;" onclick="editTotal('${book.id}')" title="Click to edit total"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)} · ` +
+            (editingDueDateBookId === book.id
+              ? `<input type="date" id="dueDateEdit-${book.id}" class="due-date-inline" value="${book.dueDate}" min="${todayKey}" onclick="event.stopPropagation();" onchange="event.stopPropagation(); saveDueDate('${book.id}', this.value)" onblur="event.stopPropagation(); cancelDueDateEdit()" style="background:var(--card-bg);color:var(--text);border:2px solid var(--primary);border-radius:6px;padding:2px 6px;font-size:0.82rem;font-family:inherit;">`
+              : `<strong style="color: ${dueColor}; cursor: pointer;" onclick="event.stopPropagation(); startDueDateEdit('${book.id}')" title="Click to change due date">${statusText}</strong>`) +
+            `</span>
             <span class="spread-control">
-              <button class="btn-adjust" ${!canCondense ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', -1)" title="Condense to fewer days">−</button>
+              <button class="btn-adjust" ${!canCondense ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', -1)" title="Condense">−</button>
               <span class="spread-label">${bookDates.length || '--'}d</span>
-              <button class="btn-adjust" ${!canSpread ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', 1)" title="Spread over more days">+</button>
+              <button class="btn-adjust" ${!canSpread ? 'disabled' : ''} onclick="adjustReadingDays('${book.id}', 1)" title="Spread">+</button>
             </span>
           </div>
-          <input type="date" id="dueDateEdit-${book.id}" style="display: none; position: absolute; bottom: 100%; right: 14px; z-index: 10; padding: 6px; border: 2px solid var(--secondary); border-radius: 6px; font-size: 0.85rem; font-family: inherit; background: var(--card-bg); box-shadow: 0 4px 12px rgba(44,36,22,0.15);" value="${book.dueDate}" onchange="updateDueDate('${book.id}', this.value)">
-          ` : `
-          <div class="stats-row">
-            <span class="pace"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)} · Completed!</span>
-          </div>
-          `}
 
           ${!isCompleted ? `
-            <div class="progress-input" style="margin-top: 10px;">
+            <div class="progress-input">
               <input type="number" id="progress-${book.id}" placeholder="${progressPlaceholder}" min="0" max="${book.total}" step="${progressStep}" value="${inputValue}">
               <span style="font-size: 0.85rem; color: var(--secondary); min-width: ${isHours ? '40px' : '55px'};">${progressLabel}</span>
               <button class="btn-update" onclick="updateProgress('${book.id}')">Update</button>
@@ -2023,7 +3882,7 @@
 
     function renderGantt() {
       const container = document.getElementById('ganttContainer');
-      const schedule = generateSchedule();
+      if (!container) return;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
@@ -2041,31 +3900,96 @@
         return;
       }
 
-      // Book scheduled ranges
-      const bookRanges = {};
+      // Book scheduled ranges + segmented bars from tasks data
+      const bookSegments = {};
+      const todayKey = dateStr(today);
       activeBooks.forEach(book => {
-        const bookDates = Object.keys(schedule)
-          .filter(d => schedule[d] && schedule[d].some(s => s.bookId === book.id))
-          .sort();
-        if (bookDates.length > 0) {
-          bookRanges[book.id] = {
-            start: new Date(bookDates[0] + 'T00:00:00'),
-            end: new Date(bookDates[bookDates.length - 1] + 'T00:00:00')
-          };
-        } else {
-          bookRanges[book.id] = { start: new Date(today), end: new Date(book.dueDate) };
+        const bookTasks = Object.keys(tasks)
+          .filter(k => tasks[k].bookId === book.id && tasks[k].status !== 'missed')
+          .map(k => tasks[k])
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        const doneTasks = bookTasks.filter(t => t.status === 'done');
+        const pendingTasks = bookTasks.filter(t => t.status === 'pending');
+
+        // Group contiguous done tasks into segments
+        const doneSegments = [];
+        if (doneTasks.length > 0) {
+          let segStart = doneTasks[0].date;
+          let segEnd = doneTasks[0].date;
+          for (let i = 1; i < doneTasks.length; i++) {
+            const prevDay = new Date(doneTasks[i - 1].date + 'T00:00:00');
+            const currDay = new Date(doneTasks[i].date + 'T00:00:00');
+            const diff = (currDay - prevDay) / (1000 * 60 * 60 * 24);
+            if (diff <= 1) {
+              segEnd = doneTasks[i].date;
+            } else {
+              doneSegments.push({ start: segStart, end: segEnd });
+              segStart = doneTasks[i].date;
+              segEnd = doneTasks[i].date;
+            }
+          }
+          doneSegments.push({ start: segStart, end: segEnd });
         }
+
+        // Pending tasks: full range track + contiguous task segments
+        let pendingSegment = null;
+        let pendingTaskSegments = [];
+        let pendingTaskDates = [];
+        if (pendingTasks.length > 0) {
+          pendingSegment = {
+            start: pendingTasks[0].date,
+            end: pendingTasks[pendingTasks.length - 1].date
+          };
+          pendingTaskDates = pendingTasks.map(t => t.date);
+          // Group contiguous pending task dates into segments
+          if (pendingTasks.length > 0) {
+            let segStart = pendingTasks[0].date;
+            let segEnd = pendingTasks[0].date;
+            for (let i = 1; i < pendingTasks.length; i++) {
+              const prevDay = new Date(pendingTasks[i - 1].date + 'T00:00:00');
+              const currDay = new Date(pendingTasks[i].date + 'T00:00:00');
+              const diff = (currDay - prevDay) / (1000 * 60 * 60 * 24);
+              if (diff <= 1) {
+                segEnd = pendingTasks[i].date;
+              } else {
+                pendingTaskSegments.push({ start: segStart, end: segEnd });
+                segStart = pendingTasks[i].date;
+                segEnd = pendingTasks[i].date;
+              }
+            }
+            pendingTaskSegments.push({ start: segStart, end: segEnd });
+          }
+        }
+
+        bookSegments[book.id] = { doneSegments, pendingSegment, pendingTaskSegments, pendingTaskDates };
       });
 
-      // Date range: 10 days before today to last due date
-      // But also ensure we show each book's first scheduled day
+      // Date range: 10 days before today to last task date or due date
       let startDate = new Date(today);
       startDate.setDate(startDate.getDate() - 10);
       let endDate = new Date(today);
       activeBooks.forEach(book => {
-        const range = bookRanges[book.id];
-        if (range.start < startDate) startDate = new Date(range.start);
-        if (range.end > endDate) endDate = new Date(range.end);
+        const segs = bookSegments[book.id];
+        segs.doneSegments.forEach(s => {
+          const end = new Date(s.end + 'T00:00:00');
+          if (end > endDate) endDate = new Date(end);
+        });
+        if (segs.pendingSegment) {
+          const end = new Date(segs.pendingSegment.end + 'T00:00:00');
+          if (end > endDate) endDate = new Date(end);
+        }
+        if (new Date(book.dueDate + 'T00:00:00') > endDate) endDate = new Date(book.dueDate + 'T00:00:00');
+      });
+
+      // Count overdue tasks per book
+      const overdueCounts = {};
+      activeBooks.forEach(book => { overdueCounts[book.id] = 0; });
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (t.status === 'pending' && t.date < todayKey && overdueCounts.hasOwnProperty(t.bookId)) {
+          overdueCounts[t.bookId]++;
+        }
       });
 
       // Calculate max days in slider and update it
@@ -2192,21 +4116,74 @@
       // Horizontal line below day header (separating dates from first book)
       timelineHtml += `<div class="gantt-row-line" style="left:0;top:${headerH}px;width:${timelineW}px;"></div>`;
 
-      // Book rows with lines at the BOTTOM of each row
+      // Book rows with segmented bars
+      function dateToIdx(dateStr) {
+        return Math.round((new Date(dateStr + 'T00:00:00') - startDate) / (1000 * 60 * 60 * 24));
+      }
+
       activeBooks.forEach((book, idx) => {
         const rowTop = headerH + idx * ROW_H;
         const isLast = idx === activeBooks.length - 1;
+        const segs = bookSegments[book.id];
+        const overdueCount = overdueCounts[book.id] || 0;
+        const overdueLabel = overdueCount > 0 ? ` · ${overdueCount} overdue` : '';
 
-        // Bar
-        const range = bookRanges[book.id];
-        const sIdx = Math.round((range.start - startDate) / (1000 * 60 * 60 * 24));
-        const eIdx = Math.round((range.end - startDate) / (1000 * 60 * 60 * 24));
-        const span = eIdx - sIdx + 1;
-        const barLeft = sIdx * dayW;
-        const barW = span * dayW;
-        const isOverdue = range.end < today;
-        const barClass = isOverdue ? 'gantt-bar overdue' : 'gantt-bar on-track';
-        timelineHtml += `<div class="${barClass}" style="left:${barLeft}px;top:${rowTop + 7}px;width:${barW}px;"><span class="bar-label">${span}d</span></div>`;
+        // Done segments — top of row
+        const doneBarTop = rowTop + 8;
+        segs.doneSegments.forEach(seg => {
+          const sIdx = dateToIdx(seg.start);
+          const eIdx = dateToIdx(seg.end);
+          const span = eIdx - sIdx + 1;
+          if (span <= 0) return;
+          const barLeft = sIdx * dayW;
+          const barW = span * dayW;
+          const label = span > 3 ? `${span}d` : '';
+          timelineHtml += `<div class="gantt-bar done" style="left:${barLeft}px;top:${doneBarTop}px;width:${barW}px;"><span class="bar-label">${label}</span></div>`;
+        });
+
+        // Pending segment — bottom of row
+        const pendingBarTop = rowTop + 22;
+        if (segs.pendingSegment) {
+          const sIdx = dateToIdx(segs.pendingSegment.start);
+          const eIdx = dateToIdx(segs.pendingSegment.end);
+          const span = eIdx - sIdx + 1;
+          if (span > 0) {
+            const barLeft = sIdx * dayW;
+            const barW = span * dayW;
+            const isOverdue = new Date(segs.pendingSegment.end + 'T00:00:00') < today;
+            const readingDays = segs.pendingTaskDates ? segs.pendingTaskDates.length : 0;
+            const trackClass = isOverdue ? 'gantt-bar-track overdue' : 'gantt-bar-track on-track';
+            // Track bar with diagonal slashes (full range)
+            timelineHtml += `<div class="${trackClass}" style="left:${barLeft}px;top:${pendingBarTop}px;width:${barW}px;"></div>`;
+            // Individual task segments (solid bars on top of track)
+            segs.pendingTaskSegments.forEach(seg => {
+              const tsIdx = dateToIdx(seg.start);
+              const teIdx = dateToIdx(seg.end);
+              const tSpan = teIdx - tsIdx + 1;
+              if (tSpan > 0) {
+                const tBarLeft = tsIdx * dayW;
+                const tBarW = tSpan * dayW;
+                const tBarClass = isOverdue ? 'gantt-bar overdue' : 'gantt-bar on-track';
+                const tLabel = tSpan > 3 ? `${tSpan}d` : '';
+                timelineHtml += `<div class="${tBarClass}" style="left:${tBarLeft}px;top:${pendingBarTop}px;width:${tBarW}px;"><span class="bar-label">${tLabel}</span></div>`;
+              }
+            });
+            // Label on track
+            const label = `${readingDays}d${overdueLabel}`;
+            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:${isOverdue ? 'var(--danger)' : 'var(--secondary)'};font-weight:600;white-space:nowrap;">${label}</span>`;
+          }
+        } else if (segs.doneSegments.length === 0) {
+          // No tasks at all — show placeholder track from today to due date
+          const sIdx = dateToIdx(dateStr(today));
+          const eIdx = dateToIdx(book.dueDate);
+          const span = eIdx - sIdx + 1;
+          if (span > 0) {
+            const barLeft = sIdx * dayW;
+            const barW = span * dayW;
+            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${pendingBarTop}px;width:${barW}px;"></div>`;
+            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:var(--secondary);font-weight:600;white-space:nowrap;">${span}d</span>`;
+          }
+        }
 
         // Row line at bottom (skip last book)
         if (!isLast) {
@@ -2248,30 +4225,44 @@
       // Combined
       container.innerHTML = `${labelsHtml}<div class="gantt-scroll" id="ganttScroll">${timelineHtml}</div>`;
 
+      // Also render to desktop container if visible
+      const desktopContainer = document.getElementById('desktopGanttContainer');
+      if (desktopContainer && desktopView === 'gantt') {
+        desktopContainer.innerHTML = `${labelsHtml}<div class="gantt-scroll" id="desktopGanttScroll">${timelineHtml}</div>`;
+      }
+
       // Scroll so today bar has one day width of left margin
       requestAnimationFrame(() => {
-        const scrollEl = document.getElementById('ganttScroll');
-        if (scrollEl && todayIdx >= 0) {
-          scrollEl.scrollLeft = Math.max(0, (todayIdx - 1) * dayW);
-        }
+        const scrollTarget = Math.max(0, (todayIdx - 1) * dayW);
+        ['ganttScroll', 'desktopGanttScroll'].forEach(id => {
+          const scrollEl = document.getElementById(id);
+          if (scrollEl && todayIdx >= 0) {
+            scrollEl.scrollLeft = scrollTarget;
+          }
+        });
       });
     }
 
     function renderCalendar() {
-      const grid = document.getElementById('calendarGrid');
-      const title = document.getElementById('calendarTitle');
-      const schedule = generateSchedule();
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      // Build day-tasks map from tasks data
+      const dayTasks = {};
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (!dayTasks[t.date]) dayTasks[t.date] = [];
+        dayTasks[t.date].push(t);
+      });
 
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let html = dayNames.map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+      let titleText = '';
 
       if (calendarView === 'monthly') {
         const year = calendarDate.getFullYear();
         const month = calendarDate.getMonth();
-        title.textContent = calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        titleText = calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
@@ -2283,58 +4274,108 @@
         for (let i = startDay - 1; i >= 0; i--) {
           const day = prevMonthLastDay - i;
           const d = new Date(year, month - 1, day);
-          html += renderCalendarDay(d, schedule, today, true, books);
+          html += renderCalendarDay(d, dayTasks, today, true, books);
         }
 
         for (let day = 1; day <= daysInMonth; day++) {
           const d = new Date(year, month, day);
-          html += renderCalendarDay(d, schedule, today, false, books);
+          html += renderCalendarDay(d, dayTasks, today, false, books);
         }
 
         const totalCells = startDay + daysInMonth;
         const remaining = (7 - (totalCells % 7)) % 7;
         for (let i = 1; i <= remaining; i++) {
           const d = new Date(year, month + 1, i);
-          html += renderCalendarDay(d, schedule, today, true, books);
+          html += renderCalendarDay(d, dayTasks, today, true, books);
         }
       } else {
         const start = new Date(calendarDate);
         start.setDate(start.getDate() - start.getDay());
-        title.textContent = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(start.getTime() + 13 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        titleText = `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${new Date(start.getTime() + 13 * 86400000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
         for (let i = 0; i < 14; i++) {
           const d = new Date(start);
           d.setDate(d.getDate() + i);
-          html += renderCalendarDay(d, schedule, today, false, books);
+          html += renderCalendarDay(d, dayTasks, today, false, books);
         }
       }
 
-      grid.innerHTML = html;
+      // Write to both mobile and desktop containers
+      const grid = document.getElementById('calendarGrid');
+      if (grid) grid.innerHTML = html;
+
+      const desktopGrid = document.getElementById('desktopCalendarGrid');
+      if (desktopGrid) desktopGrid.innerHTML = html;
+
+      // Update both calendar grid classes
+      if (grid) grid.className = `calendar-grid ${calendarView}`;
+      if (desktopGrid) desktopGrid.className = `calendar-grid ${calendarView}`;
+
+      // Update titles for both views
+      const title = document.getElementById('calendarTitle');
+      if (title) title.textContent = titleText;
+
+      const desktopTitle = document.getElementById('desktopCalendarTitle');
+      if (desktopTitle) desktopTitle.textContent = titleText;
+
+      // Update toggle buttons for both views
+      document.querySelectorAll('.calendar-toggle button').forEach(b => {
+        const view = b.textContent === 'Month' ? 'monthly' : 'biweekly';
+        b.classList.toggle('active', calendarView === view);
+      });
+      const desktopMonthly = document.getElementById('desktopCalMonthly');
+      const desktopBiweekly = document.getElementById('desktopCalBiweekly');
+      if (desktopMonthly) desktopMonthly.classList.toggle('active', calendarView === 'monthly');
+      if (desktopBiweekly) desktopBiweekly.classList.toggle('active', calendarView === 'biweekly');
     }
 
-    function renderCalendarDay(date, schedule, today, isOtherMonth, allBooks) {
+    function renderCalendarDay(date, dayTasks, today, isOtherMonth, allBooks) {
       const key = dateStr(date);
       const isToday = date.getTime() === today.getTime();
-      const dayBooks = schedule[key] || [];
+      const isPast = date < today && !isToday;
+      const tasksForDay = dayTasks[key] || [];
       const dueBooks = allBooks.filter(b => b.dueDate === key && b.completed < b.total);
 
-      const totalMinutes = dayBooks.reduce((sum, b) => sum + (b.minutes || 0), 0);
+      // Calculate total minutes from tasks
+      let totalMinutes = 0;
+      let doneCount = 0;
+      let overdueCount = 0;
+      const taskBooks = [];
+
+      tasksForDay.forEach(t => {
+        const book = allBooks.find(b => b.id === t.bookId);
+        if (!book) return;
+
+        if (t.status === 'pending' && isPast) overdueCount++;
+        if (t.status === 'done') doneCount++;
+
+        totalMinutes += book.type === 'hours'
+          ? (t.target / (book.listeningSpeed || 1)) * 60
+          : book.type === 'chapters'
+            ? t.target * (book.totalPages || 0) / book.total * 1.25
+            : t.target * 1.25;
+
+        if (taskBooks.length < 3) {
+          taskBooks.push({ title: book.title, status: t.status });
+        }
+      });
+
       const isOverloaded = totalMinutes > 120;
 
       let classes = 'calendar-day';
       if (isToday) classes += ' today';
       if (isOtherMonth) classes += ' other-month';
       if (isOverloaded) classes += ' overloaded';
+      if (overdueCount > 0) classes += ' overdue-day';
 
       let booksHtml = '';
-      if (dayBooks.length > 0) {
-        booksHtml = `<div class="book-count">${dayBooks.length} book${dayBooks.length > 1 ? 's' : ''}</div>`;
-        dayBooks.slice(0, 3).forEach(b => {
-          booksHtml += `<div class="book-title-trunc" title="${b.title}">${b.title}</div>`;
+      if (taskBooks.length > 0) {
+        const displayLabel = overdueCount > 0 ? `${overdueCount} overdue` : `${taskBooks.length} task${taskBooks.length > 1 ? 's' : ''}`;
+        booksHtml = `<div class="book-count">${displayLabel}</div>`;
+        taskBooks.forEach(b => {
+          const doneIcon = b.status === 'done' ? '✓ ' : b.status === 'missed' ? '✗ ' : '';
+          booksHtml += `<div class="book-title-trunc" title="${b.title}">${doneIcon}${b.title}</div>`;
         });
-        if (dayBooks.length > 3) {
-          booksHtml += `<div class="book-title-trunc">+${dayBooks.length - 3} more</div>`;
-        }
       }
 
       let dueHtml = '';
@@ -2348,9 +4389,12 @@
           : `~${Math.round(totalMinutes)}m`)
         : '';
 
+      const todayBadge = isToday ? `<div class="today-badge">TODAY</div>` : '';
+
       return `
         <div class="${classes}" onclick="openDayModal('${key}')">
           <div class="day-number">${date.getDate()}</div>
+          ${todayBadge}
           <div class="time-label">${timeLabel}</div>
           ${dueHtml}
           ${booksHtml}
@@ -2378,47 +4422,176 @@
       renderCalendar();
     }
 
-    function openDayModal(dateKey) {
+    function openDayModal(dateKey, preserveEdit) {
+      if (!preserveEdit) editingModalKey = null;
       currentModalDate = dateKey;
-      const schedule = generateSchedule();
-      const dayBooks = schedule[dateKey] || [];
-
       const date = new Date(dateKey + 'T00:00:00');
       document.getElementById('modalTitle').textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 
-      if (dayBooks.length === 0) {
-        document.getElementById('modalContent').innerHTML = '<p style="color: var(--secondary); text-align: center;">No books scheduled for this day.</p>';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayKey = dateStr(today);
+      const isPast = dateKey < todayKey;
+
+      // Get tasks for this date
+      const dayTasks = Object.keys(tasks)
+        .filter(k => tasks[k].date === dateKey)
+        .map(k => ({ ...tasks[k], key: k }));
+
+      if (dayTasks.length === 0) {
+        document.getElementById('modalContent').innerHTML = '<p style="color: var(--secondary); text-align: center;">No tasks for this day.</p>';
       } else {
         let html = '';
-        dayBooks.forEach(item => {
-          const logKey = `${item.bookId}-${dateKey}`;
-          const log = dailyLog[logKey] || { done: false, actualRead: 0 };
-          const book = books.find(b => b.id === item.bookId);
-          const type = item.type || 'pages';
-          const isHours = type === 'hours';
-          const listeningSpeed = book ? (book.listeningSpeed || 1) : 1;
-          const rawRemaining = book ? book.total - book.completed : 0;
+        dayTasks.forEach(task => {
+          const book = books.find(b => b.id === task.bookId);
+          if (!book) return;
 
-          html += `
-            <div class="modal-book-item">
-              <h4>${item.title}</h4>
-              <div class="target">Target: ${formatCount(item.pages, type)}${isHours ? ` (${listeningSpeed}x)` : ''}</div>
-              <div class="done-row">
-                <input type="checkbox" id="done-${item.bookId}" ${log.done ? 'checked' : ''} onchange="toggleDone('${item.bookId}')">
-                <label for="done-${item.bookId}">Mark done today</label>
+          const type = book.type || 'pages';
+          const isHours = type === 'hours';
+          const listeningSpeed = book.listeningSpeed || 1;
+
+          if (editingModalKey === task.key) {
+            // Edit mode
+            const editValue = task.status === 'missed' ? task.target : task.actual;
+            let displayActual = editValue;
+            if (isHours) {
+              displayActual = Math.round(editValue * 4) / 4;
+            } else if (type === 'chapters') {
+              displayActual = Math.round(editValue);
+            }
+
+            html += `<div class="modal-book-item modal-editing">
+              <h4>
+                <input type="number" id="modal-edit-actual-${task.key}" value="${displayActual}" step="${isHours ? '0.25' : '1'}" min="0" style="width:70px;padding:3px 6px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;" onclick="event.stopPropagation();">
+                <span style="font-size:0.78rem;color:var(--secondary);font-weight:400;">${type}</span>
+              </h4>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+                <select id="modal-edit-status-${task.key}" style="padding:3px 6px;border:2px solid var(--primary);border-radius:6px;font-size:0.78rem;background:var(--card-bg);color:var(--text);font-family:inherit;cursor:pointer;" onclick="event.stopPropagation();">
+                  <option value="done"${task.status === 'done' ? ' selected' : ''}>✓ Done</option>
+                  <option value="missed"${task.status === 'missed' ? ' selected' : ''}>✗ Missed</option>
+                </select>
+                <button onclick="saveModalEdit('${task.key}')" title="Save" style="background:none;border:none;color:var(--success);cursor:pointer;padding:4px;display:flex;align-items:center;" onclick="event.stopPropagation();">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+                <button onclick="cancelModalEdit()" title="Cancel" style="background:none;border:none;color:var(--secondary);cursor:pointer;padding:4px;display:flex;align-items:center;" onclick="event.stopPropagation();">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
-              <div class="partial-row">
-                <label>Actually ${isHours ? 'listened' : 'read'}:</label>
-                <input type="number" id="actual-${item.bookId}" value="${log.actualRead}" min="0" max="${rawRemaining}" step="${isHours ? '0.25' : '1'}" placeholder="0">
-                <span>${type}</span>
-              </div>
-            </div>
-          `;
+            </div>`;
+          } else {
+            // Normal display
+            const statusIcon = task.status === 'done' ? '✓' : task.status === 'missed' ? '✗' : '○';
+            const statusClass = task.status === 'done' ? 'task-done' : task.status === 'missed' ? 'task-missed' : '';
+
+            html += `<div class="modal-book-item ${statusClass}">
+              <h4>${statusIcon} ${book.title}</h4>
+              <div class="target">Target: ${formatCount(task.target, type)}${isHours ? ` (${listeningSpeed}x)` : ''}</div>`;
+
+            if (task.status === 'pending') {
+              const isTodayTask = dateKey === todayKey;
+              html += `<div class="done-row">`;
+              if (isTodayTask) {
+                html += `<input type="checkbox" data-action="task-check" data-task-key="${task.key}" style="accent-color:var(--primary);cursor:pointer;">
+                  <label>Mark done</label>
+                  <span id="content-${task.key}" style="margin-left:auto;display:flex;align-items:center;gap:4px;"></span>`;
+              } else {
+                html += `<input type="checkbox" id="done-${task.key}" onchange="completeTaskFromModal('${task.key}', this.checked)">
+                  <label for="done-${task.key}">Mark done</label>`;
+              }
+              if (isPast) {
+                html += `<span style="margin-left:auto;display:flex;align-items:center;gap:2px;">
+                  <button onclick="missTask('${task.key}');openDayModal('${dateKey}')" title="Mark as missed" style="background:none;border:none;color:var(--danger);cursor:pointer;padding:4px;display:flex;align-items:center;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="14" x2="15" y2="20"/><line x1="15" y1="14" x2="9" y2="20"/></svg>
+                  </button>
+                </span>`;
+              }
+              html += `</div>`;
+            } else {
+              // Done or missed — show edit controls for past dates
+              const actualDisplay = task.status === 'missed' ? formatCount(task.target, type) : formatCount(task.actual, type);
+              html += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
+                <div style="font-size:0.82rem;color:var(--secondary);">Status: ${task.status} · Completed: ${actualDisplay}</div>`;
+              if (isPast) {
+                html += `<button onclick="editTaskInModal('${task.key}')" title="Edit" style="background:none;border:none;color:var(--secondary);cursor:pointer;padding:4px;display:flex;align-items:center;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                </button>`;
+              }
+              html += `</div>`;
+            }
+
+            html += `</div>`;
+          }
         });
         document.getElementById('modalContent').innerHTML = html;
       }
 
       document.getElementById('dayModal').classList.add('open');
+    }
+
+    function editTaskInModal(key) {
+      editingModalKey = key;
+      openDayModal(currentModalDate, true);
+    }
+
+    function cancelModalEdit() {
+      editingModalKey = null;
+      openDayModal(currentModalDate);
+    }
+
+    function saveModalEdit(key) {
+      const task = tasks[key];
+      if (!task) return;
+
+      const book = books.find(b => b.id === task.bookId);
+
+      const statusEl = document.getElementById(`modal-edit-status-${key}`);
+      const actualEl = document.getElementById(`modal-edit-actual-${key}`);
+      if (!statusEl || !actualEl) return;
+
+      const newStatus = statusEl.value;
+      const newActual = parseFloat(actualEl.value) || 0;
+
+      if (!book) return;
+      const prevStatus = task.status;
+      const prevActual = task.actual;
+      const prevCompleted = book.completed;
+
+      // Push to undo stack
+      taskUndoStack.push({
+        historyEdit: true,
+        key,
+        previousStatus: prevStatus,
+        previousActual: prevActual,
+        previousBookCompleted: prevCompleted
+      });
+      if (taskUndoStack.length > MAX_UNDO) taskUndoStack.shift();
+
+      // Apply changes
+      task.status = newStatus;
+      task.actual = newStatus === 'missed' ? task.target : newActual;
+
+      // Recalculate book.completed from all done tasks
+      recalcBookCompleted(task.bookId);
+      regenerateBookTasks(task.bookId);
+
+      editingModalKey = null;
+      saveBooks();
+      saveTasks();
+      closeDayModal();
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+    }
+
+    function completeTaskFromModal(key, checked) {
+      if (checked) {
+        completeTask(key);
+        // Refresh modal to show updated status
+        setTimeout(() => {
+          if (currentModalDate) openDayModal(currentModalDate);
+        }, 50);
+      }
     }
 
     function toggleDone(bookId) {
@@ -2449,37 +4622,7 @@
     }
 
     function saveDayProgress() {
-      if (!currentModalDate) return;
-
-      const schedule = generateSchedule();
-      const dayBooks = schedule[currentModalDate] || [];
-
-      dayBooks.forEach(item => {
-        const logKey = `${item.bookId}-${currentModalDate}`;
-        const checkbox = document.getElementById(`done-${item.bookId}`);
-        const actualInput = document.getElementById(`actual-${item.bookId}`);
-
-        if (checkbox && actualInput) {
-          const actualRead = parseFloat(actualInput.value) || 0;
-          dailyLog[logKey] = {
-            done: checkbox.checked,
-            actualRead
-          };
-
-          if (actualRead > 0) {
-            const book = books.find(b => b.id === item.bookId);
-            if (book) {
-              book.completed = Math.min(book.completed + actualRead, book.total);
-            }
-          }
-        }
-      });
-
-      saveBooks();
-      saveDailyLog();
-      renderBooks();
-      renderGantt();
-      renderCalendar();
+      // Tasks are saved immediately via completeTask() onchange
       closeDayModal();
     }
 
@@ -2506,6 +4649,400 @@
         scrollEl.scrollLeft = left - 12;
       }
     }
+
+    // Phase 3: Today Tab
+    let todayDoneOpen = false;
+
+    function toggleTodayDone() {
+      todayDoneOpen = !todayDoneOpen;
+      document.getElementById('todayDoneList').classList.toggle('open', todayDoneOpen);
+      document.getElementById('todayDoneChevron').classList.toggle('open', todayDoneOpen);
+    }
+
+    function renderTaskHTML(task, isOverdue, isSidebar = false) {
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return '';
+
+      const targetLabel = formatCount(task.target, book.type);
+      const idPrefix = isSidebar ? 'dtask-' : 'task-';
+      const dateLabel = isOverdue
+        ? `<span style="font-size:0.72rem;color:#C0392B;font-weight:600;min-width:45px;flex-shrink:0;">${new Date(task.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>`
+        : '';
+      const bgStyle = isOverdue ? 'background:rgba(166,61,64,0.04);border-left:3px solid rgba(166,61,64,0.4);padding:10px 10px 10px 14px;margin:0 -10px -1px;' : '';
+
+      return `<div class="${isSidebar ? 'desktop-task-item' : 'today-task'}${isOverdue && isSidebar ? ' desktop-task-overdue' : ''}" id="${idPrefix}${task.key}" style="${bgStyle}display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(229,222,211,0.3);">
+        ${dateLabel}
+        <input type="checkbox" data-task-key="${task.key}" onclick="if(this.checked){showTaskEditInput(this);}" style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;">
+        <span class="${isSidebar ? '' : 'today-task-book'}" style="flex:1;font-size:${isSidebar ? '0.88rem' : '0.88rem'};">${book.title}</span>
+        <span class="task-content-el" data-task-key="${task.key}" style="display:flex;align-items:center;gap:6px;">
+          <span class="today-task-target" style="font-size:0.82rem;color:var(--secondary);font-weight:500;white-space:nowrap;">${targetLabel}</span>
+        </span>
+        <span class="task-btns-el" data-task-key="${task.key}" style="display:flex;align-items:center;gap:2px;">
+          <button onclick="missTask('${task.key}')" title="Mark as missed" style="background:none;border:none;color:var(--secondary);cursor:pointer;padding:4px;border-radius:4px;display:flex;align-items:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="9" y1="14" x2="15" y2="20"/><line x1="15" y1="14" x2="9" y2="20"/></svg>
+          </button>
+        </span>
+      </div>`;
+    }
+
+    function renderTodayTab() {
+      const today = dateStr(new Date());
+      const pendingTasks = [];
+      const overdueTasks = [];
+      const doneTasks = [];
+
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (t.date === today && t.status === 'pending') {
+          pendingTasks.push({ ...t, key });
+        } else if (t.date < today && t.status === 'pending') {
+          overdueTasks.push({ ...t, key });
+        } else if (t.date === today && t.status === 'done') {
+          doneTasks.push({ ...t, key });
+        }
+      });
+
+      pendingTasks.sort((a, b) => a.date.localeCompare(b.date));
+      overdueTasks.sort((a, b) => a.date.localeCompare(b.date));
+      doneTasks.sort((a, b) => a.bookId.localeCompare(b.bookId));
+
+      // Mobile: Date header
+      const dateEl = document.getElementById('todayDate');
+      if (dateEl) {
+        dateEl.textContent = new Date(today + 'T00:00:00').toLocaleDateString('en-US', {
+          weekday: 'long', month: 'long', day: 'numeric'
+        });
+      }
+
+      // Mobile: Summary
+      const summaryEl = document.getElementById('todaySummary');
+      if (summaryEl) {
+        const totalToday = pendingTasks.length + doneTasks.length;
+        const doneCount = doneTasks.length;
+        const totalMin = [...doneTasks].reduce((sum, t) => {
+          const book = books.find(b => b.id === t.bookId);
+          if (!book) return sum;
+          return sum + (book.type === 'hours'
+            ? (t.actual / (book.listeningSpeed || 1)) * 60
+            : book.type === 'chapters'
+              ? t.actual * (book.totalPages || 0) / book.total * 1.25
+              : t.actual * 1.25);
+        }, 0);
+        const minLabel = totalMin >= 60
+          ? `${Math.floor(totalMin / 60)}h ${Math.round(totalMin % 60)}m`
+          : `${Math.round(totalMin)}m`;
+        summaryEl.innerHTML = `<strong>${doneCount}/${totalToday}</strong> tasks done · <strong>${minLabel}</strong> total`;
+      }
+
+      // Pending tasks HTML
+      let pendingHtml = '';
+      if (pendingTasks.length > 0) {
+        pendingHtml = pendingTasks.map(t => renderTaskHTML(t, false)).join('');
+      } else {
+        pendingHtml = '<div style="padding:12px 0;color:var(--secondary);font-size:0.85rem;">No tasks scheduled for today</div>';
+      }
+
+      // Overdue tasks HTML
+      let overdueHtml = '';
+      if (overdueTasks.length > 0) {
+        overdueHtml = overdueTasks.map(t => renderTaskHTML(t, true)).join('');
+      }
+
+      // Write to mobile
+      const pendingTitle = document.getElementById('todayPendingTitle');
+      const pendingList = document.getElementById('todayPendingList');
+      if (pendingTitle) pendingTitle.textContent = `Today's Tasks (${pendingTasks.length})`;
+      if (pendingList) pendingList.innerHTML = pendingHtml;
+
+      const overdueSection = document.getElementById('todayOverdueSection');
+      const overdueList = document.getElementById('todayOverdueList');
+      if (overdueSection) overdueSection.style.display = overdueTasks.length > 0 ? 'block' : 'none';
+      if (overdueList) overdueList.innerHTML = overdueHtml;
+
+      // Done today
+      const doneList = document.getElementById('todayDoneList');
+      const doneSection = document.getElementById('todayDoneSection');
+      if (doneSection) doneSection.style.display = doneTasks.length > 0 ? 'block' : 'none';
+      if (doneList) {
+        doneList.innerHTML = doneTasks.map(t => {
+          const book = books.find(b => b.id === t.bookId);
+          if (!book) return '';
+          const delta = t.actual - t.target;
+          let deltaHtml = '';
+          if (Math.abs(delta) < 0.001) {
+            deltaHtml = `<span class="task-delta-badge exact">Exact</span>`;
+          } else if (delta > 0) {
+            deltaHtml = `<span class="task-delta-badge above">+${formatCount(delta, book.type)} above</span>`;
+          } else {
+            deltaHtml = `<span class="task-delta-badge below">${formatCount(Math.abs(delta), book.type)} below</span>`;
+          }
+          return `<div class="today-task done" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(229,222,211,0.3);">
+            <span style="color:var(--success);font-weight:700;">✓</span>
+            <span class="today-task-book" style="flex:1;font-size:0.88rem;">${book.title}</span>
+            <span style="font-size:0.82rem;color:var(--secondary);">${formatCount(t.actual, book.type)}</span>
+            ${deltaHtml}
+          </div>`;
+        }).join('');
+      }
+
+      // Write to desktop sidebar
+      const sidebarList = document.getElementById('sidebarTodayList');
+      if (sidebarList) {
+        let sidebarHtml = '';
+        if (pendingTasks.length > 0) {
+          sidebarHtml += `<div class="sidebar-section-label">Today (${pendingTasks.length})</div>`;
+          sidebarHtml += pendingTasks.map(t => renderTaskHTML(t, false, true)).join('');
+        }
+        if (overdueTasks.length > 0) {
+          sidebarHtml += `<div class="sidebar-section-label overdue">Overdue (${overdueTasks.length})</div>`;
+          sidebarHtml += overdueTasks.map(t => renderTaskHTML(t, true, true)).join('');
+        }
+        if (!sidebarHtml) sidebarHtml = '<div style="color:var(--secondary);font-size:0.82rem;text-align:center;padding:20px 0;">No tasks today</div>';
+        sidebarList.innerHTML = sidebarHtml;
+        restoreEditingTasks(sidebarList);
+      }
+    }
+    function renderHistoryTab() {
+      const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
+      const timeFilter = document.getElementById('historyTimeFilter')?.value || '7';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayKey = dateStr(today);
+
+      let historyTasks = Object.keys(tasks)
+        .map(key => ({ ...tasks[key], key }))
+        .filter(t => (t.status === 'done' || t.status === 'missed') && t.date <= todayKey);
+
+      if (timeFilter !== 'all') {
+        const cutoff = new Date(today);
+        cutoff.setDate(cutoff.getDate() - parseInt(timeFilter));
+        historyTasks = historyTasks.filter(t => t.date >= dateStr(cutoff));
+      }
+
+      if (statusFilter === 'done') historyTasks = historyTasks.filter(t => t.status === 'done' && t.actual >= t.target);
+      else if (statusFilter === 'missed') historyTasks = historyTasks.filter(t => t.status === 'missed');
+      else if (statusFilter === 'partial') historyTasks = historyTasks.filter(t => t.status === 'done' && t.actual < t.target);
+
+      const byDate = {};
+      historyTasks.forEach(t => {
+        if (!byDate[t.date]) byDate[t.date] = [];
+        byDate[t.date].push(t);
+      });
+
+      const sortedDates = Object.keys(byDate).sort().reverse();
+
+      const renderHistoryHTML = (tasks, isSidebar) => {
+        let html = '';
+        sortedDates.forEach(dateKey => {
+          const dateObj = new Date(dateKey + 'T00:00:00');
+          let headerLabel;
+          if (dateKey === todayKey) headerLabel = 'Today';
+          else {
+            const yesterday = new Date(today);
+            yesterday.setDate(yesterday.getDate() - 1);
+            if (dateKey === dateStr(yesterday)) headerLabel = 'Yesterday';
+            else headerLabel = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+          }
+
+          html += `<div class="${isSidebar ? 'sidebar-history-' : ''}history-date-group">
+            <div class="${isSidebar ? 'sidebar-' : ''}history-date-header">${headerLabel}</div>`;
+
+          byDate[dateKey].sort((a, b) => {
+            const bookA = books.find(bk => bk.id === a.bookId)?.title || '';
+            const bookB = books.find(bk => bk.id === b.bookId)?.title || '';
+            return bookA.localeCompare(bookB);
+          }).forEach(t => {
+            const book = books.find(b => b.id === t.bookId);
+            if (!book) return;
+            let icon, iconClass, amountLabel;
+            if (t.status === 'missed') { icon = '✗'; iconClass = 'missed'; amountLabel = formatCount(t.target, book.type); }
+            else if (t.actual >= t.target) { icon = '✓'; iconClass = 'done'; amountLabel = formatCount(t.actual, book.type); }
+            else { icon = '~'; iconClass = 'partial'; amountLabel = `${formatCount(t.actual, book.type)} / ${formatCount(t.target, book.type)}`; }
+
+            html += `<div class="${isSidebar ? 'sidebar-' : ''}history-item" onclick="openDayModal('${t.date}')" style="cursor:pointer;" title="Click to edit">
+              <span class="history-status-icon ${iconClass}">${icon}</span>
+              <span class="history-book-title">${book.title}</span>
+              <span class="history-amount">${amountLabel}</span>
+            </div>`;
+          });
+
+          html += '</div>';
+        });
+        return html;
+      };
+
+      // Mobile
+      const mobileList = document.getElementById('historyList');
+      if (mobileList) {
+        if (historyTasks.length === 0) {
+          mobileList.innerHTML = '<div class="history-empty">No history yet. Complete tasks to see them here!</div>';
+        } else {
+          mobileList.innerHTML = renderHistoryHTML(historyTasks, false);
+        }
+      }
+
+      // Desktop sidebar
+      const sidebarList = document.getElementById('sidebarHistoryList');
+      if (sidebarList) {
+        if (historyTasks.length === 0) {
+          sidebarList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--secondary);font-size:0.8rem;">No history</div>';
+        } else {
+          sidebarList.innerHTML = renderHistoryHTML(historyTasks, true);
+        }
+      }
+    }
+    // Desktop Layout Functions
+
+    function preserveEditingTask(key) {
+      const contentEl = document.getElementById(`content-${key}`);
+      if (contentEl) {
+        editingTaskHTML[key] = contentEl.innerHTML;
+        editingTaskKeys.add(key);
+      }
+    }
+
+    function restoreEditingTasks(listEl) {
+      editingTaskKeys.forEach(key => {
+        const taskEl = listEl.querySelector(`#dtask-${key}`);
+        if (taskEl) {
+          const contentEl = taskEl.querySelector(`#content-${key}`);
+          if (contentEl) {
+            contentEl.innerHTML = editingTaskHTML[key] || '';
+            const input = contentEl.querySelector('.task-inline-input');
+            if (input) {
+              input.onkeydown = (e) => {
+                if (e.key === 'Enter') { confirmTaskCompletion(key); e.preventDefault(); }
+              };
+            }
+          }
+        }
+      });
+    }
+
+    function switchSidebarTab(tab) {
+      sidebarTab = tab;
+      document.querySelectorAll('.sidebar-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.sidebar-panel').forEach(p => p.classList.remove('active'));
+      const tabMap = { books: 0, today: 1, history: 2 };
+      const panelMap = { books: 'sidebarBooksPanel', today: 'sidebarTodayPanel', history: 'sidebarHistoryPanel' };
+      document.querySelectorAll('.sidebar-tab-btn')[tabMap[tab]].classList.add('active');
+      document.getElementById(panelMap[tab]).classList.add('active');
+      scheduleDesktopRender();
+    }
+
+    function switchDesktopView(view) {
+      desktopView = view;
+      document.getElementById('viewToggleCalendar').classList.toggle('active', view === 'calendar');
+      document.getElementById('viewToggleGantt').classList.toggle('active', view === 'gantt');
+      document.getElementById('desktopCalendarArea').style.display = view === 'calendar' ? 'block' : 'none';
+      document.getElementById('desktopGanttArea').style.display = view === 'gantt' ? 'block' : 'none';
+      scheduleDesktopRender();
+    }
+
+    function toggleSidebarAdd() {
+      const form = document.getElementById('sidebarAddForm');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function updateSidebarType() {
+      const type = document.querySelector('input[name="sidebar-type"]:checked').value;
+      document.getElementById('sidebar-chaptersGroup').style.display = type === 'chapters' ? 'block' : 'none';
+      document.getElementById('sidebar-hoursGroup').style.display = type === 'hours' ? 'block' : 'none';
+    }
+
+
+    function renderDesktopGantt() {
+      renderGantt();
+    }
+
+    // Single debounced render for desktop - only renders active views
+    let desktopRenderPending = false;
+    function scheduleDesktopRender() {
+      if (desktopRenderPending) return;
+      desktopRenderPending = true;
+      requestAnimationFrame(() => {
+        desktopRenderPending = false;
+        renderDesktop();
+      });
+    }
+
+    function renderDesktop() {
+      if (sidebarTab === 'books') renderBooks();
+      else if (sidebarTab === 'today') renderTodayTab();
+      else if (sidebarTab === 'history') renderHistoryTab();
+
+      requestAnimationFrame(() => {
+        if (desktopView === 'calendar') renderCalendar();
+        else if (desktopView === 'gantt') renderDesktopGantt();
+      });
+    }
+
+    // Event delegation for sidebar
+    document.querySelector('.desktop-sidebar').addEventListener('click', (e) => {
+      const bookEl = e.target.closest('#sidebarBookList .book-card');
+      if (bookEl) {
+        bookEl.classList.toggle('expanded');
+        return;
+      }
+      const missBtn = e.target.closest('[data-action="miss-task"]');
+      if (missBtn) {
+        e.stopPropagation();
+        missTask(missBtn.dataset.taskKey);
+      }
+    });
+
+    // Desktop Gantt slider
+    const desktopGanttSlider = document.getElementById('desktopGanttZoomSlider');
+    const desktopGanttValueLabel = document.getElementById('desktopGanttZoomValue');
+    if (desktopGanttSlider) {
+      desktopGanttSlider.addEventListener('input', () => {
+        ganttDaySpan = parseInt(desktopGanttSlider.value);
+        desktopGanttValueLabel.textContent = `${ganttDaySpan} day${ganttDaySpan !== 1 ? 's' : ''}`;
+        renderDesktopGantt();
+      });
+    }
+
+    // Undo handler
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z' && taskUndoStack.length > 0) {
+        e.preventDefault();
+        const action = taskUndoStack.pop();
+
+        if (action.historyEdit) {
+          const task = tasks[action.key];
+          if (!task) return;
+          task.status = action.previousStatus;
+          task.actual = action.previousActual;
+          const book = books.find(b => b.id === task.bookId);
+          if (book) book.completed = action.previousBookCompleted;
+        } else if (action.missAction) {
+          const task = tasks[action.missedKey];
+          if (!task) return;
+          task.status = action.previousStatus;
+          if (action.previousTargets) {
+            Object.keys(action.previousTargets).forEach(k => {
+              if (tasks[k]) tasks[k].target = action.previousTargets[k];
+            });
+          }
+        } else {
+          const task = tasks[action.key];
+          if (!task) return;
+          task.status = action.previousStatus;
+          task.actual = action.previousActual;
+          const book = books.find(b => b.id === task.bookId);
+          if (book) book.completed = action.bookCompletedBefore;
+        }
+
+        saveBooks();
+        saveTasks();
+        renderBooks();
+        renderGantt();
+        renderCalendar();
+        renderTodayTab();
+        renderHistoryTab();
+        scheduleDesktopRender();
+      }
+    });
   </script>
 </body>
 </html>

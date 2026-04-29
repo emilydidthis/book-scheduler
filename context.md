@@ -1,20 +1,50 @@
-# Book Tracker v2 - Session Context
+# Book Scheduler v2 - Session Context
 
 ## Project
-Single-page book reading tracker with auto-scheduling, calendar view, and cloud sync option.
+Single-page book reading tracker with auto-scheduling, calendar view, Gantt chart, task system, and cloud sync option.
 
 ## Files
-- `index.html` — Main app (single file, ~2065 lines)
+- `index.html` — Main app (single file, ~5050 lines)
 - `SPEC.md` — Original specification document (outdated)
 - `apps-script.js` — Google Apps Script for cloud sync backend
+- `designs.html` — Design explorations
 - `context.md` — This file
 
-## What Was Built
+## Key Changes Since v2
+
+### Cloud Sync Overhaul
+- **Local-first merge** — LocalStorage is source of truth. On load, cloud data patches gaps in local data (never overwrites).
+- **`cloudSaveQueue`** — Reliable background saves.
+- **Missing `recalcBookCompleted()`** added — recalculates `book.completed` from sum of all done task `actual` values. Critical fix: modal editing was silently failing to update book progress.
+
+### Task Regeneration (Always Correct)
+- **`regenerateBookTasks(bookId)`** — Now cleans up orphaned missed tasks (past dates no longer in the new schedule) in addition to deleting future pending tasks.
+- **`regenerateAllBooksTasks()`** — New. Deletes ALL future pending tasks for ALL active books on page load, then regenerates from scratch. Ensures task targets always match current `book.completed`.
+- **All task completion paths** (`updateProgress`, `confirmTaskCompletion`, `completeTask`, `missTask`, `saveModalEdit`) now call `regenerateBookTasks()` to redistribute remaining pages after any progress change.
+
+### UI Fixes
+- **`adjustReadingDays()`** was missing entirely — added. +/- spread buttons now work.
+- **Mobile task inline editing** — Fixed duplicate ID collision between mobile and desktop containers. Changed to DOM traversal from clicked checkbox to find correct content element.
+- **History items now clickable** — Opens day modal for that date, supporting editing.
+- **Due date on book cards** — Status text now shows both relative time and actual date (e.g., "5d left (May 4)").
+- **Sidebar add form styled** — Proper spacing, borders, focus states, hover effects.
+- **`updateSidebarType()`** fixed — removed reference to non-existent `sidebar-pagesGroup`.
+
+### Task Indicator Dots
+- Shows ALL tasks including completed ones (not just future).
+- Tooltip shows actual completed amount for done tasks, target for pending.
+- Colors match gantt chart: green = done, red = missed, grey outline = on-track pending.
+- Orphaned past pending tasks hidden (schedule shifted away from those days).
+- Auto-cleanup of orphaned missed tasks when schedule regenerates.
+
+## What Was Built (Complete Feature List)
 
 ### 1. Tabs Navigation
 - **Books** tab (default): Add form, book list, completed section
+- **Today** tab: Pending, overdue, and done tasks
 - **Calendar** tab: Monthly/2-week view with navigation
-- Tab switching shows/hides content, renders calendar on switch
+- **Gantt** tab: Horizontal timeline with segmented bars
+- **History** tab: Task history grouped by date, filterable
 
 ### 2. Add Book Form
 - Book title (text)
@@ -25,13 +55,11 @@ Single-page book reading tracker with auto-scheduling, calendar view, and cloud 
 - Due date picker — auto-calculates days and estimated daily time
 
 ### 3. Book Cards (Compact 2-Column Grid)
-- Book title (no speed badge — removed in favor of time-based scheduling)
-- Progress bar
-- Daily target: shows today's reading amount and estimated time, or date range with per-day average
-- **Schedule info bar**: Shows `Xd · Y/day · Zh total` with +/- buttons to adjust reading span
-- Stats row: Progress (click to edit total) and Due (click to change due date)
-- Progress input with Update button
-- Delete button
+- Book title, progress bar, schedule badge
+- Stats row: Progress (click to edit total) / Due (click to change due date, shows date)
+- Spread control: +/- buttons to adjust reading span (`targetDays`)
+- Task indicator dots: Green=done, Red=missed, Grey=pending. Hover for date+amount.
+- Progress input with Update button, Delete button
 
 ### 4. Auto-Schedule Engine (Time-Based)
 - **Reading speed**: 1 page = 1.25 minutes
@@ -40,61 +68,90 @@ Single-page book reading tracker with auto-scheduling, calendar view, and cloud 
 - **Target**: 60 minutes/day, but can exceed if needed to fit all books
 - **Hard cap**: Max 3 books per day (non-negotiable)
 - Books sorted by due date (earliest gets priority)
-- **Scheduling**: Spreads each book evenly across all available days from today to due date, skipping days already at 3 books
-- **targetDays field**: If set, limits how many days a book is spread across (picked from least-loaded days)
-- **Chapter cap**: Chapter books max out at 1 chapter/day (no fractional chapters)
-- Recalculates on: add book, delete book, update progress, change due date, adjust reading span
+- **Scheduling**: Spreads each book evenly, picking least-loaded days
+- **targetDays field**: If set, limits how many days a book is spread across
+- **Chapter cap**: Chapter books max out at 1 chapter/day
 
 ### 5. Calendar View
 - **Monthly view**: Full month grid with prev/next navigation
 - **2-week view**: 14-day grid starting from current week's Sunday
-- Each day cell shows:
-  - Day number
-  - Time estimate: `~2h 30m`, `~45m`, or empty (no reading)
-  - Due date indicators (red text, truncated titles)
-  - Book count (e.g., "3 books")
-  - Truncated book titles (max 3, then "+N more")
-- Today highlighted with border
-- **Overloaded days** (over 2 hours total): Red border + red background tint
+- Overloaded days (over 2 hours): Red border + red background tint
 - Click day → modal
+- Both mobile and desktop containers render simultaneously
 
 ### 6. Day Modal
 - Date as heading
-- List of scheduled books with:
-  - Book title
-  - Target amount for that day
-  - "Mark done today" checkbox (auto-fills actual read with target)
-  - "Actually read/listened X" input for partial completion
-- Save button updates progress immediately in Books tab
+- List of scheduled books with target, checkbox, actual input
+- Inline editing for past tasks (status + amount)
+- Save button updates progress immediately
 
-### 7. Editable Fields on Cards
-- **Progress stat**: Click to edit total pages/chapters/hours (for chapter books, also prompts for total pages for time estimation)
-- **Due stat**: Click to show inline date picker and change due date
-- **Schedule info +/- buttons**: Adjust `targetDays` — how many days the book is spread across (capped at days until due date, or remaining chapters for chapter books)
+### 7. Today Tab
+- Date header with task summary ("X/Y tasks done · Z min total")
+- Today's pending tasks with inline edit-on-checkbox
+- Overdue section (past pending tasks)
+- Collapsible "Done Today" section with delta badges (+above/-below)
 
-### 8. Cloud Sync (Optional)
-- **Default**: localStorage (works offline, data persists locally)
+### 8. Task History Tab
+- Groups tasks by date (newest first)
+- Status icons: ✓ done, ✗ missed, ~ partial
+- Filters: status (All/Done/Missed/Partial) + time range (7 days / 30 days / All)
+- Click any entry to open day modal for editing
+
+### 9. Gantt Chart
+- **Green bars (top)** — Completed task days, grouped into contiguous segments
+- **Tan/Red bars (bottom)** — Pending schedule. Tan = on-track, Red = overdue
+- **Track bars** with diagonal slashes showing full range
+- Zoom slider, scroll-to-today on load
+- Book labels on left, month/day headers on top
+
+### 10. Desktop Layout
+- Left sidebar with tabs (Books/Today/History)
+- Right main area with Calendar or Gantt view
+- Toggle between views
+- Add book form in sidebar
+- Shared render functions — CSS handles visual differences via parent-scoped selectors
+
+### 11. Cloud Sync (Optional)
+- **Default**: localStorage (works offline)
 - **Optional**: Google Sheets via Google Apps Script
-- Setup instructions shown in banner if not configured
-- Sync status indicator (bottom-right): "No cloud" / "Synced" / "Sync failed"
-- Falls back to localStorage if cloud is unavailable
-- `apps-script.js` creates its own Google Sheet called "Book Tracker Data" in user's Drive
+- Local-first merge on load, background push on save
+- Sync status indicator (bottom-right)
 
-### 9. Loading & Skeleton States
-- Skeleton loaders shown while fetching from cloud
-- Loading overlay with spinner during initial load
+### 12. Task System
+- **Tasks data model**: `{ bookId, date, target, actual, status: "pending"|"done"|"missed" }`
+- **`generateTasks()`** — Fill-in-gaps only
+- **`regenerateBookTasks(bookId)`** — Deletes future pending + orphaned missed tasks, regenerates
+- **`regenerateAllBooksTasks()`** — Same for all active books (page load)
+- **`resetAllTasksFrom(startDate)`** — One-time full reset
+- **`cleanupOverdueTasks()`** — Marks overdue pending tasks as done where `book.completed` accounts for them
+- **`redistributeAmount()`** — Splits shortfall across future tasks (remainder in last)
+- **Inline edit**: Checkbox click shows number input for current position
+- **Multi-undo**: Ctrl+Z/Cmd+Z, up to 50 actions
+
+## Task Completion Flow
+1. **Update button** (book card input): `updateProgress()` → sets `book.completed`, regenerates tasks
+2. **Today tab checkbox**: `showTaskEditInput()` → `confirmTaskCompletion()` → delta = newCompleted - oldCompleted
+3. **Day modal checkbox**: `completeTask()` → marks done, regenerates tasks
+4. **Day modal miss**: `missTask()` → marks missed, regenerates tasks
+5. **History edit**: `saveModalEdit()` → updates task, recalculates book, regenerates tasks
+
+All paths call `regenerateBookTasks()` to ensure future task targets always match remaining pages.
+
+## Rounding Strategy
+- **Chapter books**: Whole numbers (Math.round)
+- **Hours books**: Quarter-hour precision (Math.round(x * 4) / 4)
+- **Page books**: 2 decimal places (Math.round(x * 100) / 100)
 
 ## Key Design Decisions
-
-1. **Time-based scheduling** — Not speed-based; 1 page = 1.25 min, target 60 min/day
-2. **3 books hard cap** — Never exceeds 3 books per day; time can go over 60 min if needed
-3. **Spread evenly** — Each book spreads across all days from today to due date
-4. **Least-loaded day selection** — When targetDays is set, picks the days with fewest existing minutes
-5. **Chapter cap at 1/day** — Fractional chapters don't make sense; max spread = remaining chapters
-6. **Editable totals** — Click progress stat to fix page/chapter counts per book
-7. **No more speed selector** — The app determines the schedule automatically
-8. **localStorage first, cloud optional** — Works immediately, sync is opt-in
-9. **Google Sheets as backend** — Free, no API keys, no OAuth, user owns their data
+1. **Time-based scheduling** — 1 page = 1.25 min, target 60 min/day
+2. **3 books hard cap** — Never exceeds 3 books per day
+3. **Due date is deadline** — Not a reading day. `maxDays = daysUntilDue`
+4. **Least-loaded day selection** — When targetDays is set, picks days with fewest existing minutes
+5. **Chapter cap at 1/day** — Fractional chapters don't make sense
+6. **localStorage first, cloud optional** — Works immediately, sync is opt-in
+7. **Tasks are persistent** — Regenerate future pending only, preserve past history
+8. **Due date parsing** — Always use `new Date(dateStr + 'T00:00:00')` for local timezone
+9. **Orphaned cleanup** — Missed tasks on dates no longer in schedule are deleted on regeneration
 
 ## Data Model
 ```javascript
@@ -111,10 +168,13 @@ Single-page book reading tracker with auto-scheduling, calendar view, and cloud 
   createdAt: string (ISO date)
 }
 
-// Daily Log (keyed by "bookId-YYYY-MM-DD")
+// Tasks (keyed by "bookId-YYYY-MM-DD")
 {
-  done: boolean,
-  actualRead: number
+  bookId: string,
+  date: string,
+  target: number,
+  actual: number,
+  status: "pending" | "done" | "missed"
 }
 
 // Schedule entry (keyed by "YYYY-MM-DD")
@@ -130,11 +190,12 @@ Single-page book reading tracker with auto-scheduling, calendar view, and cloud 
 ]
 ```
 
-## Removed Features (from earlier versions)
+## Removed Features
 - Speed selector (7/12/20 days) — replaced by time-based auto-scheduling
 - Speed badge and dropdown on cards
 - `speed` and `dailyTarget` fields on books
 - `getOverloadedDays()` helper (unused)
+- Manual redistribution via `redistributeAmount()` — now replaced by full `regenerateBookTasks()` on all completion paths
 
 ## Setup for Cloud Sync
 1. Go to [script.new](https://script.new)
@@ -142,3 +203,7 @@ Single-page book reading tracker with auto-scheduling, calendar view, and cloud 
 3. Deploy → New deployment → Web app
 4. Set "Who has access" to **Anyone**
 5. Copy URL, paste into `index.html` at `YOUR_APPS_SCRIPT_URL_HERE`
+
+## GitHub Pages
+- Repo: `book-scheduler`
+- Deployed via GitHub Pages (branch: main, path: /)
