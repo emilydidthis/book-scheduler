@@ -2777,18 +2777,11 @@
       if (!resetDate && !hasTaskHistory) {
         resetAllTasksFrom('2026-04-23');
       } else {
-        // Clean up past non-done tasks that are no longer relevant
+        // Delete all past pending tasks — they're stale after regeneration
         const todayKey = dateStr(new Date());
         Object.keys(tasks).forEach(key => {
           const t = tasks[key];
-          if (t.date >= todayKey) return; // only past tasks
-          if (t.status === 'done') return; // keep completed history
-
-          const book = books.find(b => b.id === t.bookId);
-          if (!book) { delete tasks[key]; return; } // orphaned task
-
-          // If book.completed >= what this task required, delete the past non-done task
-          if (book.completed >= t.target) {
+          if (t.date < todayKey && t.status === 'pending') {
             delete tasks[key];
           }
         });
