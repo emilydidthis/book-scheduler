@@ -2586,10 +2586,10 @@
       let localTasks = JSON.parse(localStorage.getItem('tasks')) || {};
 
       // One-time data correction for stale completed values (runs before merge)
-      if (!localStorage.getItem('dataFixed_v2026_04_29_v2')) {
+      if (!localStorage.getItem('dataFixed_v2026_04_29_v3')) {
         const corrections = {
-          'mo9elskst8z6a9p1dc': { completed: 73, title: 'Animal Farm' },
-          'mo9etf059sfo09dw99q': { completed: 13, title: 'Scythe' }
+          'mo9elskst8z6a9p1dc': { completed: 73, title: 'Animal Farm', prevCompleted: 30 },
+          'mo9etf059sfo09dw99q': { completed: 13, title: 'Scythe', prevCompleted: 9 }
         };
         localBooks = localBooks.map(b => {
           const c = corrections[b.id];
@@ -2600,19 +2600,38 @@
           return b;
         });
 
-        // Fix Animal Farm's yesterday task actual (was 4, should be 43)
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayStr = dateStr(yesterday);
-        const afYesterdayKey = 'mo9elskst8z6a9p1dc-' + yesterdayStr;
-        if (localTasks[afYesterdayKey]) {
-          localTasks[afYesterdayKey].actual = 43;
-          console.log(`[Data fix] Animal Farm task for ${yesterdayStr}: actual 4 → 43`);
-        }
+        const todayKey = dateStr(new Date());
+
+        Object.keys(localTasks).forEach(key => {
+          const t = localTasks[key];
+
+          // Fix Animal Farm yesterday task: actual should be the delta (73 - 30 = 43)
+          const af = corrections['mo9elskst8z6a9p1dc'];
+          if (t.bookId === 'mo9elskst8z6a9p1dc' && t.date === yesterdayStr) {
+            t.actual = af.completed - af.prevCompleted;
+            t.status = 'done';
+            console.log(`[Data fix] Animal Farm ${yesterdayStr}: actual → ${t.actual}`);
+          }
+
+          // Clear Canticle phantom today task
+          if (t.bookId === 'moabcp6qlbsbzeeq9lf' && t.date === todayKey && t.status === 'done') {
+            console.log(`[Data fix] Clearing Canticle phantom task for ${todayKey}`);
+            delete localTasks[key];
+          }
+
+          // Clear Remarkably Bright Creatures phantom today task (if exists)
+          if (t.bookId === 'mo9eo9cwssrsz224kk' && t.date === todayKey && t.status === 'done') {
+            console.log(`[Data fix] Clearing Remarkably Bright Creatures phantom task for ${todayKey}`);
+            delete localTasks[key];
+          }
+        });
 
         localStorage.setItem('books', JSON.stringify(localBooks));
         localStorage.setItem('tasks', JSON.stringify(localTasks));
-        localStorage.setItem('dataFixed_v2026_04_29_v2', '1');
+        localStorage.setItem('dataFixed_v2026_04_29_v3', '1');
         console.log('[Data fix] Applied and marked complete');
       }
 
@@ -2799,13 +2818,30 @@
 
         // Clear Canticle's phantom today task (if marked done but shouldn't be)
         const canticleId = 'moabcp6qlbsbzeeq9lf';
+        const rbcId = 'mo9eo9cwssrsz224kk';
         Object.keys(tasks).forEach(key => {
           const t = tasks[key];
-          if (t.bookId === canticleId && t.date === todayKey && t.status === 'done' && t.actual > 0) {
-            console.log(`[Data fix] Clearing phantom Canticle task for ${todayKey}`);
+
+          // Clear Canticle/RBC phantom today tasks
+          if ((t.bookId === canticleId || t.bookId === rbcId) && t.date === todayKey && t.status === 'done' && t.actual > 0) {
+            console.log(`[Data fix] Clearing phantom task for ${t.bookId} ${todayKey}`);
             delete tasks[key];
           }
+
+          // Fix Animal Farm yesterday task: actual should be 73 - 30 = 43
+          const yesterday = new Date();
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = dateStr(yesterday);
+          if (t.bookId === 'mo9elskst8z6a9p1dc' && t.date === yesterdayStr) {
+            t.actual = 43;
+            t.status = 'done';
+            console.log(`[Data fix] Animal Farm ${yesterdayStr}: actual → 43`);
+          }
         });
+
+        // Save corrected tasks to localStorage and cloud
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        saveToCloud();
 
         // Existing data present: only regenerate future pending tasks
         cleanupOverdueTasks();
