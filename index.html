@@ -2601,11 +2601,21 @@
         });
 
         const todayKey = dateStr(new Date());
+        const deathsEndId = 'moab95q3klryl443b9';
+        const canticleId = 'moabcp6qlbsbzeeq9lf';
+
         Object.keys(localTasks).forEach(key => {
           const t = localTasks[key];
-          const book = localBooks.find(b => b.id === t.bookId);
-          if (book && book.title === 'Canticle for Liebowitz' && t.date === todayKey && t.status === 'done' && t.actual > 0) {
-            console.log(`[Data fix] Clearing phantom Canticle task for ${todayKey}`);
+
+          // Remove all past non-done Death's End tasks
+          if (t.bookId === deathsEndId && t.date < todayKey && (t.status === 'missed' || t.status === 'pending')) {
+            console.log(`[Data fix] Removing ${t.status} Death's End task for ${t.date}`);
+            delete localTasks[key];
+          }
+
+          // Remove ALL Canticle tasks for today
+          if (t.bookId === canticleId && t.date === todayKey) {
+            console.log(`[Data fix] Clearing Canticle task for ${todayKey} (${t.status}, actual=${t.actual})`);
             delete localTasks[key];
           }
         });
