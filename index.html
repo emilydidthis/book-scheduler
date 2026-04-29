@@ -2586,7 +2586,7 @@
       let localTasks = JSON.parse(localStorage.getItem('tasks')) || {};
 
       // One-time data correction for stale completed values (runs before merge)
-      if (!localStorage.getItem('dataFixed_v2026_04_29')) {
+      if (!localStorage.getItem('dataFixed_v2026_04_29_v2')) {
         const corrections = {
           'mo9elskst8z6a9p1dc': { completed: 73, title: 'Animal Farm' },
           'mo9etf059sfo09dw99q': { completed: 13, title: 'Scythe' }
@@ -2612,7 +2612,7 @@
 
         localStorage.setItem('books', JSON.stringify(localBooks));
         localStorage.setItem('tasks', JSON.stringify(localTasks));
-        localStorage.setItem('dataFixed_v2026_04_29', '1');
+        localStorage.setItem('dataFixed_v2026_04_29_v2', '1');
         console.log('[Data fix] Applied and marked complete');
       }
 
