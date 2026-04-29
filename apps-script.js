@@ -54,6 +54,14 @@ function doPost(e) {
   if (action === 'saveBooks') {
     return saveBooks(data.books);
   }
+  if (action === 'saveTasks') {
+    return saveTasks(data.tasks);
+  }
+  if (action === 'saveAll') {
+    saveBooks(data.books);
+    saveTasks(data.tasks);
+    return jsonResponse({ success: true });
+  }
   if (action === 'saveDailyLog') {
     return saveDailyLog(data.log);
   }
@@ -79,17 +87,18 @@ function getBooks() {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   
-  let booksJson = null;
-  let logJson = null;
+  let booksJson = null, logJson = null, tasksJson = null;
   
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === 'books') booksJson = data[i][1];
     if (data[i][0] === 'dailyLog') logJson = data[i][1];
+    if (data[i][0] === 'tasks') tasksJson = data[i][1];
   }
   
   return jsonResponse({
     books: booksJson ? JSON.parse(booksJson) : [],
-    dailyLog: logJson ? JSON.parse(logJson) : {}
+    dailyLog: logJson ? JSON.parse(logJson) : {},
+    tasks: tasksJson ? JSON.parse(tasksJson) : {}
   });
 }
 
@@ -108,6 +117,26 @@ function saveBooks(books) {
   
   if (!found) {
     sheet.appendRow(['books', JSON.stringify(books)]);
+  }
+  
+  return jsonResponse({ success: true });
+}
+
+function saveTasks(tasks) {
+  const sheet = getSheet();
+  const data = sheet.getDataRange().getValues();
+  
+  let found = false;
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0] === 'tasks') {
+      sheet.getRange(i + 1, 2).setValue(JSON.stringify(tasks));
+      found = true;
+      break;
+    }
+  }
+  
+  if (!found) {
+    sheet.appendRow(['tasks', JSON.stringify(tasks)]);
   }
   
   return jsonResponse({ success: true });
@@ -168,21 +197,20 @@ function deleteBook(id) {
   const sheet = getSheet();
   const data = sheet.getDataRange().getValues();
   
-  let books = [];
-  let log = {};
+  let books = [], tasks = {};
   
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === 'books') books = JSON.parse(data[i][1]);
-    if (data[i][0] === 'dailyLog') log = JSON.parse(data[i][1]);
+    if (data[i][0] === 'tasks') tasks = JSON.parse(data[i][1]);
   }
   
   books = books.filter(b => b.id !== id);
-  Object.keys(log).forEach(key => {
-    if (key.startsWith(id + '-')) delete log[key];
+  Object.keys(tasks).forEach(key => {
+    if (key.startsWith(id + '-')) delete tasks[key];
   });
   
   saveBooks(books);
-  saveDailyLog(log);
+  saveTasks(tasks);
   return jsonResponse({ success: true });
 }
 

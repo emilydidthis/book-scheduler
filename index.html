@@ -2525,7 +2525,7 @@
       while (cloudSaveQueue.length > 0) {
         cloudSaveQueue.shift();
         try {
-          const payload = JSON.stringify({ action: 'saveBooks', books });
+          const payload = JSON.stringify({ action: 'saveAll', books, tasks });
           const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
