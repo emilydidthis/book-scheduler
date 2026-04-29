@@ -2597,6 +2597,39 @@
         }));
         dailyLog = localLog;
         tasks = localTasks;
+
+        // One-time data correction for stale completed values
+        if (!localStorage.getItem('dataFixed_v2026_04_29')) {
+          const corrections = {
+            'mo9elskst8z6a9p1dc': { completed: 73, title: 'Animal Farm' },
+            'mo9etf059sfo09dw99q': { completed: 13, title: 'Scythe' }
+          };
+          books = books.map(b => {
+            const c = corrections[b.id];
+            if (c) {
+              console.log(`[Data fix] ${c.title}: ${b.completed} → ${c.completed}`);
+              return { ...b, completed: c.completed };
+            }
+            return b;
+          });
+
+          // Clear Canticle's phantom today task
+          const todayKey = dateStr(new Date());
+          Object.keys(tasks).forEach(key => {
+            const t = tasks[key];
+            const book = books.find(b => b.id === t.bookId);
+            if (book && book.title === 'Canticle for Liebowitz' && t.date === todayKey && t.status === 'done' && t.actual > 0) {
+              console.log(`[Data fix] Clearing phantom Canticle task for ${todayKey}`);
+              delete tasks[key];
+            }
+          });
+
+          localStorage.setItem('books', JSON.stringify(books));
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+          localStorage.setItem('dataFixed_v2026_04_29', '1');
+          console.log('[Data fix] Applied and marked complete');
+        }
+
         isLoading = false;
         loadingEl.style.display = 'none';
         if (skeletonEl) skeletonEl.classList.add('hidden');
