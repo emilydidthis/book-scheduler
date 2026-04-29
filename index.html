@@ -2631,20 +2631,21 @@
             });
           });
         }
+        // Run task regeneration after rendering
+        runTaskRegeneration();
         return;
       }
 
       bannerEl.style.display = 'none';
 
-      // Step 2: Fetch from cloud in background - DON'T await, let browser paint first
-      (async () => {
-        try {
-          const res = await fetch(API_URL + '?action=getBooks');
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          const data = await res.json();
-          const cloudBooks = data.books || [];
-          const cloudLog = data.dailyLog || {};
-          const cloudTasks = data.tasks || {};
+      // Step 2: Fetch from cloud — await so task regeneration runs AFTER sync
+      try {
+        const res = await fetch(API_URL + '?action=getBooks');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const cloudBooks = data.books || [];
+        const cloudLog = data.dailyLog || {};
+        const cloudTasks = data.tasks || {};
 
         // Normalize
         const normalized = cloudBooks.map(b => ({
@@ -2716,47 +2717,52 @@
 
         // Always push latest local to cloud
         setTimeout(() => saveToCloud(), 500);
-
-        try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
-        requestAnimationFrame(() => {
-          try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
-          try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
-        });
-        scheduleDesktopRender();
-        } catch (e) {
-          console.error('Cloud sync failed:', e);
-          if (localBooks.length > 0) {
-            syncTextEl.textContent = 'Local (sync failed)';
-          } else {
-            syncTextEl.textContent = 'Sync failed';
-          }
-          syncDot.className = 'dot local';
-        }
-      })();
-
-      // Defer loading cleanup + task regeneration to next tick so browser can paint the sidebar first
-      setTimeout(() => {
-        isLoading = false;
-        loadingEl.style.display = 'none';
-        if (skeletonEl) skeletonEl.classList.add('hidden');
-        syncEl.style.display = 'flex';
-
-        // One-time reset: regenerate all tasks from April 23
-        const resetDate = localStorage.getItem('tasksResetFrom');
-        if (!resetDate) {
-          resetAllTasksFrom('2026-04-23');
+      } catch (e) {
+        console.error('Cloud sync failed:', e);
+        if (localBooks.length > 0) {
+          syncTextEl.textContent = 'Local (sync failed)';
         } else {
-          // Regenerate all future pending tasks from current progress
-          cleanupOverdueTasks();
-          regenerateAllBooksTasks();
+          syncTextEl.textContent = 'Sync failed';
         }
-        try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
-        requestAnimationFrame(() => {
-          try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
-          try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
-        });
-        scheduleDesktopRender();
-      }, 0);
+        syncDot.className = 'dot local';
+        // If cloud failed and we have no data, show banner
+        if (books.length === 0) {
+          bannerEl.style.display = 'block';
+        }
+      }
+
+      // Step 3: Final render + task regeneration AFTER sync is done
+      isLoading = false;
+      loadingEl.style.display = 'none';
+      if (skeletonEl) skeletonEl.classList.add('hidden');
+      syncEl.style.display = 'flex';
+
+      try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+      requestAnimationFrame(() => {
+        try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+        try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+      });
+
+      runTaskRegeneration();
+      scheduleDesktopRender();
+    }
+
+    function runTaskRegeneration() {
+      // One-time reset: regenerate all tasks from April 23
+      const resetDate = localStorage.getItem('tasksResetFrom');
+      if (!resetDate) {
+        resetAllTasksFrom('2026-04-23');
+      } else {
+        // Regenerate all future pending tasks from current progress
+        cleanupOverdueTasks();
+        regenerateAllBooksTasks();
+      }
+      try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
+      requestAnimationFrame(() => {
+        try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+        try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+      });
+      scheduleDesktopRender();
     }
 
     function generateId() {
