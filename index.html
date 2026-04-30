@@ -1082,28 +1082,17 @@
 
     .gantt-bar-track {
       position: absolute;
+      height: 20px;
       border-radius: 4px;
     }
 
     .gantt-bar-track.on-track {
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 10px,
-        rgba(139, 69, 19, 0.35) 10px,
-        rgba(139, 69, 19, 0.35) 11px
-      );
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='20'%3E%3Cline x1='0' y1='0' x2='22' y2='40' stroke='%238B4513' stroke-width='1' stroke-opacity='0.45'/%3E%3C/svg%3E");
       background-size: 11px 20px;
     }
 
     .gantt-bar-track.overdue {
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 10px,
-        rgba(166, 61, 64, 0.45) 10px,
-        rgba(166, 61, 64, 0.45) 11px
-      );
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='20'%3E%3Cline x1='0' y1='0' x2='22' y2='40' stroke='%23A63D40' stroke-width='1' stroke-opacity='0.55'/%3E%3C/svg%3E");
       background-size: 11px 20px;
     }
 
@@ -4166,9 +4155,9 @@
         timelineHtml += `<div class="gantt-day-cell today-col" style="left:${todayIdx * dayW}px;top:${headerH}px;width:${dayW}px;height:${chartH - headerH}px;"></div>`;
       }
 
-      // Vertical grid lines (MONTH_H to chartH) — subtle
+      // Vertical grid lines (MONTH_H to chartH)
       for (let i = 0; i <= totalDays; i++) {
-        timelineHtml += `<div class="gantt-grid-line" style="left:${i * dayW}px;top:${MONTH_H}px;height:${chartH - MONTH_H}px;opacity:0.4;"></div>`;
+        timelineHtml += `<div class="gantt-grid-line" style="left:${i * dayW}px;top:${MONTH_H}px;height:${chartH - MONTH_H}px;"></div>`;
       }
 
       // Month row background (opaque)
@@ -4252,7 +4241,7 @@
           }
         });
 
-        // Render diagonal stripes only in gaps between pending segments (full row height)
+        // Render diagonal stripes only in gaps between pending segments
         for (let i = 0; i < segs.pendingTaskSegments.length - 1; i++) {
           const gapEnd = dateToIdx(segs.pendingTaskSegments[i].end);
           const gapStart = dateToIdx(segs.pendingTaskSegments[i + 1].start);
@@ -4260,7 +4249,7 @@
           if (gapSpan > 0) {
             const gapLeft = (gapEnd + 1) * dayW;
             const gapW = gapSpan * dayW;
-            timelineHtml += `<div class="gantt-bar-track overdue" style="left:${gapLeft}px;top:${rowTop}px;width:${gapW}px;height:${ROW_H}px;"></div>`;
+            timelineHtml += `<div class="gantt-bar-track overdue" style="left:${gapLeft}px;top:${barTop}px;width:${gapW}px;"></div>`;
           }
         }
 
@@ -4281,7 +4270,7 @@
           if (span > 0) {
             const barLeft = sIdx * dayW;
             const barW = span * dayW;
-            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${rowTop}px;width:${barW}px;height:${ROW_H}px;"></div>`;
+            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${barTop}px;width:${barW}px;"></div>`;
             timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${barTop}px;line-height:20px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${span}d</span>`;
           }
         }
