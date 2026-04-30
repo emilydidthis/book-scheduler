@@ -3433,7 +3433,7 @@
       const book = books.find(b => b.id === task.bookId);
       if (!book) return;
 
-      const contentEl = document.getElementById(`content-${taskKey}`);
+      const contentEl = document.querySelector(`.task-content-el[data-task-key="${taskKey}"]`);
       if (!contentEl) return;
 
       const typeUnit = book.type === 'hours' ? 'h' : book.type === 'chapters' ? 'ch' : 'pg';
@@ -3503,7 +3503,7 @@
       regenerateBookTasks(task.bookId);
 
       // Show inline result briefly, then re-render sidebar to remove completed task
-      const contentEl = document.getElementById(`content-${taskKey}`);
+      const contentEl = document.querySelector(`.task-content-el[data-task-key="${taskKey}"]`);
       if (contentEl) {
         const readLabel = formatCount(delta, book.type);
         const tDelta = task.actual - task.target;
