@@ -1058,8 +1058,8 @@
 
     .gantt-bar {
       position: absolute;
-      height: 14px;
-      border-radius: 3px;
+      height: 20px;
+      border-radius: 4px;
       display: flex;
       align-items: center;
       transition: opacity 0.15s;
@@ -1082,8 +1082,8 @@
 
     .gantt-bar-track {
       position: absolute;
-      height: 14px;
-      border-radius: 3px;
+      height: 20px;
+      border-radius: 4px;
     }
 
     .gantt-bar-track.on-track {
@@ -1115,6 +1115,8 @@
       white-space: nowrap;
       padding: 0 4px;
       text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      position: relative;
+      line-height: 20px;
     }
 
     .gantt-today-line {
@@ -4225,50 +4227,54 @@
         const overdueCount = overdueCounts[book.id] || 0;
         const overdueLabel = overdueCount > 0 ? ` · ${overdueCount} overdue` : '';
 
-        // Done segments — top of row
-        const doneBarTop = rowTop + 8;
-        segs.doneSegments.forEach(seg => {
+        // Single centered bar position for all segments
+        const barTop = rowTop + 11;
+
+        // Combine all segments (done + pending) sorted by date to find gaps
+        const allSegments = [];
+        segs.doneSegments.forEach(s => allSegments.push({ ...s, status: 'done' }));
+        segs.pendingTaskSegments.forEach(s => allSegments.push({ ...s, status: 'pending' }));
+        allSegments.sort((a, b) => a.start.localeCompare(b.start));
+
+        // Render solid bars for each segment
+        const isPendingOverdue = segs.pendingSegment ? new Date(segs.pendingSegment.end + 'T00:00:00') < today : false;
+        allSegments.forEach(seg => {
           const sIdx = dateToIdx(seg.start);
           const eIdx = dateToIdx(seg.end);
           const span = eIdx - sIdx + 1;
           if (span <= 0) return;
           const barLeft = sIdx * dayW;
           const barW = span * dayW;
-          const label = span > 3 ? `${span}d` : '';
-          timelineHtml += `<div class="gantt-bar done" style="left:${barLeft}px;top:${doneBarTop}px;width:${barW}px;"><span class="bar-label">${label}</span></div>`;
+          if (seg.status === 'done') {
+            const label = span > 3 ? `${span}d` : '';
+            timelineHtml += `<div class="gantt-bar done" style="left:${barLeft}px;top:${barTop}px;width:${barW}px;"><span class="bar-label">${label}</span></div>`;
+          } else {
+            timelineHtml += `<div class="gantt-bar ${isPendingOverdue ? 'overdue' : 'on-track'}" style="left:${barLeft}px;top:${barTop}px;width:${barW}px;"></div>`;
+          }
         });
 
-        // Pending segment — bottom of row
-        const pendingBarTop = rowTop + 22;
-        if (segs.pendingSegment) {
-          const sIdx = dateToIdx(segs.pendingSegment.start);
-          const eIdx = dateToIdx(segs.pendingSegment.end);
-          const span = eIdx - sIdx + 1;
-          if (span > 0) {
-            const barLeft = sIdx * dayW;
-            const barW = span * dayW;
-            const isOverdue = new Date(segs.pendingSegment.end + 'T00:00:00') < today;
-            const readingDays = segs.pendingTaskDates ? segs.pendingTaskDates.length : 0;
-            const trackClass = isOverdue ? 'gantt-bar-track overdue' : 'gantt-bar-track on-track';
-            // Track bar with diagonal slashes (full range)
-            timelineHtml += `<div class="${trackClass}" style="left:${barLeft}px;top:${pendingBarTop}px;width:${barW}px;"></div>`;
-            // Individual task segments (solid bars on top of track)
-            segs.pendingTaskSegments.forEach(seg => {
-              const tsIdx = dateToIdx(seg.start);
-              const teIdx = dateToIdx(seg.end);
-              const tSpan = teIdx - tsIdx + 1;
-              if (tSpan > 0) {
-                const tBarLeft = tsIdx * dayW;
-                const tBarW = tSpan * dayW;
-                const tBarClass = isOverdue ? 'gantt-bar overdue' : 'gantt-bar on-track';
-                timelineHtml += `<div class="${tBarClass}" style="left:${tBarLeft}px;top:${pendingBarTop}px;width:${tBarW}px;"></div>`;
-              }
-            });
-            // Label on track
-            const label = `${readingDays}d${overdueLabel}`;
-            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${label}</span>`;
+        // Render diagonal stripes only in gaps between segments
+        for (let i = 0; i < allSegments.length - 1; i++) {
+          const gapEnd = dateToIdx(allSegments[i].end);
+          const gapStart = dateToIdx(allSegments[i + 1].start);
+          const gapSpan = gapStart - gapEnd - 1;
+          if (gapSpan > 0) {
+            const gapLeft = (gapEnd + 1) * dayW;
+            const gapW = gapSpan * dayW;
+            timelineHtml += `<div class="gantt-bar-track overdue" style="left:${gapLeft}px;top:${barTop}px;width:${gapW}px;"></div>`;
           }
-        } else if (segs.doneSegments.length === 0) {
+        }
+
+        // Label: total reading days
+        if (allSegments.length > 0) {
+          const totalReadingDays = segs.doneSegments.reduce((s, seg) => {
+            const start = dateToIdx(seg.start), end = dateToIdx(seg.end);
+            return s + (end - start + 1);
+          }, 0) + segs.pendingTaskDates.length;
+          const firstSeg = allSegments[0];
+          const labelLeft = dateToIdx(firstSeg.start) * dayW;
+          timelineHtml += `<span class="bar-label" style="position:absolute;left:${labelLeft + 4}px;top:${barTop}px;line-height:20px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${totalReadingDays}d${overdueLabel}</span>`;
+        } else if (segs.doneSegments.length === 0 && !segs.pendingSegment) {
           // No tasks at all — show placeholder track from today to due date
           const sIdx = dateToIdx(dateStr(today));
           const eIdx = dateToIdx(book.dueDate);
@@ -4276,8 +4282,8 @@
           if (span > 0) {
             const barLeft = sIdx * dayW;
             const barW = span * dayW;
-            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${pendingBarTop}px;width:${barW}px;"></div>`;
-            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${pendingBarTop}px;line-height:14px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${span}d</span>`;
+            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${barTop}px;width:${barW}px;"></div>`;
+            timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${barTop}px;line-height:20px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${span}d</span>`;
           }
         }
 
