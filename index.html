@@ -3757,13 +3757,11 @@
         canCondense = currentTarget > 1;
         canSpread = currentTarget < effectiveMax;
 
-        // Task indicator dots (done + missed + today/future pending only)
+        // Task indicator dots (done + missed + overdue pending + today/future pending)
         const bookAllTasks = Object.keys(tasks)
           .filter(k => {
             const t = tasks[k];
-            if (t.bookId !== book.id) return false;
-            if (t.status !== 'pending') return true;  // done/missed always shown
-            return t.date >= todayKey;  // only pending tasks that are today or future
+            return t.bookId === book.id;
           })
           .map(k => ({ ...tasks[k], key: k }))
           .sort((a, b) => a.date.localeCompare(b.date));
@@ -3775,6 +3773,7 @@
             let dotStatus;
             if (t.status === 'done') dotStatus = 'done';
             else if (t.status === 'missed') dotStatus = 'missed';
+            else if (t.status === 'pending' && t.date < todayKey) dotStatus = 'overdue';
             else dotStatus = 'on-track';
             const todayClass = isToday ? ' today' : '';
             const dateLabel = new Date(t.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
