@@ -1082,7 +1082,6 @@
 
     .gantt-bar-track {
       position: absolute;
-      height: 20px;
       border-radius: 4px;
     }
 
@@ -4167,9 +4166,9 @@
         timelineHtml += `<div class="gantt-day-cell today-col" style="left:${todayIdx * dayW}px;top:${headerH}px;width:${dayW}px;height:${chartH - headerH}px;"></div>`;
       }
 
-      // Vertical grid lines (MONTH_H to chartH)
+      // Vertical grid lines (MONTH_H to chartH) — subtle
       for (let i = 0; i <= totalDays; i++) {
-        timelineHtml += `<div class="gantt-grid-line" style="left:${i * dayW}px;top:${MONTH_H}px;height:${chartH - MONTH_H}px;"></div>`;
+        timelineHtml += `<div class="gantt-grid-line" style="left:${i * dayW}px;top:${MONTH_H}px;height:${chartH - MONTH_H}px;opacity:0.4;"></div>`;
       }
 
       // Month row background (opaque)
@@ -4253,7 +4252,7 @@
           }
         });
 
-        // Render diagonal stripes only in gaps between pending segments
+        // Render diagonal stripes only in gaps between pending segments (full row height)
         for (let i = 0; i < segs.pendingTaskSegments.length - 1; i++) {
           const gapEnd = dateToIdx(segs.pendingTaskSegments[i].end);
           const gapStart = dateToIdx(segs.pendingTaskSegments[i + 1].start);
@@ -4261,7 +4260,7 @@
           if (gapSpan > 0) {
             const gapLeft = (gapEnd + 1) * dayW;
             const gapW = gapSpan * dayW;
-            timelineHtml += `<div class="gantt-bar-track overdue" style="left:${gapLeft}px;top:${barTop}px;width:${gapW}px;"></div>`;
+            timelineHtml += `<div class="gantt-bar-track overdue" style="left:${gapLeft}px;top:${rowTop}px;width:${gapW}px;height:${ROW_H}px;"></div>`;
           }
         }
 
@@ -4282,7 +4281,7 @@
           if (span > 0) {
             const barLeft = sIdx * dayW;
             const barW = span * dayW;
-            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${barTop}px;width:${barW}px;"></div>`;
+            timelineHtml += `<div class="gantt-bar-track on-track" style="left:${barLeft}px;top:${rowTop}px;width:${barW}px;height:${ROW_H}px;"></div>`;
             timelineHtml += `<span class="bar-label" style="position:absolute;left:${barLeft + 4}px;top:${barTop}px;line-height:20px;z-index:2;font-size:0.72rem;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5);font-weight:600;white-space:nowrap;">${span}d</span>`;
           }
         }
