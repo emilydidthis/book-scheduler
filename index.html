@@ -2575,54 +2575,15 @@
       const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
       let localTasks = JSON.parse(localStorage.getItem('tasks')) || {};
 
-      // One-time data correction for stale completed values (runs before merge)
-      if (!localStorage.getItem('dataFixed_v2026_04_29_v3')) {
-        const corrections = {
-          'mo9elskst8z6a9p1dc': { completed: 73, title: 'Animal Farm', prevCompleted: 30 },
-          'mo9etf059sfo09dw99q': { completed: 13, title: 'Scythe', prevCompleted: 9 }
-        };
-        localBooks = localBooks.map(b => {
-          const c = corrections[b.id];
-          if (c) {
-            console.log(`[Data fix] ${c.title}: ${b.completed} → ${c.completed}`);
-            return { ...b, completed: c.completed };
-          }
-          return b;
-        });
-
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = dateStr(yesterday);
-        const todayKey = dateStr(new Date());
-
-        Object.keys(localTasks).forEach(key => {
-          const t = localTasks[key];
-
-          // Fix Animal Farm yesterday task: actual should be the delta (73 - 30 = 43)
-          const af = corrections['mo9elskst8z6a9p1dc'];
-          if (t.bookId === 'mo9elskst8z6a9p1dc' && t.date === yesterdayStr) {
-            t.actual = af.completed - af.prevCompleted;
-            t.status = 'done';
-            console.log(`[Data fix] Animal Farm ${yesterdayStr}: actual → ${t.actual}`);
-          }
-
-          // Clear Canticle phantom today task
-          if (t.bookId === 'moabcp6qlbsbzeeq9lf' && t.date === todayKey && t.status === 'done') {
-            console.log(`[Data fix] Clearing Canticle phantom task for ${todayKey}`);
-            delete localTasks[key];
-          }
-
-          // Clear Remarkably Bright Creatures phantom today task (if exists)
-          if (t.bookId === 'mo9eo9cwssrsz224kk' && t.date === todayKey && t.status === 'done') {
-            console.log(`[Data fix] Clearing Remarkably Bright Creatures phantom task for ${todayKey}`);
-            delete localTasks[key];
-          }
-        });
-
+      // One-time data restoration (runs before merge)
+      if (!localStorage.getItem('dataRestored_v2026_05_04')) {
+        console.log('[Data restore] Applying saved task data...');
+        localBooks = [{"id":"mo9elskst8z6a9p1dc","title":"Animal Farm","type":"pages","total":141,"dueDate":"2026-05-01","speed":7,"dailyTarget":21,"completed":73,"createdAt":"2026-04-22T01:58:33.196Z","listeningSpeed":1,"totalPages":null,"targetDays":3},{"id":"mo9eo9cwssrsz224kk","title":"Remarkably Bright Creatures","type":"pages","total":355,"dueDate":"2026-05-14","speed":20,"dailyTarget":30,"completed":0,"createdAt":"2026-04-22T02:00:28.256Z","listeningSpeed":1,"totalPages":null,"targetDays":10},{"id":"mo9etf059sfo09dw99q","title":"Scythe","type":"chapters","total":40,"dueDate":"2026-05-05","speed":12,"dailyTarget":4,"completed":13,"createdAt":"2026-04-22T02:04:28.853Z","listeningSpeed":1,"totalPages":460,"targetDays":6},{"id":"mo9hhi3pegfmcepsmzi","title":"We Are Each Other's Liberation","type":"chapters","total":5,"dueDate":"2026-05-19","speed":12,"dailyTarget":1,"completed":0,"createdAt":"2026-04-22T03:19:11.845Z","listeningSpeed":1,"totalPages":50,"targetDays":21},{"id":"moab95q3klryl443b9","title":"Death's End","type":"pages","total":600,"dueDate":"2026-05-23","speed":20,"listeningSpeed":1,"dailyTarget":86,"completed":60,"createdAt":"2026-04-22T17:12:31.035Z","totalPages":null,"targetDays":16},{"id":"moabazx9q6zfy5hh00h","title":"Catalina","type":"pages","total":200,"dueDate":"2026-05-13","speed":7,"listeningSpeed":1,"dailyTarget":29,"completed":0,"createdAt":"2026-04-22T17:13:56.829Z","totalPages":null,"targetDays":5},{"id":"moabcp6qlbsbzeeq9lf","title":"Canticle for Liebowitz","type":"hours","total":11,"dueDate":"2026-05-11","speed":7,"listeningSpeed":1.5,"dailyTarget":1.25,"completed":6.5,"createdAt":"2026-04-22T17:15:16.226Z","totalPages":null,"targetDays":8}];
+        localTasks = {"moabcp6qlbsbzeeq9lf-2026-04-23":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-23","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-23":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-23","target":37,"actual":30,"status":"done"},"moab95q3klryl443b9-2026-04-23":{"bookId":"moab95q3klryl443b9","date":"2026-04-23","target":45,"actual":45,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-24":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-24","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-24":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-24","target":37,"actual":37,"status":"done"},"moab95q3klryl443b9-2026-04-24":{"bookId":"moab95q3klryl443b9","date":"2026-04-24","target":45,"actual":15,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-25":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-25","target":0.64,"actual":0.64,"status":"done"},"mo9etf059sfo09dw99q-2026-04-25":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-25","target":5,"actual":5,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-26":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-26","target":0.64,"actual":0.64,"status":"done"},"mo9etf059sfo09dw99q-2026-04-26":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-26","target":5,"actual":4,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-27":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-27","target":0.64,"actual":0.64,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-28":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-28","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-28":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-28","target":37,"actual":43,"status":"done"},"mo9etf059sfo09dw99q-2026-04-28":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-28","target":5,"actual":4,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-29":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-29","target":34,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-04-29":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-29","target":5,"actual":0,"status":"pending"},"mo9elskst8z6a9p1dc-2026-04-30":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-30","target":34,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-04-30":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-30","target":5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-01":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-01","target":5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-01":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-01","target":0.56,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-01":{"bookId":"moab95q3klryl443b9","date":"2026-05-01","target":33.75,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-02":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-02","target":5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-02":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-02","target":35.5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-03":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-03","target":5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-03":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-03","target":35.5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-04":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-04","target":2,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-04":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-04","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-04":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-04","target":35.5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-05":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-05","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-05":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-05","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-05":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-05","target":35.5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-06":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-06","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-06":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-06","target":40,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-06":{"bookId":"moab95q3klryl443b9","date":"2026-05-06","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-07":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-07","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-07":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-07","target":40,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-07":{"bookId":"moab95q3klryl443b9","date":"2026-05-07","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-08":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-08","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-08":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-08","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-08":{"bookId":"moab95q3klryl443b9","date":"2026-05-08","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-09":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-09","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-09":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-09","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-09":{"bookId":"moab95q3klryl443b9","date":"2026-05-09","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-10":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-10","target":0.58,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-10":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-10","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-10":{"bookId":"moab95q3klryl443b9","date":"2026-05-10","target":33.75,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-11":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-11","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-11":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-11","target":35.5,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-12":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-12","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-12":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-12","target":35.5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-13":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-13","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-13":{"bookId":"moab95q3klryl443b9","date":"2026-05-13","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-14":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-14","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-14":{"bookId":"moab95q3klryl443b9","date":"2026-05-14","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-15":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-15","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-15":{"bookId":"moab95q3klryl443b9","date":"2026-05-15","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-16":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-16","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-16":{"bookId":"moab95q3klryl443b9","date":"2026-05-16","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-17":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-17","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-17":{"bookId":"moab95q3klryl443b9","date":"2026-05-17","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-18":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-18","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-18":{"bookId":"moab95q3klryl443b9","date":"2026-05-18","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-19":{"bookId":"moab95q3klryl443b9","date":"2026-05-19","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-20":{"bookId":"moab95q3klryl443b9","date":"2026-05-20","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-21":{"bookId":"moab95q3klryl443b9","date":"2026-05-21","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-22":{"bookId":"moab95q3klryl443b9","date":"2026-05-22","target":33.75,"actual":0,"status":"pending"}};
         localStorage.setItem('books', JSON.stringify(localBooks));
         localStorage.setItem('tasks', JSON.stringify(localTasks));
-        localStorage.setItem('dataFixed_v2026_04_29_v3', '1');
-        console.log('[Data fix] Applied and marked complete');
+        localStorage.setItem('dataRestored_v2026_05_04', '1');
+        console.log('[Data restore] Complete');
       }
 
       if (localBooks.length > 0) {
@@ -2797,44 +2758,7 @@
       if (!resetDate && !hasTaskHistory) {
         resetAllTasksFrom('2026-04-23');
       } else {
-        // Delete all past pending tasks — they're stale after regeneration
-        const todayKey = dateStr(new Date());
-        Object.keys(tasks).forEach(key => {
-          const t = tasks[key];
-          if (t.date < todayKey && t.status === 'pending') {
-            delete tasks[key];
-          }
-        });
-
-        // Clear Canticle's phantom today task (if marked done but shouldn't be)
-        const canticleId = 'moabcp6qlbsbzeeq9lf';
-        const rbcId = 'mo9eo9cwssrsz224kk';
-        Object.keys(tasks).forEach(key => {
-          const t = tasks[key];
-
-          // Clear Canticle/RBC phantom today tasks
-          if ((t.bookId === canticleId || t.bookId === rbcId) && t.date === todayKey && t.status === 'done' && t.actual > 0) {
-            console.log(`[Data fix] Clearing phantom task for ${t.bookId} ${todayKey}`);
-            delete tasks[key];
-          }
-
-          // Fix Animal Farm yesterday task: actual should be 73 - 30 = 43
-          const yesterday = new Date();
-          yesterday.setDate(yesterday.getDate() - 1);
-          const yesterdayStr = dateStr(yesterday);
-          if (t.bookId === 'mo9elskst8z6a9p1dc' && t.date === yesterdayStr) {
-            t.actual = 43;
-            t.status = 'done';
-            console.log(`[Data fix] Animal Farm ${yesterdayStr}: actual → 43`);
-          }
-        });
-
-        // Save corrected tasks to localStorage and cloud
-        localStorage.setItem('tasks', JSON.stringify(tasks));
-        saveToCloud();
-
         // Existing data present: only regenerate future pending tasks
-        cleanupOverdueTasks();
         regenerateAllBooksTasks();
       }
       try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
@@ -3292,21 +3216,6 @@
       });
       const schedule = generateSchedule();
       generateTasks(schedule);
-
-      // Clean up orphaned missed tasks (past dates not in new schedule)
-      const newScheduleDates = new Set();
-      Object.keys(schedule).forEach(dateKey => {
-        schedule[dateKey].forEach(entry => {
-          if (entry.bookId === bookId) newScheduleDates.add(dateKey);
-        });
-      });
-      Object.keys(tasks).forEach(key => {
-        const t = tasks[key];
-        if (t.bookId === bookId && t.status === 'missed' && t.date < today && !newScheduleDates.has(t.date)) {
-          delete tasks[key];
-        }
-      });
-
       saveTasks();
     }
 
@@ -3323,21 +3232,6 @@
       });
       const schedule = generateSchedule();
       generateTasks(schedule);
-
-      // Clean up orphaned missed tasks (past dates not in new schedule) for all active books
-      const newScheduleDates = new Set();
-      Object.keys(schedule).forEach(dateKey => {
-        schedule[dateKey].forEach(entry => {
-          if (activeBookIds.has(entry.bookId)) newScheduleDates.add(dateKey);
-        });
-      });
-      Object.keys(tasks).forEach(key => {
-        const t = tasks[key];
-        if (activeBookIds.has(t.bookId) && t.status === 'missed' && t.date < today && !newScheduleDates.has(t.date)) {
-          delete tasks[key];
-        }
-      });
-
       saveTasks();
     }
 
@@ -3352,63 +3246,38 @@
       saveTasks();
     }
 
-    // Cleanup: mark overdue pending tasks as 'done' if book.completed already accounts for them.
-    // Preserves history — doesn't delete tasks, just marks them done.
-    // Comprehensive task sync: marks pending tasks as 'done' where book.completed
-    // already accounts for them. Walks tasks in date order, cumulative.
+    // Cleanup: mark today's pending task as 'done' if book.completed already accounts for it.
+    // Only processes today's tasks — never retroactively completes past days.
     function cleanupOverdueTasks() {
       const today = dateStr(new Date());
       let changed = false;
 
-      // Group ONLY past-date pending tasks by bookId, sorted by date
-      const pendingByBook = {};
       Object.keys(tasks).forEach(key => {
         const t = tasks[key];
-        if (t.status === 'pending' && t.date < today) {
-          if (!pendingByBook[t.bookId]) pendingByBook[t.bookId] = [];
-          pendingByBook[t.bookId].push({ key, ...t });
-        }
-      });
+        if (t.status !== 'pending' || t.date !== today) return;
 
-      Object.keys(pendingByBook).forEach(bookId => {
-        const book = books.find(b => b.id === bookId);
+        const book = books.find(b => b.id === t.bookId);
         if (!book) return;
 
         // Sum all done/missed task targets for this book
         let completedViaTasks = 0;
-        Object.keys(tasks).forEach(key => {
-          const t = tasks[key];
-          if (t.bookId === bookId && (t.status === 'done' || t.status === 'missed')) {
-            completedViaTasks += t.actual || t.target;
+        Object.keys(tasks).forEach(k => {
+          const ot = tasks[k];
+          if (ot.bookId === t.bookId && (ot.status === 'done' || ot.status === 'missed')) {
+            completedViaTasks += ot.actual || ot.target;
           }
         });
 
-        // Walk pending tasks in date order, marking them done cumulatively
-        // until book.completed is fully accounted for
-        const pending = pendingByBook[bookId].sort((a, b) => a.date.localeCompare(b.date));
         let remaining = book.completed - completedViaTasks;
-
-        if (remaining < 0.01) return; // already fully accounted for
-
-        pending.forEach(t => {
-          if (remaining >= t.target - 0.01) {
-            // Fully accounts for this task
-            if (tasks[t.key] && tasks[t.key].status === 'pending') {
-              tasks[t.key].status = 'done';
-              tasks[t.key].actual = t.target;
-              changed = true;
-            }
-            remaining -= t.target;
-          } else if (remaining > 0.01) {
-            // Partially accounts for this task
-            if (tasks[t.key] && tasks[t.key].status === 'pending') {
-              tasks[t.key].status = 'done';
-              tasks[t.key].actual = Math.round(remaining * 100) / 100;
-              changed = true;
-            }
-            remaining = 0;
-          }
-        });
+        if (remaining >= t.target - 0.01) {
+          tasks[key].status = 'done';
+          tasks[key].actual = Math.min(t.target, remaining);
+          changed = true;
+        } else if (remaining > 0.01) {
+          tasks[key].status = 'done';
+          tasks[key].actual = Math.round(remaining * 100) / 100;
+          changed = true;
+        }
       });
 
       if (changed) {
