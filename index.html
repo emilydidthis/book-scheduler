@@ -2548,6 +2548,9 @@
     }
 
     async function saveBooks() {
+      // Add updatedAt timestamp to all books
+      const now = Date.now();
+      books = books.map(b => ({ ...b, updatedAt: now }));
       localStorage.setItem('books', JSON.stringify(books));
       saveToCloud();
     }
@@ -2558,6 +2561,11 @@
     }
 
     async function saveTasks() {
+      // Add updatedAt timestamp to all tasks
+      const now = Date.now();
+      Object.keys(tasks).forEach(key => {
+        tasks[key] = { ...tasks[key], updatedAt: now };
+      });
       localStorage.setItem('tasks', JSON.stringify(tasks));
       saveToCloud();
     }
@@ -2586,21 +2594,10 @@
       const syncTextEl = document.getElementById('syncText');
       const syncDot = syncEl.querySelector('.dot');
 
-      // Step 1: Load from localStorage immediately (instant)
+      // Step 1: Load from localStorage
       let localBooks = JSON.parse(localStorage.getItem('books')) || [];
       const localLog = JSON.parse(localStorage.getItem('dailyLog')) || {};
       let localTasks = JSON.parse(localStorage.getItem('tasks')) || {};
-
-      // One-time data restoration (runs before merge)
-      if (!localStorage.getItem('dataRestored_v2026_05_04')) {
-        console.log('[Data restore] Applying saved task data...');
-        localBooks = [{"id":"mo9elskst8z6a9p1dc","title":"Animal Farm","type":"pages","total":141,"dueDate":"2026-05-01","speed":7,"dailyTarget":21,"completed":73,"createdAt":"2026-04-22T01:58:33.196Z","listeningSpeed":1,"totalPages":null,"targetDays":3},{"id":"mo9eo9cwssrsz224kk","title":"Remarkably Bright Creatures","type":"pages","total":355,"dueDate":"2026-05-14","speed":20,"dailyTarget":30,"completed":0,"createdAt":"2026-04-22T02:00:28.256Z","listeningSpeed":1,"totalPages":null,"targetDays":10},{"id":"mo9etf059sfo09dw99q","title":"Scythe","type":"chapters","total":40,"dueDate":"2026-05-05","speed":12,"dailyTarget":4,"completed":13,"createdAt":"2026-04-22T02:04:28.853Z","listeningSpeed":1,"totalPages":460,"targetDays":6},{"id":"mo9hhi3pegfmcepsmzi","title":"We Are Each Other's Liberation","type":"chapters","total":5,"dueDate":"2026-05-19","speed":12,"dailyTarget":1,"completed":0,"createdAt":"2026-04-22T03:19:11.845Z","listeningSpeed":1,"totalPages":50,"targetDays":21},{"id":"moab95q3klryl443b9","title":"Death's End","type":"pages","total":600,"dueDate":"2026-05-23","speed":20,"listeningSpeed":1,"dailyTarget":86,"completed":60,"createdAt":"2026-04-22T17:12:31.035Z","totalPages":null,"targetDays":16},{"id":"moabazx9q6zfy5hh00h","title":"Catalina","type":"pages","total":200,"dueDate":"2026-05-13","speed":7,"listeningSpeed":1,"dailyTarget":29,"completed":0,"createdAt":"2026-04-22T17:13:56.829Z","totalPages":null,"targetDays":5},{"id":"moabcp6qlbsbzeeq9lf","title":"Canticle for Liebowitz","type":"hours","total":11,"dueDate":"2026-05-11","speed":7,"listeningSpeed":1.5,"dailyTarget":1.25,"completed":6.5,"createdAt":"2026-04-22T17:15:16.226Z","totalPages":null,"targetDays":8}];
-        localTasks = {"moabcp6qlbsbzeeq9lf-2026-04-23":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-23","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-23":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-23","target":37,"actual":30,"status":"done"},"moab95q3klryl443b9-2026-04-23":{"bookId":"moab95q3klryl443b9","date":"2026-04-23","target":45,"actual":45,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-24":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-24","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-24":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-24","target":37,"actual":37,"status":"done"},"moab95q3klryl443b9-2026-04-24":{"bookId":"moab95q3klryl443b9","date":"2026-04-24","target":45,"actual":15,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-25":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-25","target":0.64,"actual":0.64,"status":"done"},"mo9etf059sfo09dw99q-2026-04-25":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-25","target":5,"actual":5,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-26":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-26","target":0.64,"actual":0.64,"status":"done"},"mo9etf059sfo09dw99q-2026-04-26":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-26","target":5,"actual":4,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-27":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-27","target":0.64,"actual":0.64,"status":"done"},"moabcp6qlbsbzeeq9lf-2026-04-28":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-04-28","target":0.64,"actual":0.64,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-28":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-28","target":37,"actual":43,"status":"done"},"mo9etf059sfo09dw99q-2026-04-28":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-28","target":5,"actual":4,"status":"done"},"mo9elskst8z6a9p1dc-2026-04-29":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-29","target":34,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-04-29":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-29","target":5,"actual":0,"status":"pending"},"mo9elskst8z6a9p1dc-2026-04-30":{"bookId":"mo9elskst8z6a9p1dc","date":"2026-04-30","target":34,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-04-30":{"bookId":"mo9etf059sfo09dw99q","date":"2026-04-30","target":5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-01":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-01","target":5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-01":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-01","target":0.56,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-01":{"bookId":"moab95q3klryl443b9","date":"2026-05-01","target":33.75,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-02":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-02","target":5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-02":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-02","target":35.5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-03":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-03","target":5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-03":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-03","target":35.5,"actual":0,"status":"pending"},"mo9etf059sfo09dw99q-2026-05-04":{"bookId":"mo9etf059sfo09dw99q","date":"2026-05-04","target":2,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-04":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-04","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-04":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-04","target":35.5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-05":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-05","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-05":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-05","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-05":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-05","target":35.5,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-06":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-06","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-06":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-06","target":40,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-06":{"bookId":"moab95q3klryl443b9","date":"2026-05-06","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-07":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-07","target":0.56,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-07":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-07","target":40,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-07":{"bookId":"moab95q3klryl443b9","date":"2026-05-07","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-08":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-08","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-08":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-08","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-08":{"bookId":"moab95q3klryl443b9","date":"2026-05-08","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-09":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-09","target":0.56,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-09":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-09","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-09":{"bookId":"moab95q3klryl443b9","date":"2026-05-09","target":33.75,"actual":0,"status":"pending"},"moabcp6qlbsbzeeq9lf-2026-05-10":{"bookId":"moabcp6qlbsbzeeq9lf","date":"2026-05-10","target":0.58,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-10":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-10","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-10":{"bookId":"moab95q3klryl443b9","date":"2026-05-10","target":33.75,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-11":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-11","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-11":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-11","target":35.5,"actual":0,"status":"pending"},"moabazx9q6zfy5hh00h-2026-05-12":{"bookId":"moabazx9q6zfy5hh00h","date":"2026-05-12","target":40,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-12":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-12","target":35.5,"actual":0,"status":"pending"},"mo9eo9cwssrsz224kk-2026-05-13":{"bookId":"mo9eo9cwssrsz224kk","date":"2026-05-13","target":35.5,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-13":{"bookId":"moab95q3klryl443b9","date":"2026-05-13","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-14":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-14","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-14":{"bookId":"moab95q3klryl443b9","date":"2026-05-14","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-15":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-15","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-15":{"bookId":"moab95q3klryl443b9","date":"2026-05-15","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-16":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-16","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-16":{"bookId":"moab95q3klryl443b9","date":"2026-05-16","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-17":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-17","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-17":{"bookId":"moab95q3klryl443b9","date":"2026-05-17","target":33.75,"actual":0,"status":"pending"},"mo9hhi3pegfmcepsmzi-2026-05-18":{"bookId":"mo9hhi3pegfmcepsmzi","date":"2026-05-18","target":1,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-18":{"bookId":"moab95q3klryl443b9","date":"2026-05-18","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-19":{"bookId":"moab95q3klryl443b9","date":"2026-05-19","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-20":{"bookId":"moab95q3klryl443b9","date":"2026-05-20","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-21":{"bookId":"moab95q3klryl443b9","date":"2026-05-21","target":33.75,"actual":0,"status":"pending"},"moab95q3klryl443b9-2026-05-22":{"bookId":"moab95q3klryl443b9","date":"2026-05-22","target":33.75,"actual":0,"status":"pending"}};
-        localStorage.setItem('books', JSON.stringify(localBooks));
-        localStorage.setItem('tasks', JSON.stringify(localTasks));
-        localStorage.setItem('dataRestored_v2026_05_04', '1');
-        console.log('[Data restore] Complete');
-      }
 
       if (localBooks.length > 0) {
         books = localBooks.map(b => ({
@@ -2622,9 +2619,7 @@
         syncTextEl.textContent = 'Local';
         syncDot.className = 'dot local';
         bannerEl.style.display = 'none';
-        // Render sidebar sync, then force a paint before starting cloud fetch
         try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
-        // Use double rAF to guarantee paint happens before expensive operations
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
@@ -2649,14 +2644,13 @@
             });
           });
         }
-        // Run task regeneration after rendering
         runTaskRegeneration();
         return;
       }
 
       bannerEl.style.display = 'none';
 
-      // Step 2: Fetch from cloud — await so task regeneration runs AFTER sync
+      // Step 2: Fetch from cloud and merge using timestamps
       try {
         const res = await fetch(API_URL + '?action=getBooks');
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -2665,8 +2659,8 @@
         const cloudLog = data.dailyLog || {};
         const cloudTasks = data.tasks || {};
 
-        // Normalize
-        const normalized = cloudBooks.map(b => ({
+        // Normalize cloud books
+        const normalizedCloud = cloudBooks.map(b => ({
           ...b,
           completed: Number(b.completed) || 0,
           total: Number(b.total) || 1,
@@ -2676,56 +2670,64 @@
           listeningSpeed: Number(b.listeningSpeed) || 1
         }));
 
-        // Merge cloud + local: local is source of truth, cloud is backup
-        if (normalized.length > 0) {
-          // Build a map of cloud books by ID
+        if (normalizedCloud.length > 0) {
+          // Build cloud maps for quick lookup
           const cloudBookMap = {};
-          normalized.forEach(b => cloudBookMap[b.id] = b);
+          normalizedCloud.forEach(b => cloudBookMap[b.id] = b);
+          const cloudTaskMap = cloudTasks;
 
-          // Start with local books as the base, merge cloud data to fill gaps
-          books = localBooks.map(localBook => {
-            const cloudBook = cloudBookMap[localBook.id];
-            if (cloudBook) {
-              // Both exist: prefer local data, use cloud only for missing fields
-              return {
-                ...cloudBook,
-                id: localBook.id,
-                title: localBook.title,
-                completed: localBook.completed,
-                total: localBook.total,
-                type: localBook.type,
-                dueDate: localBook.dueDate,
-                targetDays: localBook.targetDays,
-                totalPages: localBook.totalPages,
-                listeningSpeed: localBook.listeningSpeed,
-                createdAt: localBook.createdAt
-              };
-            }
-            // Local-only book: keep as-is
-            return localBook;
-          });
+          // Books: per-item timestamp comparison
+          const allBookIds = new Set([
+            ...localBooks.map(b => b.id),
+            ...normalizedCloud.map(b => b.id)
+          ]);
 
-          // Add any cloud-only books that aren't in local
-          Object.keys(cloudBookMap).forEach(id => {
-            if (!books.find(b => b.id === id)) {
-              books.push(cloudBookMap[id]);
+          books = [];
+          allBookIds.forEach(id => {
+            const localBook = localBooks.find(b => b.id === id);
+            const cloudBook = cloudBookMap[id];
+
+            if (!localBook) { books.push(cloudBook); return; }
+            if (!cloudBook) { books.push(localBook); return; }
+
+            // Keep whichever has the newer updatedAt
+            const localUpdated = localBook.updatedAt || 0;
+            const cloudUpdated = cloudBook.updatedAt || 0;
+            if (localUpdated > cloudUpdated) {
+              // Local is newer — merge cloud data into it to fill gaps
+              books.push({ ...cloudBook, ...localBook });
+            } else {
+              // Cloud is newer (or equal)
+              books.push({ ...localBook, ...cloudBook });
             }
           });
 
-          // Tasks: never overwrite, only add missing
-          Object.keys(cloudTasks).forEach(key => {
-            if (!tasks[key]) {
-              tasks[key] = cloudTasks[key];
-            }
+          // Tasks: per-item timestamp comparison
+          const allTaskKeys = new Set([
+            ...Object.keys(localTasks),
+            ...Object.keys(cloudTaskMap)
+          ]);
+          tasks = {};
+          allTaskKeys.forEach(key => {
+            const localTask = localTasks[key];
+            const cloudTask = cloudTaskMap[key];
+
+            if (!localTask) { tasks[key] = cloudTask; return; }
+            if (!cloudTask) { tasks[key] = localTask; return; }
+
+            const localUpdated = localTask.updatedAt || 0;
+            const cloudUpdated = cloudTask.updatedAt || 0;
+            tasks[key] = localUpdated > cloudUpdated ? localTask : cloudTask;
           });
 
+          // Save merged data to localStorage and push to cloud
           localStorage.setItem('books', JSON.stringify(books));
-          localStorage.setItem('dailyLog', JSON.stringify(dailyLog));
           localStorage.setItem('tasks', JSON.stringify(tasks));
+          localStorage.setItem('dailyLog', JSON.stringify(localLog));
           syncTextEl.textContent = 'Synced';
           syncDot.className = 'dot cloud';
         } else if (localBooks.length > 0) {
-          // Cloud empty but local has data
+          // Cloud empty, use local data
           books = localBooks;
           dailyLog = localLog || {};
           tasks = localTasks || {};
@@ -2733,7 +2735,7 @@
           syncDot.className = 'dot cloud';
         }
 
-        // Always push latest local to cloud
+        // Always push winning data to cloud
         setTimeout(() => saveToCloud(), 500);
       } catch (e) {
         console.error('Cloud sync failed:', e);
@@ -2743,7 +2745,6 @@
           syncTextEl.textContent = 'Sync failed';
         }
         syncDot.className = 'dot local';
-        // If cloud failed and we have no data, show banner
         if (books.length === 0) {
           bannerEl.style.display = 'block';
         }
@@ -2758,6 +2759,12 @@
       try { renderDesktop(); } catch(e) { console.error('renderDesktop error:', e); }
       requestAnimationFrame(() => {
         try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
+        try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
+      });
+
+      runTaskRegeneration();
+      scheduleDesktopRender();
+    }        try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
         try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
       });
 
