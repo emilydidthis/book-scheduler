@@ -3426,14 +3426,16 @@
     }
 
     // Show inline edit input when checkbox is checked
-    function showTaskEditInput(taskKey) {
+    function showTaskEditInput(taskKey, checkboxEl) {
       const task = tasks[taskKey];
       if (!task) return;
       if (task.status === 'done' || task.status === 'missed') return;
       const book = books.find(b => b.id === task.bookId);
       if (!book) return;
 
-      const contentEl = document.querySelector(`.task-content-el[data-task-key="${taskKey}"]`);
+      const taskItem = checkboxEl.closest('.desktop-task-item, .today-task');
+      if (!taskItem) return;
+      const contentEl = taskItem.querySelector('.task-content-el');
       if (!contentEl) return;
 
       const typeUnit = book.type === 'hours' ? 'h' : book.type === 'chapters' ? 'ch' : 'pg';
@@ -3447,11 +3449,7 @@
       preserveEditingTask(taskKey);
 
       // Disable the checkbox so user can't uncheck while editing
-      const taskItem = contentEl.closest('.desktop-task-item') || contentEl.closest('.today-task');
-      if (taskItem) {
-        const checkbox = taskItem.querySelector('input[type="checkbox"]');
-        if (checkbox) checkbox.disabled = true;
-      }
+      checkboxEl.disabled = true;
 
       // Auto-focus the input
       const input = contentEl.querySelector('.task-inline-input');
@@ -3503,7 +3501,7 @@
       regenerateBookTasks(task.bookId);
 
       // Show inline result briefly, then re-render sidebar to remove completed task
-      const contentEl = document.querySelector(`.task-content-el[data-task-key="${taskKey}"]`);
+      const contentEl = document.querySelector(`.task-inline-input[data-task-key="${taskKey}"]`);
       if (contentEl) {
         const readLabel = formatCount(delta, book.type);
         const tDelta = task.actual - task.target;
@@ -3515,10 +3513,14 @@
         } else {
           deltaBadge = `<span class="task-delta-badge below">${formatCount(Math.abs(tDelta), book.type)} below</span>`;
         }
-        contentEl.innerHTML = `<span class="task-done-label">✓ ${readLabel}</span> ${deltaBadge}`;
+        const taskItem = contentEl.closest('.desktop-task-item, .today-task');
+        if (taskItem) {
+          const contentContainer = taskItem.querySelector('.task-content-el');
+          if (contentContainer) contentContainer.innerHTML = `<span class="task-done-label">✓ ${readLabel}</span> ${deltaBadge}`;
+        }
       }
 
-      const btnsEl = document.getElementById(`btns-${taskKey}`);
+      const btnsEl = document.querySelector(`.task-btns-el[data-task-key="${taskKey}"]`);
       if (btnsEl) btnsEl.style.display = 'none';
 
       // Re-render sidebar after brief delay so user sees the done badge
@@ -4630,7 +4632,7 @@
 
       return `<div class="${isSidebar ? 'desktop-task-item' : 'today-task'}${isOverdue && isSidebar ? ' desktop-task-overdue' : ''}" id="${idPrefix}${task.key}" style="${bgStyle}display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(229,222,211,0.3);">
         ${dateLabel}
-        <input type="checkbox" data-task-key="${task.key}" onclick="if(this.checked){showTaskEditInput(this);}" style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;">
+        <input type="checkbox" data-task-key="${task.key}" onclick="if(this.checked){showTaskEditInput(this.dataset.taskKey, this);}" style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0;">
         <span class="${isSidebar ? '' : 'today-task-book'}" style="flex:1;font-size:${isSidebar ? '0.88rem' : '0.88rem'};">${book.title}</span>
         <span class="task-content-el" data-task-key="${task.key}" style="display:flex;align-items:center;gap:6px;">
           <span class="today-task-target" style="font-size:0.82rem;color:var(--secondary);font-weight:500;white-space:nowrap;">${targetLabel}</span>
