@@ -1542,6 +1542,22 @@
       background: #704010;
     }
 
+    .task-cancel-btn {
+      padding: 2px 8px;
+      background: #ccc;
+      color: #333;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .task-cancel-btn:hover {
+      background: #aaa;
+    }
+
     .task-delta-badge {
       font-size: 0.7rem;
       font-weight: 600;
@@ -3438,28 +3454,34 @@
       const contentEl = document.getElementById(`content-${prefix}-${taskKey}`);
       if (!contentEl) return;
 
-      const typeUnit = book.type === 'hours' ? 'h' : book.type === 'chapters' ? 'ch' : 'pg';
       const inputStep = book.type === 'hours' ? '0.25' : '1';
       const currentPos = book.type === 'hours' ? (Math.round(book.completed * 100) / 100) : Math.round(book.completed);
 
-      contentEl.innerHTML = `<input type="number" class="task-inline-input" data-task-key="${taskKey}" value="${currentPos}" step="${inputStep}" min="0" onkeydown="if(event.key==='Enter'){confirmTaskCompletion('${taskKey}');event.preventDefault();}">
-        <button class="task-confirm-btn" onclick="confirmTaskCompletion('${taskKey}')">✓</button>`;
+      contentEl.innerHTML = `<input type="number" class="task-inline-input" data-task-key="${taskKey}" value="${currentPos}" step="${inputStep}" min="0" onkeydown="if(event.key==='Enter'){confirmTaskCompletion('${taskKey}');event.preventDefault();}if(event.key==='Escape'){cancelTaskEdit('${taskKey}','${prefix}');}">
+        <button class="task-confirm-btn" onclick="confirmTaskCompletion('${taskKey}')">✓</button>
+        <button class="task-cancel-btn" onclick="cancelTaskEdit('${taskKey}','${prefix}')">✗</button>`;
 
-      // Save editing state so it survives sidebar re-render
-      editingTaskHTML[taskKey] = contentEl.innerHTML;
       editingTaskKeys.add(taskKey);
 
-      // Disable the checkbox so user can't uncheck while editing
-      const taskItem = contentEl.closest('.desktop-task-item, .today-task');
-      if (taskItem) {
-        const checkbox = taskItem.querySelector('input[type="checkbox"]');
-        if (checkbox) checkbox.disabled = true;
-      }
-
-      // Auto-focus the input
       const input = contentEl.querySelector('.task-inline-input');
       if (input) {
         setTimeout(() => { input.focus(); input.select(); }, 0);
+      }
+    }
+
+    function cancelTaskEdit(taskKey, prefix) {
+      const task = tasks[taskKey];
+      if (!task) return;
+      const book = books.find(b => b.id === task.bookId);
+      if (!book) return;
+
+      editingTaskKeys.delete(taskKey);
+      delete editingTaskHTML[taskKey];
+
+      const contentEl = document.getElementById(`content-${prefix}-${taskKey}`);
+      if (contentEl) {
+        const targetLabel = formatCount(task.target, book.type);
+        contentEl.innerHTML = `<span class="today-task-target" style="font-size:0.82rem;color:var(--secondary);font-weight:500;white-space:nowrap;">${targetLabel}</span>`;
       }
     }
 
