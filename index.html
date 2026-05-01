@@ -3427,6 +3427,8 @@
 
     // Show inline edit input when checkbox is checked
     function showTaskEditInput(taskKey, checkboxEl) {
+      cancelScheduledRender();
+
       const task = tasks[taskKey];
       if (!task) return;
       if (task.status === 'done' || task.status === 'missed') return;
@@ -3446,7 +3448,8 @@
         <button class="task-confirm-btn" onclick="confirmTaskCompletion('${taskKey}')">✓</button>`;
 
       // Save editing state so it survives sidebar re-render
-      preserveEditingTask(taskKey);
+      editingTaskHTML[taskKey] = contentEl.innerHTML;
+      editingTaskKeys.add(taskKey);
 
       // Disable the checkbox so user can't uncheck while editing
       checkboxEl.disabled = true;
@@ -4854,7 +4857,7 @@
     // Desktop Layout Functions
 
     function preserveEditingTask(key) {
-      const contentEl = document.getElementById(`content-${key}`);
+      const contentEl = document.querySelector(`.task-content-el[data-task-key="${key}"]`);
       if (contentEl) {
         editingTaskHTML[key] = contentEl.innerHTML;
         editingTaskKeys.add(key);
@@ -4863,16 +4866,19 @@
 
     function restoreEditingTasks(listEl) {
       editingTaskKeys.forEach(key => {
-        const taskEl = listEl.querySelector(`#dtask-${key}`);
+        const taskEl = listEl.querySelector(`[data-task-key="${key}"]`);
         if (taskEl) {
-          const contentEl = taskEl.querySelector(`#content-${key}`);
-          if (contentEl) {
-            contentEl.innerHTML = editingTaskHTML[key] || '';
-            const input = contentEl.querySelector('.task-inline-input');
-            if (input) {
-              input.onkeydown = (e) => {
-                if (e.key === 'Enter') { confirmTaskCompletion(key); e.preventDefault(); }
-              };
+          const taskItem = taskEl.closest('.desktop-task-item, .today-task');
+          if (taskItem) {
+            const contentEl = taskItem.querySelector('.task-content-el');
+            if (contentEl && editingTaskHTML[key]) {
+              contentEl.innerHTML = editingTaskHTML[key];
+              const input = contentEl.querySelector('.task-inline-input');
+              if (input) {
+                input.onkeydown = (e) => {
+                  if (e.key === 'Enter') { confirmTaskCompletion(key); e.preventDefault(); }
+                };
+              }
             }
           }
         }
@@ -4917,13 +4923,18 @@
 
     // Single debounced render for desktop - only renders active views
     let desktopRenderPending = false;
+    let desktopRenderFrame = null;
     function scheduleDesktopRender() {
       if (desktopRenderPending) return;
       desktopRenderPending = true;
-      requestAnimationFrame(() => {
+      desktopRenderFrame = requestAnimationFrame(() => {
         desktopRenderPending = false;
         renderDesktop();
       });
+    }
+    function cancelScheduledRender() {
+      desktopRenderPending = false;
+      if (desktopRenderFrame) { cancelAnimationFrame(desktopRenderFrame); desktopRenderFrame = null; }
     }
 
     function renderDesktop() {
