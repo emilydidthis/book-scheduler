@@ -3257,14 +3257,14 @@
       saveTasks();
     }
 
-    // Delete ALL future pending tasks for ALL active books and regenerate.
+    // Delete ALL future pending tasks for ALL books and regenerate for active ones.
     // Used on page load to ensure task targets match current progress.
     function regenerateAllBooksTasks() {
       const today = dateStr(new Date());
-      const activeBookIds = new Set(books.filter(b => b.completed < b.total).map(b => b.id));
+      // Clean up ALL future pending tasks (including for completed books)
       Object.keys(tasks).forEach(key => {
         const t = tasks[key];
-        if (activeBookIds.has(t.bookId) && t.date >= today && t.status === 'pending') {
+        if (t.date >= today && t.status === 'pending') {
           delete tasks[key];
         }
       });
