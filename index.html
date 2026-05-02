@@ -2764,12 +2764,6 @@
 
       runTaskRegeneration();
       scheduleDesktopRender();
-    }        try { renderBooks(); } catch(e) { console.error('renderBooks error:', e); }
-        try { renderGantt(); } catch(e) { console.error('renderGantt error:', e); }
-      });
-
-      runTaskRegeneration();
-      scheduleDesktopRender();
     }
 
     function runTaskRegeneration() {
