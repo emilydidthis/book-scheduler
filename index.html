@@ -2628,6 +2628,9 @@
         });
       }
 
+      // Recalculate book.completed from done tasks before scheduling
+      recalcAllBooksCompleted();
+
       if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
         syncTextEl.textContent = 'No cloud';
         syncDot.className = 'dot local';
@@ -2749,6 +2752,9 @@
           bannerEl.style.display = 'block';
         }
       }
+
+      // Step 2.5: Ensure book.completed matches sum of done task actuals
+      recalcAllBooksCompleted();
 
       // Step 3: Final render + task regeneration AFTER sync is done
       isLoading = false;
@@ -3001,6 +3007,21 @@
         : book.type === 'chapters'
           ? Math.round(total)
           : Math.round(total * 100) / 100;
+    }
+
+    function recalcAllBooksCompleted() {
+      books.forEach(book => {
+        const doneTasks = Object.values(tasks).filter(t => t.bookId === book.id && t.status === 'done');
+        const completedViaTasks = doneTasks.reduce((sum, t) => sum + t.actual, 0);
+        const roundedViaTasks = book.type === 'hours'
+          ? Math.round(completedViaTasks * 4) / 4
+          : book.type === 'chapters'
+            ? Math.round(completedViaTasks)
+            : Math.round(completedViaTasks * 100) / 100;
+        if (roundedViaTasks > book.completed) {
+          book.completed = Math.min(roundedViaTasks, book.total);
+        }
+      });
     }
 
     function updateDueDate(id, newDate) {
