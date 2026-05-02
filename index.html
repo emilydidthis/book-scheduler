@@ -2631,6 +2631,11 @@
       // Recalculate book.completed from done tasks before scheduling
       recalcAllBooksCompleted();
 
+      // Kill zombie pending tasks for completed books
+      if (cleanZombieTasks()) {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
       if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
         syncTextEl.textContent = 'No cloud';
         syncDot.className = 'dot local';
@@ -2755,6 +2760,11 @@
 
       // Step 2.5: Ensure book.completed matches sum of done task actuals
       recalcAllBooksCompleted();
+
+      // Kill zombie pending tasks for completed books
+      if (cleanZombieTasks()) {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
 
       // Step 3: Final render + task regeneration AFTER sync is done
       isLoading = false;
@@ -3022,6 +3032,21 @@
           book.completed = Math.min(roundedViaTasks, book.total);
         }
       });
+    }
+
+    // Delete ALL pending tasks (past, today, future) for books that are complete.
+    // Prevents zombie overdue tasks from reappearing after sync.
+    function cleanZombieTasks() {
+      const completedBookIds = new Set(books.filter(b => b.completed >= b.total).map(b => b.id));
+      let cleaned = false;
+      Object.keys(tasks).forEach(key => {
+        const t = tasks[key];
+        if (completedBookIds.has(t.bookId) && t.status === 'pending') {
+          delete tasks[key];
+          cleaned = true;
+        }
+      });
+      return cleaned;
     }
 
     function updateDueDate(id, newDate) {
