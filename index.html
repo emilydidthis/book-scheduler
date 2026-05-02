@@ -2634,6 +2634,9 @@
       // Kill zombie pending tasks for completed books
       if (cleanZombieTasks()) {
         localStorage.setItem('tasks', JSON.stringify(tasks));
+        if (API_URL && !API_URL.includes('YOUR_APPS_SCRIPT')) {
+          saveToCloud();
+        }
       }
 
       if (!API_URL || API_URL.includes('YOUR_APPS_SCRIPT')) {
@@ -2764,6 +2767,7 @@
       // Kill zombie pending tasks for completed books
       if (cleanZombieTasks()) {
         localStorage.setItem('tasks', JSON.stringify(tasks));
+        saveToCloud();
       }
 
       // Step 3: Final render + task regeneration AFTER sync is done
