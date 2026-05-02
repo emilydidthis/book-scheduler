@@ -2327,6 +2327,10 @@
           <option value="30">Last 30 days</option>
           <option value="all">All time</option>
         </select>
+        <select id="historySortFilter" onchange="renderHistoryTab()">
+          <option value="date">By date</option>
+          <option value="book">By book</option>
+        </select>
       </div>
       <div id="historyList"></div>
     </div>
@@ -2391,6 +2395,10 @@
             <option value="7">7d</option>
             <option value="30">30d</option>
             <option value="all">All</option>
+          </select>
+          <select id="sidebarHistorySortFilter" onchange="renderHistoryTab()">
+            <option value="date">Date</option>
+            <option value="book">Book</option>
           </select>
         </div>
         <div id="sidebarHistoryList"></div>
@@ -4842,35 +4850,71 @@
       }
     }
     function renderHistoryTab() {
-      const statusFilter = document.getElementById('historyStatusFilter')?.value || 'all';
-      const timeFilter = document.getElementById('historyTimeFilter')?.value || '7';
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const todayKey = dateStr(today);
 
-      let historyTasks = Object.keys(tasks)
-        .map(key => ({ ...tasks[key], key }))
-        .filter(t => (t.status === 'done' || t.status === 'missed') && t.date <= todayKey);
+      function getFilteredTasks(statusFilter, timeFilter) {
+        let filtered = Object.keys(tasks)
+          .map(key => ({ ...tasks[key], key }))
+          .filter(t => (t.status === 'done' || t.status === 'missed') && t.date <= todayKey);
 
-      if (timeFilter !== 'all') {
-        const cutoff = new Date(today);
-        cutoff.setDate(cutoff.getDate() - parseInt(timeFilter));
-        historyTasks = historyTasks.filter(t => t.date >= dateStr(cutoff));
+        if (timeFilter !== 'all') {
+          const cutoff = new Date(today);
+          cutoff.setDate(cutoff.getDate() - parseInt(timeFilter));
+          filtered = filtered.filter(t => t.date >= dateStr(cutoff));
+        }
+        if (statusFilter === 'done') filtered = filtered.filter(t => t.status === 'done' && t.actual >= t.target);
+        else if (statusFilter === 'missed') filtered = filtered.filter(t => t.status === 'missed');
+        else if (statusFilter === 'partial') filtered = filtered.filter(t => t.status === 'done' && t.actual < t.target);
+        return filtered;
       }
 
-      if (statusFilter === 'done') historyTasks = historyTasks.filter(t => t.status === 'done' && t.actual >= t.target);
-      else if (statusFilter === 'missed') historyTasks = historyTasks.filter(t => t.status === 'missed');
-      else if (statusFilter === 'partial') historyTasks = historyTasks.filter(t => t.status === 'done' && t.actual < t.target);
+      function renderGroupedHTML(filtered, sortMode, isSidebar) {
+        if (filtered.length === 0) return '';
 
-      const byDate = {};
-      historyTasks.forEach(t => {
-        if (!byDate[t.date]) byDate[t.date] = [];
-        byDate[t.date].push(t);
-      });
+        const bookMap = {};
+        filtered.forEach(t => {
+          if (!bookMap[t.bookId]) bookMap[t.bookId] = [];
+          bookMap[t.bookId].push(t);
+        });
 
-      const sortedDates = Object.keys(byDate).sort().reverse();
+        if (sortMode === 'book') {
+          // Group by book, newest first within each book
+          let html = '';
+          const sortedBookIds = Object.keys(bookMap).sort((a, b) => {
+            const titleA = books.find(bk => bk.id === a)?.title || '';
+            const titleB = books.find(bk => bk.id === b)?.title || '';
+            return titleA.localeCompare(titleB);
+          });
+          sortedBookIds.forEach(bookId => {
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+            const tasksForBook = bookMap[bookId].sort((a, b) => b.date.localeCompare(a.date));
+            html += `<div class="${isSidebar ? 'sidebar-history-' : ''}history-date-group">
+              <div class="${isSidebar ? 'sidebar-' : ''}history-date-header">${book.title}</div>`;
+            tasksForBook.forEach(t => {
+              let icon, iconClass, amountLabel;
+              if (t.status === 'missed') { icon = '✗'; iconClass = 'missed'; amountLabel = `${dateStrShort(t.date)} · ${formatCount(t.target, book.type)}`; }
+              else if (t.actual >= t.target) { icon = '✓'; iconClass = 'done'; amountLabel = `${dateStrShort(t.date)} · ${formatCount(t.actual, book.type)}`; }
+              else { icon = '~'; iconClass = 'partial'; amountLabel = `${dateStrShort(t.date)} · ${formatCount(t.actual, book.type)} / ${formatCount(t.target, book.type)}`; }
+              html += `<div class="${isSidebar ? 'sidebar-' : ''}history-item" onclick="openDayModal('${t.date}')" style="cursor:pointer;" title="Click to edit">
+                <span class="history-status-icon ${iconClass}">${icon}</span>
+                <span class="history-book-title">${amountLabel}</span>
+              </div>`;
+            });
+            html += '</div>';
+          });
+          return html;
+        }
 
-      const renderHistoryHTML = (tasks, isSidebar) => {
+        // Default: group by date
+        const byDate = {};
+        filtered.forEach(t => {
+          if (!byDate[t.date]) byDate[t.date] = [];
+          byDate[t.date].push(t);
+        });
+        const sortedDates = Object.keys(byDate).sort().reverse();
         let html = '';
         sortedDates.forEach(dateKey => {
           const dateObj = new Date(dateKey + 'T00:00:00');
@@ -4882,10 +4926,8 @@
             if (dateKey === dateStr(yesterday)) headerLabel = 'Yesterday';
             else headerLabel = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
           }
-
           html += `<div class="${isSidebar ? 'sidebar-history-' : ''}history-date-group">
             <div class="${isSidebar ? 'sidebar-' : ''}history-date-header">${headerLabel}</div>`;
-
           byDate[dateKey].sort((a, b) => {
             const bookA = books.find(bk => bk.id === a.bookId)?.title || '';
             const bookB = books.find(bk => bk.id === b.bookId)?.title || '';
@@ -4897,38 +4939,49 @@
             if (t.status === 'missed') { icon = '✗'; iconClass = 'missed'; amountLabel = formatCount(t.target, book.type); }
             else if (t.actual >= t.target) { icon = '✓'; iconClass = 'done'; amountLabel = formatCount(t.actual, book.type); }
             else { icon = '~'; iconClass = 'partial'; amountLabel = `${formatCount(t.actual, book.type)} / ${formatCount(t.target, book.type)}`; }
-
             html += `<div class="${isSidebar ? 'sidebar-' : ''}history-item" onclick="openDayModal('${t.date}')" style="cursor:pointer;" title="Click to edit">
               <span class="history-status-icon ${iconClass}">${icon}</span>
               <span class="history-book-title">${book.title}</span>
               <span class="history-amount">${amountLabel}</span>
             </div>`;
           });
-
           html += '</div>';
         });
         return html;
-      };
+      }
 
-      // Mobile
+      // Mobile render
+      const mobileStatus = document.getElementById('historyStatusFilter')?.value || 'all';
+      const mobileTime = document.getElementById('historyTimeFilter')?.value || '7';
+      const mobileSort = document.getElementById('historySortFilter')?.value || 'date';
       const mobileList = document.getElementById('historyList');
       if (mobileList) {
-        if (historyTasks.length === 0) {
+        const mobileTasks = getFilteredTasks(mobileStatus, mobileTime);
+        if (mobileTasks.length === 0) {
           mobileList.innerHTML = '<div class="history-empty">No history yet. Complete tasks to see them here!</div>';
         } else {
-          mobileList.innerHTML = renderHistoryHTML(historyTasks, false);
+          mobileList.innerHTML = renderGroupedHTML(mobileTasks, mobileSort, false);
         }
       }
 
-      // Desktop sidebar
+      // Desktop sidebar render
+      const sidebarStatus = document.getElementById('sidebarHistoryStatusFilter')?.value || 'all';
+      const sidebarTime = document.getElementById('sidebarHistoryTimeFilter')?.value || '7';
+      const sidebarSort = document.getElementById('sidebarHistorySortFilter')?.value || 'date';
       const sidebarList = document.getElementById('sidebarHistoryList');
       if (sidebarList) {
-        if (historyTasks.length === 0) {
+        const sidebarTasks = getFilteredTasks(sidebarStatus, sidebarTime);
+        if (sidebarTasks.length === 0) {
           sidebarList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--secondary);font-size:0.8rem;">No history</div>';
         } else {
-          sidebarList.innerHTML = renderHistoryHTML(historyTasks, true);
+          sidebarList.innerHTML = renderGroupedHTML(sidebarTasks, sidebarSort, true);
         }
       }
+    }
+
+    function dateStrShort(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     }
     // Desktop Layout Functions
 
