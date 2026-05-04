@@ -3177,6 +3177,25 @@
       const dayMinutes = {};
       const dayBookCount = {};
 
+      // Pre-populate from existing tasks so we don't add more books than MAX_BOOKS_PER_DAY
+      const todayKey = dateStr(today);
+      Object.keys(tasks).forEach(k => {
+        const t = tasks[k];
+        if (t.date >= todayKey) {
+          if (!dayBookCount[t.date]) dayBookCount[t.date] = 0;
+          if (!dayMinutes[t.date]) dayMinutes[t.date] = 0;
+          dayBookCount[t.date]++;
+          const book = books.find(b => b.id === t.bookId);
+          if (book) {
+            dayMinutes[t.date] += book.type === 'hours'
+              ? (t.target / (book.listeningSpeed || 1)) * 60
+              : book.type === 'chapters'
+                ? t.target * (book.totalPages || 0) / book.total * MINUTES_PER_PAGE
+                : t.target * MINUTES_PER_PAGE;
+          }
+        }
+      });
+
       function getDayMinutes(key) { return dayMinutes[key] || 0; }
       function getDayBookCount(key) { return dayBookCount[key] || 0; }
 
