@@ -3441,7 +3441,6 @@
       if (!amountEl || !btnsEl) return;
 
       if (book.type === 'hours') {
-        // Two inputs: hours and minutes
         const totalHours = Math.round(task.target * 4) / 4;
         const hours = Math.floor(totalHours);
         const minutes = Math.round((totalHours - hours) * 60);
@@ -3452,6 +3451,24 @@
             <span style="color:var(--secondary);font-size:0.82rem;font-weight:600;">:</span>
             <input type="number" id="edit-minutes-${key}" placeholder="m" min="0" max="59" value="${minutes}" style="width:44px;padding:4px 4px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">
           </span>
+        `;
+      } else {
+        const roundedValue = Math.round(task.target);
+        const placeholder = book.type === 'chapters' ? 'Chapters' : 'Pages';
+        amountEl.outerHTML = `<input type="number" id="edit-input-${key}" placeholder="${placeholder}" step="1" min="0" value="${roundedValue}" style="width:70px;padding:4px 8px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">`;
+      }
+
+      btnsEl.innerHTML = `
+        <button class="today-task-save-btn" onclick="saveTaskAmount('${key}')" title="Save">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+        <button class="today-task-cancel-btn" onclick="cancelTaskEdit('${key}')" title="Cancel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
       `;
     }
 
