@@ -333,8 +333,92 @@
       background: var(--success);
     }
 
+    .book-card.paused .progress-fill {
+      background: var(--warning);
+    }
+
+    .book-card.dnf .progress-fill {
+      background: var(--danger);
+    }
+
     .book-card.overdue .progress-fill {
       background: var(--danger);
+    }
+
+    .archive-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .archive-card-actions .btn-resume {
+      padding: 6px 14px;
+      border: 1px solid var(--warning);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--warning);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .archive-card-actions .btn-resume:hover {
+      background: rgba(212, 165, 116, 0.15);
+    }
+
+    .archive-card-actions .btn-archive-delete {
+      padding: 6px 14px;
+      border: 1px solid #E5DED3;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--secondary);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .archive-card-actions .btn-archive-delete:hover {
+      background: rgba(229, 68, 53, 0.08);
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .archive-card-stats {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .archive-pace {
+      font-size: 0.82rem;
+      color: var(--secondary);
+    }
+
+    .archive-pace strong {
+      color: var(--text);
+    }
+
+    .archive-status-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .archive-status-badge.paused {
+      background: rgba(212, 165, 116, 0.15);
+      color: var(--warning);
+    }
+
+    .archive-status-badge.dnf {
+      background: rgba(229, 68, 53, 0.1);
+      color: var(--danger);
     }
 
     .schedule-info {
@@ -1889,6 +1973,30 @@
         width: 20px;
         height: 20px;
         font-size: 0.75rem;
+      }
+
+      #sidebarBookList .archive-card-actions {
+        margin-bottom: 8px;
+        gap: 6px;
+      }
+
+      #sidebarBookList .archive-card-actions .btn-resume,
+      #sidebarBookList .archive-card-actions .btn-archive-delete {
+        padding: 4px 10px;
+        font-size: 0.72rem;
+      }
+
+      #sidebarBookList .archive-card-stats {
+        font-size: 0.72rem;
+      }
+
+      #sidebarBookList .archive-card-stats .archive-pace {
+        font-size: 0.72rem;
+      }
+
+      #sidebarBookList .archive-card-stats .archive-status-badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
       }
 
       #sidebarBookList .book-card .progress-input {
@@ -3475,6 +3583,7 @@
     function renderArchiveCardHTML(book, status) {
       const type = book.type || 'pages';
       const progress = Math.round((book.completed / book.total) * 100);
+      const statusLabel = status === 'paused' ? 'Paused' : 'DNF';
       return `
         <div class="book-card ${status}" data-book-id="${book.id}">
           <div class="book-header">
@@ -3483,12 +3592,13 @@
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress}%"></div>
           </div>
-          <div class="stats-row">
-            <span class="pace"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)}</span>
-            <span class="spread-control">
-              <button class="btn-adjust" onclick="resumeBook('${book.id}')" title="Resume reading">▶ Resume</button>
-              <button class="btn-delete" onclick="permanentDelete('${book.id}')" title="Delete forever">✗</button>
-            </span>
+          <div class="archive-card-actions">
+            <button class="btn-resume" onclick="resumeBook('${book.id}')" title="Resume reading">Resume</button>
+            <button class="btn-archive-delete" onclick="permanentDelete('${book.id}')" title="Delete forever">Delete</button>
+          </div>
+          <div class="archive-card-stats">
+            <span class="archive-pace"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)}</span>
+            <span class="archive-status-badge ${status}">${statusLabel}</span>
           </div>
         </div>
       `;
