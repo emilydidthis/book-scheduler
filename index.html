@@ -3665,30 +3665,6 @@
       }
     }
 
-
-      btnsEl.innerHTML = `
-        <button class="today-task-save-btn" onclick="saveTaskAmount('${key}')" title="Save">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-        </button>
-        <button class="today-task-cancel-btn" onclick="renderTodayTab()" title="Cancel">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      `;
-
-      // Focus first input
-      setTimeout(() => {
-        const firstInput = document.getElementById(`edit-hours-${key}`) || document.getElementById(`edit-input-${key}`);
-        if (firstInput) {
-          firstInput.focus();
-          firstInput.select();
-          firstInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') saveTaskAmount(key);
-            if (e.key === 'Escape') renderTodayTab();
-          });
-        }
-      }, 50);
-    }
-
     function saveTaskAmount(key) {
       const task = tasks[key];
       const book = books.find(b => b.id === task.bookId);
