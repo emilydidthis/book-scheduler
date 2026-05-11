@@ -486,6 +486,28 @@
       gap: 8px;
     }
 
+    .paused-section, .dnf-section {
+      margin-top: 24px;
+    }
+
+    .paused-section h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--warning);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dnf-section h2 {
+      font-family: 'Playfair Display', serif;
+      color: var(--danger);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     /* Calendar styles */
     .calendar-header {
       display: flex;
@@ -2245,6 +2267,24 @@
         </h2>
         <div class="book-list" id="completedList"></div>
       </div>
+      <div class="paused-section" id="pausedSection" style="display: none;">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/>
+          </svg>
+          Paused Books
+        </h2>
+        <div class="book-list" id="pausedList"></div>
+      </div>
+      <div class="dnf-section" id="dnfSection" style="display: none;">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          DNF Books
+        </h2>
+        <div class="book-list" id="dnfList"></div>
+      </div>
     </div>
 
     <div id="todayTab" class="tab-content">
@@ -2615,7 +2655,8 @@
           totalPages: b.totalPages ? Number(b.totalPages) : null,
           targetDays: b.targetDays ? Number(b.targetDays) : null,
           type: b.type || 'pages',
-          listeningSpeed: Number(b.listeningSpeed) || 1
+          listeningSpeed: Number(b.listeningSpeed) || 1,
+          status: b.status || 'active'
         }));
         dailyLog = localLog;
         tasks = localTasks;
@@ -2686,7 +2727,8 @@
           totalPages: b.totalPages ? Number(b.totalPages) : null,
           targetDays: b.targetDays ? Number(b.targetDays) : null,
           type: b.type || 'pages',
-          listeningSpeed: Number(b.listeningSpeed) || 1
+          listeningSpeed: Number(b.listeningSpeed) || 1,
+          status: b.status || 'active'
         }));
 
         if (normalizedCloud.length > 0) {
@@ -2747,7 +2789,16 @@
           syncDot.className = 'dot cloud';
         } else if (localBooks.length > 0) {
           // Cloud empty, use local data
-          books = localBooks;
+          books = localBooks.map(b => ({
+            ...b,
+            completed: Number(b.completed) || 0,
+            total: Number(b.total) || 1,
+            totalPages: b.totalPages ? Number(b.totalPages) : null,
+            targetDays: b.targetDays ? Number(b.targetDays) : null,
+            type: b.type || 'pages',
+            listeningSpeed: Number(b.listeningSpeed) || 1,
+            status: b.status || 'active'
+          }));
           dailyLog = localLog || {};
           tasks = localTasks || {};
           syncTextEl.textContent = 'Synced (pushing)';
@@ -2986,6 +3037,7 @@
         dueDate,
         listeningSpeed,
         completed: 0,
+        status: 'active',
         createdAt: new Date().toISOString()
       };
 
@@ -3049,11 +3101,11 @@
     // Delete ALL pending tasks (past, today, future) for books that are complete.
     // Prevents zombie overdue tasks from reappearing after sync.
     function cleanZombieTasks() {
-      const completedBookIds = new Set(books.filter(b => b.completed >= b.total).map(b => b.id));
+      const inactiveBookIds = new Set(books.filter(b => b.completed >= b.total || b.status === 'paused' || b.status === 'dnf').map(b => b.id));
       let cleaned = false;
       Object.keys(tasks).forEach(key => {
         const t = tasks[key];
-        if (completedBookIds.has(t.bookId) && t.status === 'pending') {
+        if (inactiveBookIds.has(t.bookId) && t.status === 'pending') {
           delete tasks[key];
           cleaned = true;
         }
@@ -3170,7 +3222,7 @@
       const MINUTES_PER_PAGE = 1.25;
 
       const activeBooks = books
-        .filter(b => b.completed < b.total)
+        .filter(b => b.status === 'active' && b.completed < b.total)
         .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
       const schedule = {};
@@ -3400,13 +3452,202 @@
             <span style="color:var(--secondary);font-size:0.82rem;font-weight:600;">:</span>
             <input type="number" id="edit-minutes-${key}" placeholder="m" min="0" max="59" value="${minutes}" style="width:44px;padding:4px 4px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">
           </span>
-        `;
+      `;
+    }
+
+    function renderArchiveCardHTML(book, status) {
+      const type = book.type || 'pages';
+      const progress = Math.round((book.completed / book.total) * 100);
+      return `
+        <div class="book-card ${status}" data-book-id="${book.id}">
+          <div class="book-header">
+            <div class="book-title-row"><div class="book-title">${book.title}</div></div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="stats-row">
+            <span class="pace"><strong>${formatCount(book.completed, type)}</strong> / ${formatCount(book.total, type)}</span>
+            <span class="spread-control">
+              <button class="btn-adjust" onclick="resumeBook('${book.id}')" title="Resume reading">▶ Resume</button>
+              <button class="btn-delete" onclick="permanentDelete('${book.id}')" title="Delete forever">✗</button>
+            </span>
+          </div>
+        </div>
+      `;
+    }
+
+    function deleteBook(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      // Show dialog with 3 options
+      const overlay = document.createElement('div');
+      overlay.id = 'deleteDialogOverlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px;';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+      overlay.innerHTML = `
+        <div style="background:var(--card-bg);border-radius:12px;padding:24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);color:var(--text);">
+          <h3 style="margin:0 0 8px;font-size:1.1rem;">Remove "${book.title}"</h3>
+          <p style="margin:0 0 20px;color:var(--secondary);font-size:0.85rem;">What would you like to do?</p>
+
+          <button onclick="archiveBook('${bookId}', 'pause')" style="display:block;width:100%;padding:12px 16px;margin-bottom:8px;border:1px solid var(--warning);border-radius:8px;background:transparent;color:var(--warning);font-size:0.9rem;cursor:pointer;text-align:left;font-family:inherit;">
+            <strong>Pause</strong><br>
+            <span style="font-size:0.8rem;opacity:0.8;">Keep progress, remove future tasks. Can resume later.</span>
+          </button>
+
+          <button onclick="archiveBook('${bookId}', 'dnf')" style="display:block;width:100%;padding:12px 16px;margin-bottom:8px;border:1px solid var(--danger);border-radius:8px;background:transparent;color:var(--danger);font-size:0.9rem;cursor:pointer;text-align:left;font-family:inherit;">
+            <strong>DNF</strong><br>
+            <span style="font-size:0.8rem;opacity:0.8;">Keep progress, remove future tasks. Mark as did not finish.</span>
+          </button>
+
+          <button onclick="archiveBook('${bookId}', 'permanent')" style="display:block;width:100%;padding:12px 16px;margin-bottom:16px;border:1px solid var(--secondary);border-radius:8px;background:transparent;color:var(--secondary);font-size:0.9rem;cursor:pointer;text-align:left;font-family:inherit;">
+            <strong>Delete forever</strong><br>
+            <span style="font-size:0.8rem;opacity:0.8;">Remove everything. Cannot undo.</span>
+          </button>
+
+          <button onclick="document.getElementById('deleteDialogOverlay').remove()" style="display:block;width:100%;padding:8px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:0.85rem;cursor:pointer;font-family:inherit;opacity:0.6;">
+            Cancel
+          </button>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+    }
+
+    function archiveBook(bookId, mode) {
+      const overlay = document.getElementById('deleteDialogOverlay');
+      if (overlay) overlay.remove();
+
+      if (mode === 'permanent') {
+        // Remove book and ALL tasks
+        books = books.filter(b => b.id !== bookId);
+        Object.keys(tasks).forEach(key => {
+          if (tasks[key].bookId === bookId) delete tasks[key];
+        });
+        localStorage.setItem('books', JSON.stringify(books));
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        saveToCloud();
       } else {
-        // Single input for pages/chapters
-        const roundedValue = Math.round(task.target);
-        const placeholder = book.type === 'chapters' ? 'Chapters' : 'Pages';
-        amountEl.outerHTML = `<input type="number" id="edit-input-${key}" placeholder="${placeholder}" step="1" min="0" value="${roundedValue}" style="width:70px;padding:4px 8px;border:2px solid var(--primary);border-radius:6px;font-size:0.82rem;background:var(--card-bg);color:var(--text);font-weight:500;text-align:center;">`;
+        // Pause or DNF: set status, remove future pending tasks
+        const book = books.find(b => b.id === bookId);
+        if (book) {
+          book.status = mode === 'pause' ? 'paused' : 'dnf';
+          book.targetDays = null;
+          const todayKey = dateStr(new Date());
+          Object.keys(tasks).forEach(key => {
+            if (tasks[key].bookId === bookId && tasks[key].date >= todayKey && tasks[key].status === 'pending') {
+              delete tasks[key];
+            }
+          });
+          localStorage.setItem('books', JSON.stringify(books));
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+          saveToCloud();
+        }
       }
+
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+      scheduleDesktopRender();
+    }
+
+    function resumeBook(bookId) {
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      book.status = 'active';
+      book.targetDays = null;
+
+      // Ask for new due date
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const minDate = dateStr(new Date(today.getTime() + 86400000));
+      const defaultDate = dateStr(new Date(today.getTime() + 14 * 86400000));
+
+      const overlay = document.createElement('div');
+      overlay.id = 'deleteDialogOverlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px;';
+      overlay.onclick = (e) => { if (e.target === overlay) { book.status = book.status === 'paused' ? 'paused' : 'dnf'; overlay.remove(); } };
+
+      overlay.innerHTML = `
+        <div style="background:var(--card-bg);border-radius:12px;padding:24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);color:var(--text);">
+          <h3 style="margin:0 0 8px;font-size:1.1rem;">Resume "${book.title}"</h3>
+          <p style="margin:0 0 16px;color:var(--secondary);font-size:0.85rem;">Set a new due date to regenerate your reading schedule.</p>
+
+          <label style="display:block;font-size:0.85rem;margin-bottom:6px;color:var(--secondary);">Due date:</label>
+          <input type="date" id="resumeDueDate" value="${defaultDate}" min="${minDate}" style="display:block;width:100%;padding:8px 12px;border:1px solid var(--secondary);border-radius:8px;font-size:0.9rem;background:var(--bg);color:var(--text);font-family:inherit;margin-bottom:16px;">
+
+          <button onclick="confirmResume('${bookId}')" style="display:block;width:100%;padding:12px;border:none;border-radius:8px;background:var(--primary);color:var(--bg);font-size:0.9rem;cursor:pointer;font-weight:600;font-family:inherit;margin-bottom:8px;">
+            Resume
+          </button>
+
+          <button onclick="cancelResume('${bookId}')" style="display:block;width:100%;padding:8px;border:none;border-radius:8px;background:transparent;color:var(--text);font-size:0.85rem;cursor:pointer;font-family:inherit;opacity:0.6;">
+            Cancel
+          </button>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+    }
+
+    function confirmResume(bookId) {
+      const overlay = document.getElementById('deleteDialogOverlay');
+      if (overlay) overlay.remove();
+
+      const book = books.find(b => b.id === bookId);
+      if (!book) return;
+
+      const dueDate = document.getElementById('resumeDueDate')?.value;
+      if (!dueDate) { book.status = 'paused'; return; }
+
+      book.dueDate = dueDate;
+      book.status = 'active';
+
+      // Regenerate tasks for this book
+      regenerateBookTasks(bookId);
+
+      localStorage.setItem('books', JSON.stringify(books));
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+      saveToCloud();
+
+      renderBooks();
+      renderGantt();
+      renderCalendar();
+      renderTodayTab();
+      scheduleDesktopRender();
+    }
+
+    function cancelResume(bookId) {
+      const overlay = document.getElementById('deleteDialogOverlay');
+      if (overlay) overlay.remove();
+
+      const book = books.find(b => b.id === bookId);
+      if (book) {
+        book.status = (book.status === 'active') ? 'paused' : book.status;
+      }
+    }
+
+    function permanentDelete(bookId) {
+      if (confirm('Delete this book and ALL its history permanently? This cannot be undone.')) {
+        books = books.filter(b => b.id !== bookId);
+        Object.keys(tasks).forEach(key => {
+          if (tasks[key].bookId === bookId) delete tasks[key];
+        });
+        localStorage.setItem('books', JSON.stringify(books));
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        saveToCloud();
+
+        renderBooks();
+        renderGantt();
+        renderCalendar();
+        renderTodayTab();
+        scheduleDesktopRender();
+      }
+    }
+
 
       btnsEl.innerHTML = `
         <button class="today-task-save-btn" onclick="saveTaskAmount('${key}')" title="Save">
@@ -3724,11 +3965,15 @@
     }
 
     function renderBooks() {
-      const active = books.filter(b => b.completed < b.total);
+      const active = books.filter(b => b.status === 'active' && b.completed < b.total);
       const completed = books.filter(b => b.completed >= b.total);
+      const paused = books.filter(b => b.status === 'paused');
+      const dnf = books.filter(b => b.status === 'dnf');
 
       active.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
       completed.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+      paused.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+      dnf.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
       const activeHtml = active.map(book => {
         try { return renderBookCardHTML(book, false); }
@@ -3740,12 +3985,20 @@
         catch(e) { return ''; }
       }).join('');
 
+      const archiveHtml = (bookList, sectionId) => {
+        return bookList.map(book => renderArchiveCardHTML(book, sectionId === 'pausedSection' ? 'paused' : 'dnf')).join('');
+      };
+
       // Write to mobile containers
       const list = document.getElementById('bookList');
       const completedList = document.getElementById('completedList');
       const completedSection = document.getElementById('completedSection');
+      const pausedList = document.getElementById('pausedList');
+      const pausedSection = document.getElementById('pausedSection');
+      const dnfList = document.getElementById('dnfList');
+      const dnfSection = document.getElementById('dnfSection');
       if (list) {
-        if (active.length === 0 && completed.length === 0) {
+        if (active.length === 0 && completed.length === 0 && paused.length === 0 && dnf.length === 0) {
           list.innerHTML = `
             <div class="empty-state">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -3762,15 +4015,22 @@
       }
       if (completedList) completedList.innerHTML = completedHtml;
       if (completedSection) completedSection.style.display = completed.length > 0 ? 'block' : 'none';
+      if (pausedList) pausedList.innerHTML = archiveHtml(paused, 'pausedSection');
+      if (pausedSection) pausedSection.style.display = paused.length > 0 ? 'block' : 'none';
+      if (dnfList) dnfList.innerHTML = archiveHtml(dnf, 'dnfSection');
+      if (dnfSection) dnfSection.style.display = dnf.length > 0 ? 'block' : 'none';
 
       // Write to desktop sidebar
       const sidebarList = document.getElementById('sidebarBookList');
       if (sidebarList) {
-        if (active.length === 0 && completed.length === 0) {
+        if (active.length === 0 && completed.length === 0 && paused.length === 0 && dnf.length === 0) {
           sidebarList.innerHTML = '<div style="text-align:center;padding:20px;color:var(--secondary);font-size:0.82rem;">No books yet</div>';
         } else {
-          // Sidebar shows active first, then completed
-          sidebarList.innerHTML = activeHtml + completedHtml;
+          let html = activeHtml;
+          if (completed.length > 0) html += `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);"><div style="font-size:0.7rem;text-transform:uppercase;color:var(--secondary);letter-spacing:0.5px;margin-bottom:8px;padding:0 4px;">Completed</div>${completedHtml}</div>`;
+          if (paused.length > 0) html += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"><div style="font-size:0.7rem;text-transform:uppercase;color:var(--warning);letter-spacing:0.5px;margin-bottom:8px;padding:0 4px;">Paused</div>${archiveHtml(paused, 'pausedSection')}</div>`;
+          if (dnf.length > 0) html += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);"><div style="font-size:0.7rem;text-transform:uppercase;color:var(--danger);letter-spacing:0.5px;margin-bottom:8px;padding:0 4px;">DNF</div>${archiveHtml(dnf, 'dnfSection')}</div>`;
+          sidebarList.innerHTML = html;
         }
       }
 
@@ -3946,7 +4206,7 @@
       today.setHours(0, 0, 0, 0);
 
       const activeBooks = books
-        .filter(b => b.completed < b.total)
+        .filter(b => b.status === 'active' && b.completed < b.total)
         .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
       if (activeBooks.length === 0) {
